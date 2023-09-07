@@ -1,6 +1,7 @@
 //create a func wich will just access the db from model and then 
 //it will just get all of the users from db 
 //to get all users func. which has the asynchronous req, res at the next 
+//NEXT: use this mechanism to impose pre-conditions on a route
 const getAllUsers = async (req, res, next) => {
     //find all of users from db
     let users;
