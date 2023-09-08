@@ -7,25 +7,4 @@ const router = express.Router();
 router.get("/",getAllUsers);
 
 
-// Define your routes here
-app.post('/login', (req, res) => {
-    const {email, password} = req.body;
-    userSchema.findOne({email: email})
-    .then(user => {
-        if(user) {
-            if(user.password === password) {
-                res.json("success")
-            } else {
-                res.json("the password is incorrect")
-            }
-        } else {
-            res.json("NO record exist")
-        }
-    })
-	
-})
-
-
-
-
 module.exports = router;
