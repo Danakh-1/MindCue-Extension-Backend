@@ -1,24 +1,30 @@
-import express from 'express'; 
-import bodyparser from 'body-parser';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import users from "./routes/posts.js";
-import postRoutes from './routes/posts.js';
+const express = require("express");
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const mongomindcue = require('./mongo');
+
 //initialise this app 
 const app = express();
+app.use(express.json());
+const usersRoutes = require('./routes/users-routes');
 
-app.use('/posts', postRoutes)
-//general setup
-app.use(bodyparser.json({limit: "30mb", extended: true}));
-app.use(bodyparser.urlencoded(({limit: "30mb", extended: true})));
-app.use(cors());
 
-//connect with mongodb
-const CONNECTION_URL = "mongodb+srv://dana:Danamindcue@cluster0.lcu0ugq.mongodb.net/?retryWrites=true&w=majority";
-const PORT = process.env.port || 5000;
+//import the path of routes 
+app.use('/api/users', usersRoutes);
+app.post('/users', mongomindcue.creatuser);
 
-mongoose.connect(CONNECTION_URL, {useNewUrlParser: true, useUnifiedTopology: true})
-    .then(() => app.listen(PORT, () => console.log('server running on port: ${PORT} '))) 
-    .catch((err) => console.log(err.message));
-// to not get any warnings in the console
 
+app.use((req, res, next) => {
+    const error = new HttpError('Could not find this route.', 404);
+    throw error;
+  });
+  
+app.use((error, req, res, next) => {
+    if (res.headerSent) {
+      return next(error);
+    }
+    res.status(error.code || 500)
+    res.json({message: error.message || 'An unknown error occurred!'});
+  });
+
+  const PORT = process.env.port || 5000;
