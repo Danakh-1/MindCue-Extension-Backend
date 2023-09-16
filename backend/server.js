@@ -2,12 +2,14 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const mongomindcue = require('./mongo');
+const cors = require('cors');
 
 //initialise this app 
 const app = express();
-app.use(express.json());
 const usersRoutes = require('./routes/users-routes');
 
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 //import the path of routes 
 app.use('/api/users', usersRoutes);
@@ -28,3 +30,6 @@ app.use((error, req, res, next) => {
   });
 
   const PORT = process.env.port || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}.`);
+  });

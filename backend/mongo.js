@@ -1,5 +1,5 @@
 // tells mongodb and mongo client which server we want to connect to.
-const MongoClient = require('monogodb').MongoClient;
+const MongoClient = require('mongodb').MongoClient;
 
 const url = 'mongodb+srv://dana:Danamindcue@cluster0.lcu0ugq.mongodb.net/users?retryWrites=true&w=majority'
 
