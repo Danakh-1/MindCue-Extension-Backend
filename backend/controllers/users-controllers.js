@@ -6,6 +6,7 @@ const HttpError = require('../models/http-error');
 const user = require('../models/user');
 
 const getUsers = async (req, res, next) => {
+  //this code attempts to fetch users from the database and, if there's an error during the database query, it creates a custom HttpError 
   let users;
   try {
     users = await user.find({}, 'password');
@@ -59,7 +60,7 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  const createdUser = new User({
+  const createdUser = new user({
     name,
     email,
     password: hashedPassword,
@@ -75,7 +76,21 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      {userID: createdUser.id, email: createdUser.email },
+      'supersecret', 
+      {expiresIn: '1h'}
+    ); // the token we send back can't be faked or edited by the user
+  } catch (err) {
+    const error = new HttpError(
+      'Signing up failed, please try again later.',
+      500
+    );
+    return next(error);
+  }
+  res.status(201).json({ userID: createdUser.id, email: createdUser.email, token: token});
 };
 
 const login = async (req, res, next) => {
@@ -84,7 +99,7 @@ const login = async (req, res, next) => {
   let existingUser;
 
   try {
-    existingUser = await User.findOne({ email: email });
+    existingUser = await user.findOne({ email: email });
   } catch (err) {
     const error = new HttpError(
       'Loggin in failed, please try again later.',
@@ -114,15 +129,31 @@ const login = async (req, res, next) => {
 
   if (!isValidPassword) {
     const error = new HttpError(
-      'Invalid credentials, could not log you in.',
+      ' could not log you in.',
       401
     );
     return next(error);
   }
 
+  let token;
+  try {
+    token = jwt.sign(
+      {userID: existingUser.id, email: existingUser.email },
+      'supersecret', //use the same private key as past or will go for another token
+      {expiresIn: '1h'}
+    ); // the token we send back can't be faked or edited by the user
+  } catch (err) {
+    const error = new HttpError(
+      'loging in faild, please try again later.',
+      500
+    );
+    return next(error);
+  }
+
   res.json({
-    message: 'Logged in!',
-    user: existingUser.toObject({ getters: true })
+    userID: existingUser.id,
+    email: existingUser.email,
+    token: token
   });
 };
 
