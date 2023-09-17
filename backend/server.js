@@ -8,7 +8,7 @@ const cors = require('cors');
 const app = express();
 const usersRoutes = require('./routes/users-routes');
 
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({extended: false}));//uses the "querystring" library to parse URL-encoded data
 app.use(bodyParser.json());
 
 //import the path of routes 

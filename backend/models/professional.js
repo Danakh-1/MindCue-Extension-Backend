@@ -29,15 +29,15 @@ const UserSchema = new Schema({
   validateEmailToken:{
     type: String
   },
-  EMGName: {
+  LicenseID: {
     type: String
   },
-  EMGphone: {
-    type: String
-  },
-  EMGRelationship: {
-    type: String
-  },
+ClincAdd: {
+  type: String
+},
+ClincNo: {
+  type: String
+},
   registrationDate: { 
     type: Date, default: Date.now
   },
