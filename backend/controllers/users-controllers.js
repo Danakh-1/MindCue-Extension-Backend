@@ -13,7 +13,7 @@ const getUsers = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       'Fetching users failed, please try again.',
-      500
+      500 
     );
     return next(error);
   }
