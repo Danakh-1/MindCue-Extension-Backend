@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Recording</title>
+    <link rel="stylesheet" type="text/css" href="settingstyle.css">
+    <style>
+        /* Add custom styles for the sharing popup */
+        .custom-sharing-popup {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        /* Style for the sharing popup close button */
+        .custom-sharing-popup .close-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+        }
+        video{
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <button id="startRecording">Start Recording</button>
+    <button id="stopRecording" disabled>Stop Recording</button>
+    <video id="recordedVideo" controls></video>
+
+    <script>
+
+
+
+// with the tab select
+
+
+// const startRecordingButton = document.getElementById("startRecording");
+// const recordedVideoElement = document.getElementById("recordedVideo");
+// let mediaRecorder;
+// let recordedChunks = [];
+
+// async function startRecording() {
+//     try {
+//         const constraints = {
+//             video: {
+//                 width: { ideal: 1920 },
+//                 height: { ideal: 1080 },
+//                 displaySurface: 'browser',
+//                 logicalSurface: false,
+//             },
+//             audio: false
+//         };
+
+//         const stream = await navigator.mediaDevices.getDisplayMedia(constraints);
+
+//         mediaRecorder = new MediaRecorder(stream);
+        
+//         mediaRecorder.ondataavailable = (event) => {
+//             if (event.data.size > 0) {
+//                 recordedChunks.push(event.data);
+//             }
+//         };
+
+//         mediaRecorder.onstop = () => {
+//             const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+//             recordedVideoElement.src = URL.createObjectURL(recordedBlob);
+//         };
+
+//         mediaRecorder.start();
+//         startRecordingButton.disabled = true;
+//     } catch (error) {
+//         console.error("Error starting recording:", error);
+//     }
+// }
+
+// startRecordingButton.addEventListener("click", startRecording);
+
+
+
+
+//  without the tab select
+var btnStopRecording = document.getElementById("stopRecording");
+var btnStartRecording = document.getElementById("startRecording");
+var video = document.getElementById("recordedVideo");
+var recorder;
+
+btnStartRecording.onclick = function () {
+    btnStartRecording.disabled = true;
+    btnStopRecording.disabled = false;
+
+    recorder = new RecordRTC_Extension();
+    recorder.startRecording({
+        enableScreen: true,
+    });
+};
+
+btnStopRecording.onclick = function () {
+    btnStartRecording.disabled = false;
+    btnStopRecording.disabled = true;
+
+    recorder.stopRecording(function (blob) {
+        var url = URL.createObjectURL(blob);
+        video.src = url;
+    });
+};
+
+    </script>
+</body>
+</html>

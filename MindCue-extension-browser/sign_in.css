@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@200&family=Poppins:wght@500;600&display=swap');
+  html{
+    overflow: hidden
+  }      
+#sign_in_form {
+  align-items: center;
+  color:#638184;
+
+
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 3px none;
+  box-sizing: border-box;
+  background-color: #F3E8E2;
+}
+
+input[type=email], select {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  border: 3px none;
+  box-sizing: border-box;
+  background-color: #F3E8E2;
+}
+
+input[type=password], select {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  border: 3px none;
+  box-sizing: border-box;
+  background-color: #F3E8E2;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+}
+          
+input[type=submit] {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+body {
+  border-radius: 10px;
+  background-color: #F5F5F5;
+  font-family: 'Poppins', sans-serif;
+  align-items: center;
+  text-align: center;
+  width: 284px;
+  height: 600px;
+  margin: auto;
+  background: url('images/Rectangle.png'), url('images/Ellipse2.png'),url("images/RectangleTop.png");
+  background-repeat:no-repeat , no-repeat ,no-repeat;
+  background-position: right bottom, center center , 122% -179% ;
+  background-size: 202px 200px, 100%, 499px 515px ;
+  box-sizing: border-box;
+  overflow: hidden
+}
+#main {
+  margin-top: 50%;
+  margin-bottom: 55%;
+  overflow: hidden
+}
+#Ellipse7{
+position: absolute;
+top: 4.5%;
+left: 55%;
+}
+#Ellipse5{
+position: absolute;
+top: 4.5%;
+left: 65%;
+}
+#Ellipse8{
+  position: absolute;
+  top: 92.5%;
+  left: 45%;
+}
+#Ellipse6{
+  position: absolute;
+  top: 91.5%;
+  left: 20%;
+}
+#form_div {
+  align-items: center;
+}
+#forgotPass{
+color: #DC989A;
+font-family: 'Poppins', sans-serif;
+font-size: 12px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+text-decoration: none;
+}
+h1 {
+  color: #DC989A;
+  font-family: 'Poppins', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 44.5px;
+}
+
+hr {
+  align-items: center;
+  width: 200px;
+  height: 0px;
+  border: 1px solid #638184;
+}
+
+#sign_in_email, #sign_in_password {
+  font-family: 'Lexend', sans-serif;
+  font-style: bold;
+  font-weight: 600;
+  font-size: 14px;
+  color: #638184;
+}
+
+#sign_in_button {
+  font-family: 'Lexend', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 2px solid #638184;
+  padding: 10px;
+  padding-left: 75px;
+  padding-right: 75px;
+  color: #638184;
+  background-color: #F3E8E2;
+  text-decoration: none;
+}
+
+#sign_in_button:hover {
+  background-color: #DC989A;
+  color: white;
+  border: 2px #DC989A solid;
+  text-decoration: none;
+}
+        
+#sign_in_button:active, #sign_in_button:focus {
+   text-decoration: none;
+   background-color: #DC989A;
+   color: white;
+   border: 2px #DC989A solid;
+}

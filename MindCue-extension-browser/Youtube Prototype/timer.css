@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@200&family=Poppins:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400&family=Poppins:ital,wght@0,300;1,100&family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+html{
+    overflow: hidden
+}  
+
+body {
+    border-radius: 10px;
+    background-color: #F9F9F9;
+    align-items: center;
+    width: 284px;
+    height: 600px;
+    text-align: center;
+    margin:auto;
+    overflow: hidden
+  }
+
+#mainform {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    padding: 10px;
+  }
+
+#logout {
+    color: #DC989A;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration: none;
+  
+  }
+
+ .cover img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 1.5%;
+}
+
+#Header h2{
+color: #DC989A;
+font-family: 'Poppins', sans-serif;
+font-size: 20px;
+font-style: normal;
+font-weight: 200;
+line-height: normal;
+color: #80B3B7;
+}
+
+
+#Header p{
+    display: inline;
+    color: #DC989A;
+
+}
+
+#box{
+width: 228px;
+height: 180px;
+border-radius: 10px;
+border: 3px solid #FAE3E4;
+background: rgba(229, 239, 240, 0.00);
+}
+
+h2{
+    color: #DC989A;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 200;
+    line-height: normal;
+    color: #638184;
+    }
+
+#backArrow{
+        top: 2%;
+        position: fixed;
+        left: 4%;
+      }
+#ChangeTab {
+          width: 228px;
+          border: 2px solid #DC989A;
+          border-radius: 10px;
+          padding: 10px;
+          background-color: #F9F9F9;
+      }
+#ChangeTab a{
+        align-items: center;
+          font-family: 'Lexend', sans-serif;
+          font-style: normal;
+          font-size: 16px;
+          width: 228px;
+          border-radius: 10px;
+          padding: 10px;
+          text-decoration: none;
+          color: #DC989A;
+      }
+#ChangeTab a:hover{
+    color: #F9F9F9;
+      }
+
+#ChangeTab:hover {
+        background-color: #DC989A;
+        border: 2px #F9F9F9 solid;
+        text-decoration: none;
+      }
+ 
+#ChangeTab:active {
+        background-color: #DC989A;
+        color: white;
+        border: 2px #F9F9F9 solid;
+        text-decoration: none;
+      }
+
+.fotter{
+       border-radius: 0px 0px 10px 10px;
+ }
+
+#modifyTimer{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 228px;
+    box-sizing: border-box;
+     margin: auto;
+    margin-top: 5px;
+font-weight: 200;
+
+
+}
+
+.ModifyButtons{
+border-radius: 10px;
+border: 2px solid #DC989A;
+width: 110px;
+padding: 12px;
+background: linear-gradient(7deg, rgba(243, 232, 226, 0.00) 0%, rgba(250, 227, 228, 0.00) 100%);
+color: #DC989A;
+font-family: 'Poppins', sans-serif;
+font-size: 14px;
+font-style: normal;
+line-height: normal;
+margin-bottom: 33.5%;
+}
+.ModifyButtons:hover {
+    background-color: #DC989A;
+    color: white;
+    border: 2px #F9F9F9 solid;
+    text-decoration: none;
+  }
+  
+.ModifyButtons:active {
+    background-color: #DC989A;
+    color: white;
+    border: 2px #F9F9F9 solid;
+    text-decoration: none;
+  }
+
+  .base-timer {
+    position: relative;
+    width:104px;
+  height:104px;
+  margin: auto;
+  }
+  
+  .base-timer__svg {
+    transform: scaleX(-1);
+  }
+  
+  .base-timer__circle {
+    fill: none;
+    stroke: none;
+  }
+  
+  .base-timer__path-elapsed {
+    stroke-width: 7px;
+    stroke: #C2DCDE;
+  }
+  
+  .base-timer__path-remaining {
+    stroke-width: 7px;
+    stroke-linecap: round;
+    transform: rotate(90deg);
+    transform-origin: center;
+    transition: 1s linear all;
+    fill-rule: nonzero;
+    stroke: currentColor;
+  }
+  
+  .base-timer__path-remaining.green {
+    color: #80B3B7;
+  }
+  
+  .base-timer__path-remaining.orange {
+      color: #80B3B7;
+  
+  }
+  
+  .base-timer__path-remaining.red {
+      color: #80B3B7;
+  
+  }
+  
+  .base-timer__label {
+    position: absolute;
+    width:104px;
+    height:104px;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    color: #DC989A;
+    font-style: normal;
+  line-height: normal;
+  font-family: 'Bebas Neue', sans-serif;
+  margin-top: 4%;
+  }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>MindCue Extension</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="tabs.css">
+</head>
+<body>
+
+<div class="cover">
+  <img src="images/Screenshot 2023-04-22 225844.png" alt="Header">
+</div>
+
+
+<div id="backArrow" >
+  <a href="./settings.html">    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" viewBox="0 0 20 16" fill="none">
+      <path d="M0.292892 7.29289C-0.0976315 7.68342 -0.0976315 8.31658 0.292892 8.70711L6.65685 15.0711C7.04738 15.4616 7.68054 15.4616 8.07107 15.0711C8.46159 14.6805 8.46159 14.0474 8.07107 13.6569L2.41421 8L8.07107 2.34315C8.46159 1.95262 8.46159 1.31946 8.07107 0.928932C7.68054 0.538408 7.04738 0.538408 6.65685 0.928932L0.292892 7.29289ZM20 7L1 7V9L20 9V7Z" fill="#A38574"/>
+      </svg></a>
+</div>
+<div id="maindiv">
+      <div class="tab">
+        <!-- <button class="tablinks" onclick="openTab(event, 'Tab1')">Window</button>
+        <button class="tablinks" onclick="openTab(event, 'Tab2')">Screen</button> -->
+        <button id="tab1Button" class="tablinks active">Window</button>
+        <button id="tab2Button" class="tablinks">Screen</button>
+      </div>
+<div id="Tab1" class="tabcontent">
+<p>Select a Window to monitor:</p>
+    <input type="checkbox" id="click">
+    <label class= "selectedwindow" for="click">
+    <img  id="tabsImages" src="images/Screenshot 2023-03-22 000348 1.png" alt="OpenBCI"></a>
+    <p>OpenBCI - store...</p>
+    </label>
+    
+    <input type="checkbox" id="click1">
+    <label class= "selectedwindow" for="click1">
+    <img id="tabsImages"  src="images/Screenshot 2023-03-22 000430 1.png" alt="Youtube">
+    <p>Youtube - I won...</p>
+    </label>
+</div>
+
+<div id="Tab2" class="tabcontent">
+<p>Select a Screen to monitor:</p>
+    <input type="checkbox" id="click2">
+    <label class= "selectedwindow" for="click2">
+    <img id="tabsImages" src="images/Screenshot 2023-03-22 000348 1.png" alt="OpenBCI">
+         <p>OpenBCI - store...</p>
+    </label>
+    <input type="checkbox" id="click3">
+    <label class= "selectedwindow" for="click3">
+    <img  id="tabsImages" src="images/Screenshot 2023-03-22 000430 1.png" alt="Youtube">
+         <p>Youtube - I won...</p>
+    </label>
+
+</div> 
+
+<div class="fotter">
+  <button id="selectTab" type="submit" ><a href="./SessionTimer.html"> Select Tab </a></button>
+
+ <br>
+<a href="./index.html" id="logout">Logout</a>
+</div>
+</div>
+<script src="tabsselect.js"></script>
+</body>
+</html>
+
+
+
+
