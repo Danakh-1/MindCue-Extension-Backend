@@ -7,14 +7,23 @@ const cors = require('cors');
 //initialise this app 
 const app = express();
 const usersRoutes = require('./routes/users-routes');
-const TriggrsRoutes = require('./routes/TriggrsRoutes');
+const settingsRoutes = require('./routes/userSelectionRoutes');
+
 
 app.use(bodyParser.urlencoded({extended: true}));//uses the "querystring" library to parse URL-encoded data
 app.use(bodyParser.json());
+app.use(cors()); // Enable CORS for your extension frontend
 
-//import the path of routes 
+//routes 
 app.use('/api/users', usersRoutes);
 app.post('/users', mongomindcue.creatuser);
+app.get('/users', mongomindcue.getusers);
+// Import and use the user selection routes
+const userSelectionRoutes = require('./routes/userSelectionRoutes');
+app.use('/api/user-selection', userSelectionRoutes);
+
+const timerRoutes = require('./routes/timerRoutes');
+app.use('/api/timer', timerRoutes);
 
 
 app.use((req, res, next) => {

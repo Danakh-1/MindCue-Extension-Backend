@@ -77,3 +77,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+//listens for a click event on the "Set" button and, when clicked, 
+//sends a POST request to the specified URL 
+const setButton = document.getElementById('set-timer-btn');
+setButton.addEventListener('click', async () => {
+  const hours = parseInt(document.getElementById('hours').value);
+  const minutes = parseInt(document.getElementById('minutes').value);
+  const seconds = parseInt(document.getElementById('seconds').value);
+
+  const response = await fetch('http://localhost:5000/api/timer/save', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ hours, minutes, seconds }),
+  });
+
+  if (response.ok) {
+    alert('Timer values saved successfully!');
+  } else {
+    alert('Error saving timer values.');
+  }
+});

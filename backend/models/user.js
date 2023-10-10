@@ -17,32 +17,12 @@ const UserSchema = new Schema({
     required: true,
     minlength: 6,
   },
-  usertype: {
-    type: String,
-    required: true,
-    enum: ['patient', 'guest', 'doctor'],
-  },
-  validated: {
-    type: Boolean,
-    required: true
-  },
-  validateEmailToken:{
-    type: String
-  },
-  EMGName: {
-    type: String
-  },
-  EMGphone: {
-    type: String
-  },
-  EMGRelationship: {
-    type: String
-  },
-  registrationDate: { 
-    type: Date, default: Date.now
-  },
-  resetpassword: {
-    type: String
-  }
+  validated: { type: Boolean, required: true},
+  validateEmailToken:{type: String},
+  EMGName: {type: String},
+  EMGphone: {type: String},
+  EMGRelationship: {type: String},
+  registrationDate: { type: Date, default: Date.now},
+  resetpassword: {type: String}
 });
 module.exports = user = mongoose.model("users", UserSchema);

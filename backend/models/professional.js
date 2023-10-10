@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 // Create Schema
-const UserSchema = new Schema({
+const ProfessionalSchema = new Schema({
   name: {
     type: String,
     required: true
@@ -36,7 +36,7 @@ ClincAdd: {
   type: String
 },
 ClincNo: {
-  type: String
+  type: Number
 },
   registrationDate: { 
     type: Date, default: Date.now
@@ -45,4 +45,4 @@ ClincNo: {
     type: String
   }
 });
-module.exports = user = mongoose.model("users", UserSchema);
+module.exports = user = mongoose.model("Professional", ProfessionalSchema);
