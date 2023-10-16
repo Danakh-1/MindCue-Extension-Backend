@@ -1,6 +1,36 @@
 // tells mongodb and mongo client which server we want to connect to.
 const MongoClient = require('mongodb').MongoClient;
 
+const client = new MongoClient("mongodb://localhost:27017/MindCueDB");
+
+client.connect(function(err, db) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+
+  // The database is now connected
+  console.log("Connected to the database!");
+
+  // You can now perform database operations
+  db.collection("users").find().toArray(function(err, users) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    // The users array now contains all of the users in the collection
+    console.log(users);
+
+    // Close the database connection
+    db.close();
+  });
+});
+
+
+
+
+
 const url = 'mongodb+srv://dana:Danamindcue@cluster0.lcu0ugq.mongodb.net/users?retryWrites=true&w=majority'
 
 const creatuser = async(req, res, next) => {
@@ -14,7 +44,7 @@ const creatuser = async(req, res, next) => {
     try {
         await client.connect();
         const db = client.db();
-        const result = db.collection('users').insertONE(newuser);
+        const result = db.collection('users').insertOne(newuser);
     } catch (err) {
         return res.json({message: 'could not store data'});
     };
@@ -38,6 +68,7 @@ const getusers = async (req, res, next) => {
     client.close();
     res.json(users);
 }
+
 
 
 
