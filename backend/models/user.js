@@ -24,5 +24,6 @@ const UserSchema = new Schema({
 });
 
 
+
 //name of the collectiom and export the name of the schema
 module.exports = mongoose.model("users", UserSchema);
