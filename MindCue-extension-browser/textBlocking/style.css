@@ -15,7 +15,7 @@ body {
 }
 .section{
   border: none;
-  padding: 2%;
+  padding: 1.5%;
 }
 /* the header pic */
   .cover img {
@@ -57,7 +57,18 @@ body {
     margin-top: 6px;
     margin-left: 6px;
   }
-  #add-btn{
+  #add-btn-key{
+    font-family: 'Lexend', sans-serif;
+    font-style: normal;
+    font-size: 14px;
+    border-radius: 10px;
+    border: none;
+    color: #DC989A;
+    text-decoration: none;
+    margin-left: 200px;
+    margin-top: 2px;
+  }
+  #add-btn-trig{
     font-family: 'Lexend', sans-serif;
     font-style: normal;
     font-size: 14px;
@@ -84,7 +95,7 @@ button:focus {
 #add-spoiler-section{
   background-color: #F9F9F9;
   border-radius: 0px 0px 15px 15px;
-  margin-bottom: 5%;
+  margin-bottom: 2%;
 }
 #add-spoiler-section p{
 color: #638184;
@@ -107,11 +118,10 @@ line-height: normal;
 border-radius: 15px 15px 0px 0px;
 background: #d2e5e773;
 margin: 0;
-padding: 5px;
+padding: 2px;
 }
 #spoiler-strings{
   min-height: 1.5vh;
-  margin-bottom: 5px;
   margin-right: 5%;
   margin-left: 5%;
 }

@@ -120,9 +120,9 @@ function addTermToListEnter () {
     addTermToList ();
   }
   if (document.querySelector('#spoiler-textfield').value.length == 0) {
-    document.querySelector('#add-btn').disabled = true;
+    document.querySelector('#add-btn-key').disabled = true;
   } else {
-    document.querySelector('#add-btn').disabled = false;
+    document.querySelector('#add-btn-key').disabled = false;
   }
 }
 
@@ -136,8 +136,8 @@ function main() {
 document.addEventListener('DOMContentLoaded', function () {
   main();
   document.querySelector('#spoiler-textfield').focus ();
-  document.querySelector('#add-btn').addEventListener('click', addTermToList);
-  document.querySelector('#add-btn').disabled = true;
+  document.querySelector('#add-btn-key').addEventListener('click', addTermToList);
+  document.querySelector('#add-btn-key').disabled = true;
   document.querySelector('#spoiler-textfield').addEventListener("keyup", addTermToListEnter)
 });
 
@@ -153,9 +153,6 @@ const wordList = [
   'War',
   'Drugs',
   'Self-Harm',
-  'Child-Abuse',
-  'War',
-  'Drugs',
     // Add more words to this list
 ];
 
