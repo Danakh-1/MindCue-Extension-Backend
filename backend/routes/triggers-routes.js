@@ -1,12 +1,11 @@
 const express = require('express');
-const { check } = require('express-validator');
-
-const usersController = require('../controllers/users-controllers');
+const { getTriggers, addTrigger } = require('../controllers/triggers-controllers');
 
 const router = express.Router();
 
-router.get('/', usersController.getTriggers);
- 
-router.post('/addTrigger', usersController.addTrigger);
+// Define API routes
+router.get('/triggers', getTriggers);
+router.post('/add-trigger', addTrigger);
+//router.post('/user-terms', addUserTerm);
 
 module.exports = router;

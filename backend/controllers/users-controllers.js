@@ -27,7 +27,7 @@ const signup = async (req, res, next) => {
     );
   }
 
-  const { name, email, password } = req.body;
+  const { name, email, password, validated, licenceID } = req.body;
 
   let existingUser;
   try {
@@ -63,6 +63,8 @@ const signup = async (req, res, next) => {
     name,
     email,
     password: hashedPassword,
+    validated,
+    licenceID
   });
 
   try {
