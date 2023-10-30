@@ -1,11 +1,28 @@
 const express = require('express');
-const { getTriggers, addTrigger } = require('../controllers/triggers-controllers');
+const { check } = require('express-validator');
+
+const triggersController = require('../controllers/triggers-controllers');
 
 const router = express.Router();
 
-// Define API routes
-router.get('/triggers', getTriggers);
-router.post('/add-trigger', addTrigger);
-//router.post('/user-terms', addUserTerm);
+router.get('/', triggersController.getTriggers);
+router.get('/:id', triggersController.getTriggerById);
+ 
+router.post('/addTrigger', [
+    check('name')
+      .not()
+      .isEmpty(),
+    check('userId')
+      .not()
+      .isEmpty()
+  ],triggersController.addTrigger);
+
+router.put('/updateTrigger/:id', [
+    check('name')
+      .not()
+      .isEmpty()
+  ],triggersController.updateTrigger);
+
+router.delete('/:id', triggersController.deleteTrigger);
 
 module.exports = router;
