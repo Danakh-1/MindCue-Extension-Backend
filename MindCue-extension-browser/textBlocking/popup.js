@@ -1,198 +1,263 @@
-var storage = chrome.storage.sync;
+var storage;
 var terms = [];
+let selectedTriggerValues = [];
+const checkboxContainer = document.getElementById("checkboxContainer");
 
-function addTermToList () {
-  // Save it using the Chrome extension storage API.
-  var newTerm = document.getElementById('spoiler-textfield').value;
-  document.getElementById('spoiler-textfield').value = "";
+//add new trigger in db and after inserting fetching all triggers from db and display it page
+async function addTermToList() {
+  var newTerm = document.getElementById("spoiler-textfield").value;
+  document.getElementById("spoiler-textfield").value = "";
 
   if (newTerm == "") {
     return;
   }
-  // document.querySelector('#add-btn').disabled = true;
+  //add new tirgger in db
+  await addTrigger(newTerm);
 
-  terms.push(newTerm);
-  storage.set({'spoilerterms': terms}, function() {
-    if (chrome.runtime.error) {
-      console.log("Runtime error.");
-    }
-    generateTermsListHTML (terms);
+  //fetching all trigger from db
+  let triggersData = await getTriggers();
+
+  //rendring all triggers in page
+  generateTermsListHTML(triggersData?.triggers);
+}
+
+
+//function that takes new Trigger as argument and add that in db
+async function addTrigger(newTrigger) {
+  console.log("newTrigger ", newTrigger);
+  let res = await fetch("http://localhost:5000/api/triggers/addTrigger", {
+    method: "POST",
+    body: JSON.stringify({
+      name: newTrigger,
+      userId: "653c17f49950865a46a2a8f7",
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
+    },
   });
+  res = await res.json();
+  console.log("newTrigger res ", res?.trigger);
 }
 
-function removeTermFromList (deleteBtn)
-{
-  terms.splice (deleteBtn.id, 1);
-  storage.set({'spoilerterms': terms}, function() {
-    generateTermsListHTML (terms);
-  });
+//get all Triggers from db
+async function getTriggers() {
+  let data = await fetch("http://localhost:5000/api/triggers");
+  data = await data.json();
+  return data;
 }
 
-function getSpoilerTerms() {
-  storage.get(['spoilerterms'], function(result) {
-      // Nothing to change.
-      if (!result.spoilerterms)
-        return;
 
-      terms = result.spoilerterms;
-      generateTermsListHTML (terms);
-    });
+async function getSpoilerTerms() {
+  //fetching all triggers from db
+  let triggersData = await getTriggers();
+
+  //rendring all triggers in page
+  generateTermsListHTML(triggersData?.triggers);
+
+  //generating triggerlist checkboxes using word
+  generateCheckboxes(triggersData?.triggers);
 }
 
-function generateTermsListHTML(terms) {
+function generateTermsListHTML(triggersData) {
+  // Start popuplating the list
+
   // Refresh the list if it exists
   var oldList = document.getElementById("spoiler-list");
   if (oldList) {
     oldList.remove();
   }
 
-  if (!terms || terms.length == 0) {
-    // If it's empty, just add a placeholder tip for the user
-    showEmptyListBlock (true);
-  } else {
+  var newList = document.createElement("ul");
+  newList.id = "spoiler-list";
+  newList.className = "spoiler-list";
+  // Find our container for our terms list
+  document.getElementById("spoiler-list-container").appendChild(newList);
 
-    // Start popuplating the list
-    var newList = document.createElement('ul');
-    newList.id = "spoiler-list";
-    newList.className = "spoiler-list";
-    // Find our container for our terms list
-    document.getElementById("spoiler-list-container").appendChild (newList);
-
-    // Popuplate our list of terms in reverse order so people see their word added
-    for(var i=terms.length-1; i >= 0; i--) {
-      newList.appendChild(generateListItem (i));
+  // Popuplate our list of terms in reverse order so people see their word added
+  for (let i = 0; i < triggersData.length; i++) {
+    // console.log('wordList?.includes(triggersData[i]?.name) ',wordList?.includes(triggersData[i]?.name))
+    if(!wordList?.includes(triggersData[i]?.name)){
+      newList.appendChild(generateListItem(triggersData[i]));
     }
   }
+
 }
 
-// CONDITIONAL HTML (List, Empty Block, etc.)
 
 function showEmptyListBlock(show) {
   var emptyTip = document.getElementById("empty-tip");
   if (show) {
-    pass
+    console.log("show ", show);
   } else {
     emptyTip.style.display = "block";
   }
 }
 
-function generateListItem (index) {
-    // Create our list item
-    var listItem = document.createElement('li');
-    listItem.className = "spoiler-item";
+function generateListItem(newTrigger) {
+  console.log('newTrigger ',wordList)
+  // Create our list item
+  var listItem = document.createElement("li");
+  listItem.className = "spoiler-item";
 
-    // Create our delete button
-    var deleteBtn = createDeleteButton (index);
+  // Create our delete button
+  var deleteBtn = createDeleteButton(newTrigger);
 
-    // Insert the term into the list
-    var newTerm = document.createElement('span');
-    newTerm.className = " search-term";
-    newTerm.innerHTML = terms[index];
-    listItem.appendChild(newTerm);
-    listItem.appendChild(deleteBtn);
+  // Insert the term into the list
+  var newTerm = document.createElement("span");
+  newTerm.className = "search-term";
+  newTerm.innerHTML = newTrigger?.name;
+  listItem.appendChild(newTerm);
+  listItem.appendChild(deleteBtn);
 
-    return listItem;
+  return listItem;
 }
 
-function createDeleteButton (index) {
+// function createDeleteButton(index) {
+function createDeleteButton(newTrigger) {
   // Create the button itself
-  var deleteBtn = document.createElement('a');
+  var deleteBtn = document.createElement("a");
   deleteBtn.title = "Delete";
   deleteBtn.className = "delete-btn";
-  deleteBtn.id = index;
+  // deleteBtn.id = index;
+  deleteBtn.id = newTrigger?._id;
 
   // Create our delete button icon
-  var deleteIcon = document.createElement('i');
+  var deleteIcon = document.createElement("i");
   deleteIcon.className = "material-icons md-inactive md-24";
   deleteIcon.innerHTML = "highlight_off";
   deleteBtn.appendChild(deleteIcon);
 
-  // Add our removal event
-  deleteBtn.addEventListener('click', function() {
-    removeTermFromList(deleteBtn);
+  // Add click event and on which function delete a specific trigger
+  deleteBtn.addEventListener("click", async function () {
+    let res_data = await fetch(
+      `http://localhost:5000/api/triggers/${newTrigger?._id}`,
+      { method: "DELETE" }
+    );
+    res_data = await res_data.json();
+    console.log("deleted hogaya hai", res_data);
+
+    let triggersData = await getTriggers();
+    console.log("get TriggersData at delete function ", triggersData);
+    generateTermsListHTML(triggersData?.triggers);
+
   });
 
   return deleteBtn;
 }
 
-function addTermToListEnter () {
+async function addTermToListEnter(event) {
+  console.log("event.keyCode ", event.keyCode);
   if (event.keyCode == 13) {
-    addTermToList ();
+    await addTermToList();
   }
-  if (document.querySelector('#spoiler-textfield').value.length == 0) {
-    document.querySelector('#add-btn-key').disabled = true;
+  if (document.querySelector("#spoiler-textfield").value.length == 0) {
+    document.querySelector("#add-btn-key").disabled = true;
   } else {
-    document.querySelector('#add-btn-key').disabled = false;
+    document.querySelector("#add-btn-key").disabled = false;
   }
 }
-
 
 // MAIN
 
-function main() {
-  getSpoilerTerms ();
+async function main() {
+  console.log("main");
+  await getSpoilerTerms();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  main();
-  document.querySelector('#spoiler-textfield').focus ();
-  document.querySelector('#add-btn-key').addEventListener('click', addTermToList);
-  document.querySelector('#add-btn-key').disabled = true;
-  document.querySelector('#spoiler-textfield').addEventListener("keyup", addTermToListEnter)
+document.addEventListener("DOMContentLoaded", async function () {
+  await main();
+  document.querySelector("#spoiler-textfield").focus();
+  document
+    .querySelector("#add-btn-key")
+    .addEventListener("click", addTermToList);
+  document
+    .querySelector("#spoiler-textfield")
+    .addEventListener("keyup", addTermToListEnter);
 });
 
-
-
-
 // List of triggers and search
-const checkboxContainer = document.getElementById('checkboxContainer');
-const searchInput = document.getElementById('searchInput');
+const searchInput = document.getElementById("searchInput");
 
 const wordList = [
-  'Child Abuse',
-  'War',
-  'Drugs',
-  'Self-Harm',
-    // Add more words to this list
+  "Child Abuse",
+  "War",
+  "Drugs",
+  "Self-Harm",
+  // Add more words to this list
 ];
 
-generateCheckboxes();
 
+//generating tigger lsit secion checkboxes with labels from hardcoded values of wordList array 
 function generateCheckboxes() {
-    for (let i = 0; i < wordList.length; i++) {
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `checkbox${i}`;
+  for (let i = 0; i < wordList.length; i++) {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = `checkbox${i}`;
+    checkbox.addEventListener("change", async function (e) {
+      if (e.currentTarget.checked) {
+        console.log("e.currentTarget.checked ", true, wordList[i]);
+        selectedTriggerValues.push(wordList[i]); 
+      } else {
+        console.log(
+          "e.currentTarget.checked is not checked",
+          e.currentTarget.checked
+        );
 
-        const label = document.createElement('label');
-        label.textContent = wordList[i];
-        label.htmlFor = `checkbox${i}`;
+         var index = selectedTriggerValues.indexOf(wordList[i]);
+         if (index !== -1) {
+          console.log('iindex ',index)
+             selectedTriggerValues.splice(index, 1);
+         }
+      }
+    });
 
-        const checkboxItem = document.createElement('div');
-        checkboxItem.className = 'checkbox-item';
-        checkboxItem.appendChild(checkbox);
-        checkboxItem.appendChild(label);
+    const label = document.createElement("label");
+    label.textContent = wordList[i];
+    label.htmlFor = `checkbox${i}`;
 
-        checkboxContainer.appendChild(checkboxItem);
-    }
+    const checkboxItem = document.createElement("div");
+    checkboxItem.className = "checkbox-item";
+    checkboxItem.appendChild(checkbox);
+    checkboxItem.appendChild(label);
+
+    checkboxContainer.appendChild(checkboxItem);
+  }
 }
 
 // Add event listener for search input changes
-searchInput.addEventListener('input', filterCheckboxes);
+searchInput.addEventListener("input", filterCheckboxes);
 
 function filterCheckboxes() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const checkboxes = checkboxContainer.getElementsByClassName('checkbox-item');
+  const searchTerm = searchInput.value.toLowerCase();
+  const checkboxes = checkboxContainer.getElementsByClassName("checkbox-item");
 
-    for (let i = 0; i < checkboxes.length; i++) {
-        const label = checkboxes[i].getElementsByTagName('label')[0];
-        const labelValue = label.textContent.toLowerCase();
-
-        if (labelValue.includes(searchTerm)) {
-            checkboxes[i].style.display = 'flex';
-        } else {
-            checkboxes[i].style.display = 'none';
-        }
+  for (let i = 0; i < checkboxes.length; i++) {
+    const label = checkboxes[i].getElementsByTagName("label")[0];
+    const labelValue = label.textContent.toLowerCase();
+    console.log("labelValue ", labelValue);
+    if (labelValue.includes(searchTerm)) {
+      checkboxes[i].style.display = "flex";
+    } else {
+      checkboxes[i].style.display = "none";
     }
+  }
 }
 
+const saveTriggerBtn = document.getElementById("add-btn-trig");
+
+// Add click event and on which function add selected triggers from trigger list
+saveTriggerBtn.addEventListener("click", async function (e) {
+  console.log(
+    "save btn worked",
+    selectedTriggerValues,
+    selectedTriggerValues[0]
+  );
+  
+  if(selectedTriggerValues.length > 0) {
+    for(let i = 0; i < selectedTriggerValues.length; i++) {
+      await addTrigger(selectedTriggerValues[i]);
+    }
+    let triggersData = await getTriggers();
+    generateTermsListHTML(triggersData?.triggers);
+  }
+});
