@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
-const Trigger = require('../models/Trigger-user-choice.js');
+const Trigger = require('../models/triggers.js');
 
 const getTriggers = async (req, res, next) => {
   let triggers;

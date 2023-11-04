@@ -18,4 +18,4 @@ const triggerSchema = new Schema({
 },{timestamps:true});
 //name of the collectiom and export the name of the schema
 // module.exports = mongoose.model("trigger", UserSchema);
-module.exports = mongoose.model("trigger", triggerSchema);
+module.exports = mongoose.model("triggers", triggerSchema);

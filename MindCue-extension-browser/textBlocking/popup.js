@@ -13,10 +13,8 @@ async function addTermToList() {
   }
   //add new tirgger in db
   await addTrigger(newTerm);
-
   //fetching all trigger from db
   let triggersData = await getTriggers();
-
   //rendring all triggers in page
   generateTermsListHTML(triggersData?.triggers);
 }
@@ -50,10 +48,8 @@ async function getTriggers() {
 async function getSpoilerTerms() {
   //fetching all triggers from db
   let triggersData = await getTriggers();
-
   //rendring all triggers in page
   generateTermsListHTML(triggersData?.triggers);
-
   //generating triggerlist checkboxes using word
   generateCheckboxes(triggersData?.triggers);
 }
@@ -179,10 +175,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 const searchInput = document.getElementById("searchInput");
 
 const wordList = [
-  "Child Abuse",
-  "War",
-  "Drugs",
-  "Self-Harm",
+  "Wounds",
+  "Soliders",
+  "Cockroaches",
+  "Accidents",
   // Add more words to this list
 ];
 

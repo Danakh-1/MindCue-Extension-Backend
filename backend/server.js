@@ -13,7 +13,8 @@ const usersRoutes = require('./routes/users-routes.js');
 const HttpError = require('./models/http-error');
 
 const app = express();
-
+ 
+/////////////////////////////parse incoming json data
 app.use(bodyParser.json());
 app.use(cors())
 
