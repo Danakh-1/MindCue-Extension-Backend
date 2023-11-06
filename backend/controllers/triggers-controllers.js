@@ -29,6 +29,7 @@ const getTriggerById = async (req, res, next) => {
       return next(error);
     }
 
+    
     const trigger = await Trigger.findById({ _id:id}).populate('user');
     res.status(200).json({trigger})
 
