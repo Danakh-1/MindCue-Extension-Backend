@@ -8,7 +8,7 @@ class Login {
 	validateonSubmit() {
 		let self = this;
 
-		this.form.addEventListener("submit", (e) => {
+		this.form.addEventListener("sign_in_button", (e) => {
 			e.preventDefault();
 			var error = 0;
 			self.fields.forEach((field) => {
@@ -18,9 +18,26 @@ class Login {
 				}
 			});
 			if (error == 0) {
-				//do login api here
-				localStorage.setItem("auth", 1);
-				this.form.submit();
+				var date = {
+					username: document.querySelector('sign_in_email').value,
+					password: document.querySelector('sign_in_password').value,
+				};
+				fetch('http://localhost:5000/api/users/login',{
+					method: 'POST',
+					body: JSON.stringify(data),
+					header: {
+						"Content-type": "application/json; charset=UTF-8",
+					},
+				})
+				.then((Response) => Response.json())
+				.then((date) => {
+					console.log(date);
+				})
+				.catch((date) => {
+					console.error("Error:", data.message);
+				});
+				// localStorage.setItem("auth", 1);
+				// this.form.submit();
 			}
 		});
 	}
@@ -72,6 +89,6 @@ class Login {
 
 const form = document.querySelector(".loginForm");
 if (form) {
-	const fields = ["username", "password"];
+	const fields = ["email", "password"];
 	const validator = new Login(form, fields);
 }
