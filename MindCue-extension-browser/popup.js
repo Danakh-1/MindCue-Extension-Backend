@@ -1,94 +1,54 @@
-class Login {
-	constructor(form, fields) {
-		this.form = form;
-		this.fields = fields;
-		this.validateonSubmit();
-	}
 
-	validateonSubmit() {
-		let self = this;
 
-		this.form.addEventListener("sign_in_button", (e) => {
-			e.preventDefault();
-			var error = 0;
-			self.fields.forEach((field) => {
-				const input = document.querySelector(`#${field}`);
-				if (self.validateFields(input) == false) {
-					error++;
-				}
-			});
-			if (error == 0) {
-				var date = {
-					username: document.querySelector('sign_in_email').value,
-					password: document.querySelector('sign_in_password').value,
-				};
-				fetch('http://localhost:5000/api/users/login',{
-					method: 'POST',
-					body: JSON.stringify(data),
-					header: {
-						"Content-type": "application/json; charset=UTF-8",
-					},
-				})
-				.then((Response) => Response.json())
-				.then((date) => {
-					console.log(date);
-				})
-				.catch((date) => {
-					console.error("Error:", data.message);
-				});
-				// localStorage.setItem("auth", 1);
-				// this.form.submit();
-			}
-		});
-	}
+// // sending message to background!
+// let v = document.getElementById("sign_in_button")
+// function sendMessage() {
+//   // Send an object as the message, not a string
+//   chrome.runtime.sendMessage(
+//     { message: "hello background i'm popupppppp" },
+//     (response) => {
+//      alert(response)
+//     }
+//   );
+// }
 
-	validateFields(field) {
-		if (field.value.trim() === "") {
-			this.setStatus(
-				field,
-				`${field.previousElementSibling.innerText} cannot be blank`,
-				"error"
-			);
-			return false;
-		} else {
-			if (field.type == "password") {
-				if (field.value.length < 8) {
-					this.setStatus(
-						field,
-						`${field.previousElementSibling.innerText} must be at least 8 characters`,
-						"error"
-					);
-					return false;
-				} else {
-					this.setStatus(field, null, "success");
-					return true;
-				}
-			} else {
-				this.setStatus(field, null, "success");
-				return true;
-			}
-		}
-	}
 
-	setStatus(field, message, status) {
-		const errorMessage = field.parentElement.querySelector(".error-message");
+document.getElementById("sign_in_form").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-		if (status == "success") {
-			if (errorMessage) {
-				errorMessage.innerText = "";
-			}
-			field.classList.remove("input-error");
-		}
+    // Get user input
+    const email = document.getElementById("sign_in_email").value;
+    const password = document.getElementById("sign_in_password").value;
 
-		if (status == "error") {
-			errorMessage.innerText = message;
-			field.classList.add("input-error");
-		}
-	}
-}
+    console.log("Submitting login request...");
 
-const form = document.querySelector(".loginForm");
-if (form) {
-	const fields = ["email", "password"];
-	const validator = new Login(form, fields);
-}
+    fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("Login successful");
+            return response.json(); 
+        } else {
+            console.log("Login failed");
+            throw new Error("Login failed. Please check your credentials.");
+        }
+    })
+    .then(data => {
+        localStorage.setItem("userId", data.userId);
+        window.location.href = "Dashboard.html";
+    })
+    .catch(error => {
+        console.error("An error occurred:", error);
+        alert("An error occurred: " + error.message); 
+    });
+});
+
+
+
+
+

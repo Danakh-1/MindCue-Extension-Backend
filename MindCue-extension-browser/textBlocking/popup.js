@@ -13,21 +13,28 @@ async function addTermToList() {
   }
   //add new tirgger in db
   await addTrigger(newTerm);
+
   //fetching all trigger from db
   let triggersData = await getTriggers();
+
   //rendring all triggers in page
   generateTermsListHTML(triggersData?.triggers);
 }
 
-
 //function that takes new Trigger as argument and add that in db
 async function addTrigger(newTrigger) {
-  console.log("newTrigger ", newTrigger);
+  const userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    userId = "653c17f49950865a46a2a8f7"
+  }
+
+  console.log("newTrigger", newTrigger);
   let res = await fetch("http://localhost:5000/api/triggers/addTrigger", {
     method: "POST",
     body: JSON.stringify({
       name: newTrigger,
-      userId: "653c17f49950865a46a2a8f7",
+      userId: userId,
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8",
@@ -44,12 +51,13 @@ async function getTriggers() {
   return data;
 }
 
-
 async function getSpoilerTerms() {
   //fetching all triggers from db
   let triggersData = await getTriggers();
+
   //rendring all triggers in page
   generateTermsListHTML(triggersData?.triggers);
+
   //generating triggerlist checkboxes using word
   generateCheckboxes(triggersData?.triggers);
 }
@@ -72,13 +80,11 @@ function generateTermsListHTML(triggersData) {
   // Popuplate our list of terms in reverse order so people see their word added
   for (let i = 0; i < triggersData.length; i++) {
     // console.log('wordList?.includes(triggersData[i]?.name) ',wordList?.includes(triggersData[i]?.name))
-    if(!wordList?.includes(triggersData[i]?.name)){
+    if (!wordList?.includes(triggersData[i]?.name)) {
       newList.appendChild(generateListItem(triggersData[i]));
     }
   }
-
 }
-
 
 function showEmptyListBlock(show) {
   var emptyTip = document.getElementById("empty-tip");
@@ -90,7 +96,7 @@ function showEmptyListBlock(show) {
 }
 
 function generateListItem(newTrigger) {
-  console.log('newTrigger ',wordList)
+  console.log("newTrigger test", wordList);
   // Create our list item
   var listItem = document.createElement("li");
   listItem.className = "spoiler-item";
@@ -135,7 +141,6 @@ function createDeleteButton(newTrigger) {
     let triggersData = await getTriggers();
     console.log("get TriggersData at delete function ", triggersData);
     generateTermsListHTML(triggersData?.triggers);
-
   });
 
   return deleteBtn;
@@ -175,15 +180,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 const searchInput = document.getElementById("searchInput");
 
 const wordList = [
-  "Wounds",
-  "Soliders",
-  "Cockroaches",
-  "Accidents",
+  "Child Abuse",
+  "War",
+  "Drugs",
+  "Self-Harm",
   // Add more words to this list
 ];
 
-
-//generating tigger lsit secion checkboxes with labels from hardcoded values of wordList array 
+//generating tigger lsit secion checkboxes with labels from hardcoded values of wordList array
 function generateCheckboxes() {
   for (let i = 0; i < wordList.length; i++) {
     const checkbox = document.createElement("input");
@@ -192,18 +196,18 @@ function generateCheckboxes() {
     checkbox.addEventListener("change", async function (e) {
       if (e.currentTarget.checked) {
         console.log("e.currentTarget.checked ", true, wordList[i]);
-        selectedTriggerValues.push(wordList[i]); 
+        selectedTriggerValues.push(wordList[i]);
       } else {
         console.log(
           "e.currentTarget.checked is not checked",
           e.currentTarget.checked
         );
 
-         var index = selectedTriggerValues.indexOf(wordList[i]);
-         if (index !== -1) {
-          console.log('iindex ',index)
-             selectedTriggerValues.splice(index, 1);
-         }
+        var index = selectedTriggerValues.indexOf(wordList[i]);
+        if (index !== -1) {
+          console.log("iindex ", index);
+          selectedTriggerValues.splice(index, 1);
+        }
       }
     });
 
@@ -248,9 +252,9 @@ saveTriggerBtn.addEventListener("click", async function (e) {
     selectedTriggerValues,
     selectedTriggerValues[0]
   );
-  
-  if(selectedTriggerValues.length > 0) {
-    for(let i = 0; i < selectedTriggerValues.length; i++) {
+
+  if (selectedTriggerValues.length > 0) {
+    for (let i = 0; i < selectedTriggerValues.length; i++) {
       await addTrigger(selectedTriggerValues[i]);
     }
     let triggersData = await getTriggers();
