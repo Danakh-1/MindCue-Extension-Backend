@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Spoiled</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet">
+    <style>
+          @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;1,100&family=Roboto&display=swap');
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <!-- <img src="/MindCue-extension-browser/images/coverBackground.png" alt="Header"> -->
+      <img src="../images/coverBackground.png" alt="Header">
+    </div>
+    <div id="backArrow" >
+      <a href="/MindCue-extension-browser/Dashboard.html">    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M0.292892 7.29289C-0.0976315 7.68342 -0.0976315 8.31658 0.292892 8.70711L6.65685 15.0711C7.04738 15.4616 7.68054 15.4616 8.07107 15.0711C8.46159 14.6805 8.46159 14.0474 8.07107 13.6569L2.41421 8L8.07107 2.34315C8.46159 1.95262 8.46159 1.31946 8.07107 0.928932C7.68054 0.538408 7.04738 0.538408 6.65685 0.928932L0.292892 7.29289ZM20 7L1 7V9L20 9V7Z" fill="#A38574"/>
+          </svg></a>
+    </div>
+    <div id="spoiler-strings" >
+      <h2>Keywords List</h2>
+   <!-- Empty placeholder for when no spoilers are added -->
+   <div id="empty-tip">
+    <div id="spoiler-list-container">
+      <!-- Insert spoiler term list here -->
+      <ul id="spoiler-list">
+      </ul>
+    </div>
+     <!-- This will get more complicated when new spoiler groups can be managed -->
+     <div id="add-spoiler-section" class="section">
+      <p>
+        Add your own : 
+      </p>
+      <div id="spoiler-entry-field">
+        <input id="spoiler-textfield" type="text" name="spoiler string">
+        <input id="add-btn-key"  type="button" value="Add" disabled="true">
+      </div>
+    </div>
+  </div>
+     
+    <!-- All Search Strings will be displayed here -->
+  </div>
+  <div id="spoiler-strings" >
+    <h2>Trigger List</h2>
+ <!-- Empty placeholder for when no spoilers are added -->
+ <div id="empty-tip">
+  <div id="spoiler-list-container">
+    <!-- Insert spoiler term list here -->
+    <div class="container">
+    <div id="checkboxContainer"></div>
+    </div>
+  </div>
+   <!-- This will get more complicated when new spoiler groups can be managed -->
+   <div id="add-spoiler-section" class="section">
+    <p>
+      Search your own : 
+    </p>
+    <div id="spoiler-entry-field">
+      <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 23 23" fill="none">
+        <path d="M21.9303 10.7443C21.9303 4.82182 17.0093 0 10.9651 0C4.92094 0 0 4.82182 0 10.7443C0 16.6667 4.92094 21.4886 10.9651 21.4886C17.0093 21.4886 21.9303 16.6667 21.9303 10.7443ZM1.60466 10.7443C1.60466 5.68137 5.80885 1.57233 10.9651 1.57233C16.1214 1.57233 20.3256 5.68137 20.3256 10.7443C20.3256 15.8072 16.1214 19.9162 10.9651 19.9162C5.80885 19.9162 1.60466 15.8072 1.60466 10.7443Z" fill="#DC989A"/>
+        <path d="M23 21.7511C23 21.5519 22.9251 21.3528 22.7646 21.1955L20.6251 19.0991C20.3148 18.7951 19.8013 18.7951 19.4911 19.0991C19.1809 19.4031 19.1809 19.9062 19.4911 20.2102L21.6307 22.3066C21.9409 22.6106 22.4544 22.6106 22.7646 22.3066C22.9251 22.1494 23 21.9502 23 21.7511Z" fill="#DC989A"/>
+        </svg>
+      <input id="searchInput" type="text" name="spoiler string">
+      <input id="add-btn-trig"  type="button" value="Save">
+    </div>
+  </div>
+</div>
+</div>
+
+ 
+<!-- All Search Strings will be displayed here -->
+</div>
+          <!-- <input
+                 class="blue-button flat-button round-button material-icons"
+                 type="button"
+                 style="display: none;"
+                 value="&#xE046;"
+                 enabled/> -->
+  <script src="./popup.js"></script>
+  </body>
+</html>
