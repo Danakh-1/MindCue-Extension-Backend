@@ -1,3 +1,55 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const checkboxContainer = document.getElementById("checkboxContainer");
+  const radioContainer = document.getElementById("radioContainer");
+
+  const selectedCheckboxes = [];
+  let selectedRadio = "";
+
+  function handleCheckboxChange(value) {
+    if (selectedCheckboxes.includes(value)) {
+      // Unselect checkbox
+      const index = selectedCheckboxes.indexOf(value);
+      if (index !== -1) {
+        selectedCheckboxes.splice(index, 1);
+      }
+    } else {
+      // Select checkbox
+      selectedCheckboxes.push(value);
+    }
+  }
+
+  function handleRadioChange(value) {
+    selectedRadio = value;
+  }
+
+  // Event listener for checkbox changes
+  checkboxContainer.addEventListener("change", function (event) {
+    const checkbox = event.target;
+    const value = checkbox.value;
+    handleCheckboxChange(value);
+    console.log("Selected Checkboxes:", selectedCheckboxes);
+  });
+
+  // Event listener for radio button changes
+  radioContainer.addEventListener("change", function (event) {
+    const radio = event.target;
+    const value = radio.value;
+    handleRadioChange(value);
+    console.log("Selected Radio:", selectedRadio);
+  });
+
+  // Example: Handle the form submission
+  const startRecordingBtn = document.getElementById("startRecording");
+  startRecordingBtn.addEventListener("click", function () {
+    // Example: Send the selected values to the server
+    console.log("Sending to server:", {
+      selectedCheckboxes,
+      selectedRadio,
+    });
+  });
+});
+
+
 
 // // appending the sidebar 
 

@@ -5,7 +5,7 @@ const triggersController = require('../controllers/triggers-controllers');
 
 const router = express.Router();
 
-router.get('/', triggersController.getTriggers);
+router.get('/:userId', triggersController.getTriggers);
 router.get('/:id', triggersController.getTriggerById);
  
 router.post('/addTrigger', [

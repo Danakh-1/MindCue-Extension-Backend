@@ -49,6 +49,3 @@ document.getElementById("sign_in_form").addEventListener("submit", function (e) 
 });
 
 
-
-
-

@@ -22,6 +22,7 @@ async function addTermToList() {
 }
 
 //function that takes new Trigger as argument and add that in db
+
 async function addTrigger(newTrigger) {
   const userId = localStorage.getItem("userId");
 
@@ -46,7 +47,8 @@ async function addTrigger(newTrigger) {
 
 //get all Triggers from db
 async function getTriggers() {
-  let data = await fetch("http://localhost:5000/api/triggers");
+  const userId = localStorage.getItem("userId");
+  let data = await fetch("http://localhost:5000/api/triggers/"+userId);
   data = await data.json();
   return data;
 }

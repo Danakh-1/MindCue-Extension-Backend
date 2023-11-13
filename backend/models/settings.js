@@ -8,8 +8,14 @@ const settingsSchema = new Schema({
   user: {type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'user'},
-  GeneralSetting: {type: Boolean},
-  WarningsSetting: {type: Boolean},
+  checkboxValues: {
+      type: [String], // Assuming checkbox values are strings
+      default: [],
+    },
+  radioButtonValue: {
+      type: String, // Assuming radio button value is a string
+      default: null,
+    },
 });
 //name of the collectiom and export the name of the schema
 module.exports = mongoose.model("settings", settingsSchema);

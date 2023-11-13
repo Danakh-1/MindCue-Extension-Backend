@@ -8,7 +8,7 @@ const UserSchema = new Schema({
   name: {type: String,required: true},
   email: {type: String,required: true,unique: true,},
   password:{type: String,required: true,},
-  userType:[{type: String,
+  userType:[{type: String,possibleValues: ['Patient','Doctor','Guest'],
             defult: "Patient"
   }],
   validated: { type: Boolean, required: true},

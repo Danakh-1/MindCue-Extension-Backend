@@ -1,12 +1,16 @@
 const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
-const Trigger = require('../models/triggers.js');
+const Trigger = require('../models/Triggers.js');
 
 const getTriggers = async (req, res, next) => {
   let triggers;
   try {
-    triggers = await Trigger.find({}).populate('user');
+    // const { userId } = req.body;
+    const { userId } = req.params
+    // triggers = await Trigger.find({}).populate('user');
+    // Assuming you have a field named 'user' in your Trigger model
+    triggers = await Trigger.find({ user: userId }).populate('user');
   } catch (err) {
     const error = new HttpError(
       'Fetching triggers failed, please try again later.',
@@ -29,7 +33,6 @@ const getTriggerById = async (req, res, next) => {
       return next(error);
     }
 
-    
     const trigger = await Trigger.findById({ _id:id}).populate('user');
     res.status(200).json({trigger})
 
