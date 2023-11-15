@@ -11,7 +11,12 @@
 //     }
 //   );
 // }
-
+document.addEventListener("load", function() {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+        window.location.href = "Dashboard.html";
+    }
+});
 
 document.getElementById("sign_in_form").addEventListener("submit", function (e) {
     e.preventDefault();

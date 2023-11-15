@@ -16,6 +16,10 @@ const settingsSchema = new Schema({
       type: String, // Assuming radio button value is a string
       default: null,
     },
+    testValue: {
+      type: Boolean,
+      default: false,
+    }
 });
 //name of the collectiom and export the name of the schema
 module.exports = mongoose.model("settings", settingsSchema);

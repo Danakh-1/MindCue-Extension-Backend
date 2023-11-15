@@ -32,7 +32,6 @@ app.use((req, res, next) => {
 
 app.use('/api/triggers', TriggerRoutes);
 app.use('/api/users', usersRoutes);
-//app.use('/api/settings', settingsRoutes);
 app.use('/api/settings', settingsRoutes);
 
 app.use((req, res, next) => {

@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/:userId', settingsController.getSettings);
 router.get('/:id', settingsController.getSettingById);
-//router.post('/settings', settingsController.saveSettings);
+router.post('/saveGeneralSettings', settingsController.saveGeneralSettings);
 router.post('/addSetting', [
   check('name').not().isEmpty(),
   check('userId').not().isEmpty()

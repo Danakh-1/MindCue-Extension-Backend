@@ -1,7 +1,20 @@
 const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
-const Setting = require('../models/Settings.js');
+const Setting = require('../models/settings.js');
+
+// How to retrieve user's data from jwt token
+const saveGeneralSettings = async (req, res, next) => {
+  let generalSettings;
+  try {
+    const { userId, testValue } = req.body;
+    generalSettings = await Setting.updateOne({user: userId}, {testValue: testValue}, {new: true});
+    console.log(generalSettings);
+    res.status(200).json(generalSettings);
+  } catch(err) {
+    console.log('test');
+  }
+};
 
 const getSettings = async (req, res, next) => {
   let settings;
@@ -126,6 +139,7 @@ exports.getSettingById = getSettingById;
 exports.addSetting = addSetting;
 exports.updateSetting = updateSetting;
 exports.deleteSetting = deleteSetting;
+exports.saveGeneralSettings = saveGeneralSettings;
 // 
 
 
