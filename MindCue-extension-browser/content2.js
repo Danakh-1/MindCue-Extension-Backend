@@ -241,8 +241,8 @@ function stopTimer() {
   isPaused = false;
 }
 
-// Content Script
-
+let recorder;
+let stream;
 // Function to start or stop screen recording
 async function toggleRecording() {
 if (!isRecording) {
@@ -250,6 +250,8 @@ if (!isRecording) {
     // Start the timer
     startTimer();
     stream = await navigator.mediaDevices.getDisplayMedia()
+    recorder = new MediaRecorder(stream);
+
 
     recorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
