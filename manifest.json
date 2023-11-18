@@ -1,6 +1,6 @@
 {
     "name": "MindCue Extension",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "This extension is for a system that helps filter out people's triggers online",
     "author": "Novas",
     "action": {
@@ -30,7 +30,7 @@
     "content_scripts": [
         {
           "matches": ["<all_urls>"],
-          "js": ["MindCue-extension-browser/content.js","MindCue-extension-browser/settings.js"],
+          "js": ["MindCue-extension-browser/content.js","MindCue-extension-browser/settings.js","MindCue-extension-browser/content2.js"],
           "css":["MindCue-extension-browser/content_script.css"],
           "run_at": "document_end"
         }
