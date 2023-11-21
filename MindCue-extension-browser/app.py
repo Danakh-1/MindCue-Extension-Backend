@@ -31,6 +31,10 @@ def handle_connect():
 def handle_disconnect():
     print('Client disconnected')
 
+@socketio.on('anomaly_data')
+def handle_anomaly_data(data):
+    print("Anomaly data received:", data)
+
 @socketio.on('send_frame')
 def handle_frame(data):
     print("Frame received")
