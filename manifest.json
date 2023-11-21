@@ -30,7 +30,7 @@
     "content_scripts": [
         {
           "matches": ["<all_urls>"],
-          "js": ["MindCue-extension-browser/content.js","MindCue-extension-browser/settings.js","MindCue-extension-browser/content2.js"],
+          "js": ["MindCue-extension-browser/content.js","MindCue-extension-browser/settings.js","MindCue-extension-browser/content2.js","MindCue-extension-browser/socket.io.min.js"],
           "css":["MindCue-extension-browser/content_script.css"],
           "run_at": "document_end"
         }
@@ -44,7 +44,8 @@
        "scripting",
        "activeTab", "desktopCapture", "mediaCapture", "audioCapture", "videoCapture",
        "downloads",
-       "fileSystem.write"
+       "fileSystem.write",
+      "MindCue-extension-browser/socket.io.min.js"
      ],
   "host_permissions":  ["<all_urls>"],
   "manifest_version": 3

@@ -24,12 +24,17 @@ def index():
     return render_template('index.html')  # Make sure 'index.html' exists in your templates folder
 
 @socketio.on('connect')
-def handle_connect():
-    print('Client connected')
+def handle_connect(data):
+    print('Client connected and he say :')
 
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
+
+@socketio.on('message')
+def handle_disconnect(data):
+    print('recived:',data)
+    socketio.send('Echo: ' + data)
 
 @socketio.on('anomaly_data')
 def handle_anomaly_data(data):
@@ -37,33 +42,34 @@ def handle_anomaly_data(data):
 
 @socketio.on('send_frame')
 def handle_frame(data):
-    print("Frame received")
-    image_data = base64.b64decode(data.split(',')[1])
+    print('Recived data from extension',data)
+    # print("Frame received")
+    # image_data = base64.b64decode(data.split(',')[1])
 
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpeg') as temp_file:
-            temp_file.write(image_data)
-            temp_file.seek(0)
-            image_path = temp_file.name
-            temp_image_paths.append(image_path)
-            temp_file.close()
-            try:
-                results = model.predict(image_path)
-                p = results.json()
+    # try:
+    #     with tempfile.NamedTemporaryFile(delete=False, suffix='.jpeg') as temp_file:
+    #         temp_file.write(image_data)
+    #         temp_file.seek(0)
+    #         image_path = temp_file.name
+    #         temp_image_paths.append(image_path)
+    #         temp_file.close()
+    #         try:
+    #             results = model.predict(image_path)
+    #             p = results.json()
 
-                if p['predictions']:
-                    emit('predictions',p['predictions'][0])
-                    print(p['predictions'][0])
-            except Exception as e:
-                print(f"Error during prediction: {e}")
+    #             if p['predictions']:
+    #                 emit('predictions',p['predictions'][0])
+    #                 print(p['predictions'][0])
+    #         except Exception as e:
+    #             print(f"Error during prediction: {e}")
 
-    finally:
-        # Clean up the file immediately after processing
-        try:
-            os.remove(image_path)
-            print(f"Deleted: {image_path}")
-        except Exception as e:
-            print(f"Error deleting {image_path}: {e}")
+    # finally:
+    #     # Clean up the file immediately after processing
+    #     try:
+    #         os.remove(image_path)
+    #         print(f"Deleted: {image_path}")
+    #     except Exception as e:
+    #         print(f"Error deleting {image_path}: {e}")
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=9000)
