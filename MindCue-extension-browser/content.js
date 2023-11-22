@@ -172,4 +172,47 @@
      
     } 
   });
-  
+  let TIME_LIMIT = 0;
+// Check Chrome storage for the last saved timer value
+chrome.storage.local.get('lastsavedTimer', function (result) {
+  if (chrome.runtime.lastError) {
+    console.error(chrome.runtime.lastError);
+    return;
+  }
+
+  // If the lastsavedTimer is available in storage, use it as the TIME_LIMIT
+  if (result.lastsavedTimer) {
+    TIME_LIMIT = result.lastsavedTimer;
+    console.log('Loaded lastsavedTimer from storage:', TIME_LIMIT);
+  } else {
+    console.log('No lastsavedTimer found in storage.');
+  }
+});
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.timer) {
+    const { hours, minutes, seconds } = message.timer;
+
+    // Calculate the total time in seconds
+    const totalTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
+
+    // Log the received timer values and the calculated total time to the console
+    console.log('Received timer values in content.js:', { hours, minutes, seconds });
+    console.log('Total time in seconds:', totalTimeInSeconds);
+
+    // Use the calculated totalTimeInSeconds as the TIME_LIMIT
+    TIME_LIMIT = totalTimeInSeconds;
+
+    // Update the lastsavedTimer in Chrome storage
+    chrome.storage.local.set({ 'lastsavedTimer': TIME_LIMIT }, function () {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError);
+        return;
+      }
+      console.log('Saved lastsavedTimer to storage:', TIME_LIMIT);
+    });
+  }
+});
+
+
+ 

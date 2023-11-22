@@ -89,26 +89,35 @@ document.addEventListener("DOMContentLoaded",()=>{
         else if (tab.url.indexOf('file') === 0) {
             StartButton.innerHTML="MindCue Can't Access local files"}
         else{
+    
+
             StartButton.addEventListener("click",async ()=>{
             chrome.tabs.sendMessage(
                 tabs[0].id,
-                {from :"settings",query:"inject_side_bar"},
+                {from :"settings",
+                query:"inject_side_bar",
+                tab_id: tab.id              },
             )
-            // chrome.tabs.query({}, (tabs) => {
-            //   for (const tab of tabs) {
-            //     chrome.tabs.sendMessage(
-            //       tab.id,
-            //       { from: "settings", query: "inject_side_bar" }
-            //     );
-            //   }
-            // });
-          // close the window of the settings page 
+            // send active tab info to inject the warning and predictions 
             window.close()
             })
     
             }
 })
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // document.addEventListener("DOMContentLoaded", () => {
