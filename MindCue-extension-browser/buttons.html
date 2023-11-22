@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- sweet alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- My stylesheet -->
+    <link rel="stylesheet" href="Alerts.css">
+    <title>Document</title>
+</head>
+<body>
+    <button onclick="myalert()">Trigger detected warning (not disclosing)</button>
+    <button onclick="myalert2()">Exceeded screen time limit</button>
+    <button onclick="myalert1()">Hardware detected elevated biological feedback</button>
+    <button onclick="myalert3()">Trigger detected warning (disclosing)</button>
+
+
+
+
+    <script>
+        function myalert() {
+        Swal.fire({
+        title:'<html> \
+        <span class="title-class">Wait a minute!</span> <br> \
+        <span class="title-class2">The following content may contain material you are not comfortable with</span>\
+        </html>',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
+        denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
+        cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
+        showClass:{
+          popup: 'pop-up-class',
+          container: 'container-class',
+        }
+        })
+        
+        }
+      
+        function myalert1() {
+          Swal.fire({
+          title:'<html> \
+          <span class="title-class">Hmm... </span> <br> \
+          <span class="title-class2">Are you comfortable with what you are currently browsing?</span>\
+          </html>',
+          showDenyButton: true,
+          confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
+          denyButtonText: `<html><span class="skip-button-text">I don't want to see this</span></html>`,
+          confirmButtonClass: 'Skip-Button',
+          denyButtonClass:'Skip-Button',
+          showClass:{
+            popup: 'pop-up-class',
+            container: 'container-class',
+          }
+  
+          }
+      )
+          
+          }
+        
+          function myalert2() {
+            Swal.fire({
+            title:'<html> \
+            <span class="title-class">Oops!</span> <br> \
+            <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through your app settings or take a break</span>\
+            </html>',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: '<html><span class="skip-button-text">Continue</span></html>',
+            denyButtonText: `<html><span class="skip-button-text"</span>Take a break </html>`,
+            cancelButtonText:'<html><span class="skip-button-text">Close browser</span></html>',
+            confirmButtonClass: 'Skip-Button',
+            cancelButtonClass: 'Skip-Button',
+            denyButtonClass:'Skip-Button',
+            showClass:{
+              popup: 'pop-up-class',
+              container: 'container-class',
+            }
+            })
+            
+            }
+        let mytrigger = "Child Abuse"
+          function myalert3() {
+            Swal.fire({
+          title:`<html> \
+          <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+          <span class="title-class2">Would you like to add this to your list of triggers? </span>\
+          </html>`,
+          showDenyButton: true,
+          confirmButtonText: `<html><span class="skip-button-text">Yes please</span></html>`,
+          denyButtonText: `<html><span class="skip-button-text">No, I’ll keep browsing</span></html>`,
+          confirmButtonClass: 'Skip-Button',
+          denyButtonClass:'Skip-Button',
+          showClass:{
+            popup: 'pop-up-class',
+            container: 'container-class',
+          }
+  
+          }
+      )
+            
+            }
+
+
+
+    </script>
+</body>
+</html>

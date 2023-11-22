@@ -173,6 +173,8 @@ function startTimer() {
 
 function onTimesUp() {
   clearInterval(timerInterval);
+  // sweetalert 
+  alert('alert')
   // You can also add any additional logic here for when the timer reaches zero.
 }
 
@@ -350,6 +352,8 @@ socket.on('anomaly_data', function(data) {
  
   
 });
+
+
 
 
   }

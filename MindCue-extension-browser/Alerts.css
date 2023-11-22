@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;1,100&family=Roboto&display=swap');
+*,*::before,*::after{
+    box-sizing: border-box;
+    font-family: 'Roboto',Arial, Helvetica ,sans-serif;
+}
+body{
+    margin: 0;
+    margin-top: 5px;
+    margin-right: 0;
+    background-color: #f9f9f9;
+}
+.container-class{
+    width: 584px !important;
+    height: 440px !important;
+    background-color: #CCE1E3 !important ;
+  border-radius: 15px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
+  }
+  .pop-up-class{
+    width: 584px;
+    /* height: 440px; */
+      left: 18px !important;
+      top: 19px !important;
+      background-color: #F5F5F5 !important;
+      border-radius: 20px !important;
+      font-family: 'Poppins', sans-serif !important;
+    font-family: 'Roboto', sans-serif !important;
+    background: linear-gradient(#f5f5f5, #cbd6d78b )!important ;
+    background: rgba(249, 249, 249, 0.50);
+    /* border-top: 5px solid #63818471 !important;
+    border-right: 5px solid #63818471 !important;
+    border-bottom: 5px solid #63818471 !important;
+    border-left: 5px solid #63818471 !important; */
+  
+    }
+    .title-class{
+  width: 421px;
+  height: 110px;
+  left: auto;
+  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 54px;
+  text-align: center;
+  color: #DC989A;
+    }
+  
+  
+    .title-class2{
+  /* Wait a minute!The following content may contain material you are not comfortable with */
+      width: 421px;
+      height: 110px;
+      left: 81px;
+      top: 71px;
+      font-family: 'Poppins', sans-serif !important;
+      font-family: 'Roboto', sans-serif !important;
+      font-style: normal;
+      font-weight:300;
+      font-size: 25px;
+      line-height: 35px;
+      text-align: center;
+      color: #DC989A;
+        }
+  
+  
+      .swal2-title{
+        padding: 1.5em 1em 0;
+      }
+  
+  .Skip-Button{
+    box-sizing: border-box !important;
+    width: 239px !important;
+    height: 54px !important;
+    left: 172px !important;
+    top: 205px !important;
+    border: 2px solid #638184 !important;
+    border-radius: 10px !important;
+    margin-top: 5px;
+    background-color: rgba(249, 249, 249, 0.5) !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-family: 'Roboto', sans-serif !important;
+  }
+  .skip-button-text{
+  width: 80px !important ;
+  height: 26px !important;
+  left: 252px !important;
+  top: 219px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  line-height: 25px !important;
+  color: #638184  !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
+  }
+  
+  
+  .swal2-actions {
+    display: flex;
+    flex-direction: column;
+  }
+
+
+.swal2-confirm{
+    box-sizing: border-box !important;
+    width: 239px !important;
+    height: 54px !important;
+    left: 172px !important;
+    top: 205px !important;
+    border: 2px solid #638184 !important;
+    border-radius: 10px !important;
+    margin-top: 5px;
+    background-color: rgba(249, 249, 249, 0.5) !important;
+outline: none !important;
+font-family: 'Poppins', sans-serif !important;
+font-family: 'Roboto', sans-serif !important;
+}
+.swal2-deny{
+    box-sizing: border-box !important;
+    width: 239px !important;
+    height: 54px !important;
+    left: 172px !important;
+    top: 205px !important;
+    border: 2px solid #638184 !important;
+    border-radius: 10px !important;
+    margin-top: 5px;
+    background-color: rgba(249, 249, 249, 0.5) !important;
+outline: none !important;
+}
+
+.swal2-cancel{
+    box-sizing: border-box !important;
+    width: 239px !important;
+    height: 54px !important;
+    left: 172px !important;
+    top: 205px !important;
+    border: 2px solid #638184 !important;
+    border-radius: 10px !important;
+    margin-top: 5px;
+    background-color: rgba(249, 249, 249, 0.5) !important;
+outline: none !important;
+font-family: 'Poppins', sans-serif !important;
+font-family: 'Roboto', sans-serif !important;
+}

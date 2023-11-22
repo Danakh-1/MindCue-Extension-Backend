@@ -117,53 +117,45 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 
 
+// text blocking logic
 
 
+document.addEventListener("DOMContentLoaded", () => {
+  const setting1Checkbox = document.getElementById('setting1');
 
-// document.addEventListener("DOMContentLoaded", () => {
-//   const setting1Checkbox = document.getElementById('setting1');
+  // Load the checkbox state from Chrome storage and set the initial state
+  chrome.storage.sync.get({ setting1: false }, (data) => {
+    setting1Checkbox.checked = data.setting1;
+  });
 
-//   // Load the checkbox state from Chrome storage and set the initial state
-//   chrome.storage.sync.get({ setting1: false }, (data) => {
-//     setting1Checkbox.checked = data.setting1;
-//   });
-
-//   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//     const tab = tabs[0];
-//     if (tab.url === undefined || tab.url.startsWith('chrome')) {
-//       setting1Checkbox.disabled = true;
-//       setting1Checkbox.innerHTML = "MindCue Can't Access Chrome page";
-//     } else if (tab.url.startsWith('file')) {
-//       setting1Checkbox.disabled = true;
-//       setting1Checkbox.innerHTML = "MindCue Can't Access local files";
-//     } else {
-//       setting1Checkbox.addEventListener("click", () => {
-//         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-//           const activeTab = tabs[0];
-//           if (activeTab) {
-//             chrome.tabs.reload(activeTab.id);
-//           }
-//         });
-//         // Save the checkbox state in Chrome storage
-//         chrome.storage.sync.set({ setting1: setting1Checkbox.checked });
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+    if (tab.url === undefined || tab.url.startsWith('chrome')) {
+      setting1Checkbox.disabled = true;
+      setting1Checkbox.innerHTML = "MindCue Can't Access Chrome page";
+    } else if (tab.url.startsWith('file')) {
+      setting1Checkbox.disabled = true;
+      setting1Checkbox.innerHTML = "MindCue Can't Access local files";
+    } else {
+      setting1Checkbox.addEventListener("click", () => {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+          const activeTab = tabs[0];
+          if (activeTab) {
+            chrome.tabs.reload(activeTab.id);
+          }
+        });
+        // Save the checkbox state in Chrome storage
+        chrome.storage.sync.set({ setting1: setting1Checkbox.checked });
         
-//         // Send a message to the content script if needed
-//         chrome.tabs.sendMessage(
-//           tabs[0].id,
-//           { from: "settings", query: "text_blocking" }
-//         );
-//         // chrome.tabs.query({}, (tabs) => {
-//         //   for (const tab of tabs) {
-//         //     chrome.tabs.sendMessage(
-//         //       tab.id,
-//         //       { from: "settings", query: "text_blocking" }
-//         //     );
-//         //   }
-//         // });
-//       });
-//     }
-//   });
-// });
+        // Send a message to the content script if needed
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          { from: "settings", query: "text_blocking" }
+        );
+      });
+    }
+  });
+});
 
 // //listens for a click event on the "Set" button and, when clicked, 
 // //sends a POST request to the specified URL 
