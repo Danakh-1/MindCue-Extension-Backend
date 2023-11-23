@@ -260,7 +260,9 @@ saveTriggerBtn.addEventListener("click", async function (e) {
     for (let i = 0; i < selectedTriggerValues.length; i++) {
       await addTrigger(selectedTriggerValues[i]);
     }
-    let triggersData = await getTriggers();
+    let  triggersData= await getTriggers();
     generateTermsListHTML(triggersData?.triggers);
+    alert('Trigger list saved')
   }
+
 });

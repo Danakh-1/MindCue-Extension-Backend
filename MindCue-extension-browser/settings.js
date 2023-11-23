@@ -89,8 +89,7 @@ document.addEventListener("DOMContentLoaded",()=>{
         else if (tab.url.indexOf('file') === 0) {
             StartButton.innerHTML="MindCue Can't Access local files"}
         else{
-    
-
+  
             StartButton.addEventListener("click",async ()=>{
             chrome.tabs.sendMessage(
                 tabs[0].id,

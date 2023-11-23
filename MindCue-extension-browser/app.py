@@ -49,8 +49,11 @@ def handle_frame(data):
                 p = results.json()
 
                 if p['predictions']:
-                    emit('predictions',p['predictions'][0])
-                    print(p['predictions'][0])
+                    # emit('predictions',p['predictions'][0])
+                    # print(p['predictions'][0])
+                    print('predictions',p['predictions'][0]['class'])
+                    emit('predictions',p['predictions'][0]['class'])
+
             except Exception as e:
                 print(f"Error during prediction: {e}")
 

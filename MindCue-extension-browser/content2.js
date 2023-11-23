@@ -1,7 +1,107 @@
+// alerts 
+function myalert() {
+  Swal.fire({
+  title:'<html> \
+  <span class="title-class">Wait a minute!</span> <br> \
+  <span class="title-class2">The following content may contain material you are not comfortable with</span>\
+  </html>',
+  showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
+  denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
+  cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
+  showClass:{
+    popup: 'pop-up-class',
+    container: 'container-class',
+  }
+  })
+  
+  }
+
+  function myalert1() {
+    Swal.fire({
+    title:'<html> \
+    <span class="title-class">Hmm... </span> <br> \
+    <span class="title-class2">Are you comfortable with what you are currently browsing?</span>\
+    </html>',
+    showDenyButton: true,
+    confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
+    denyButtonText: `<html><span class="skip-button-text">I don't want to see this</span></html>`,
+    confirmButtonClass: 'Skip-Button',
+    denyButtonClass:'Skip-Button',
+    showClass:{
+      popup: 'pop-up-class',
+      container: 'container-class',
+    }
+
+    }
+)
+    
+    }
+  
+    function myalert2() {
+      Swal.fire({
+      title:'<html> \
+      <span class="title-class">Oops!</span> <br> \
+      <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through your app settings or take a break</span>\
+      </html>',
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '<html><span class="skip-button-text">Continue</span></html>',
+      denyButtonText: `<html><span class="skip-button-text"</span>Take a break </html>`,
+      cancelButtonText:'<html><span class="skip-button-text">Close browser</span></html>',
+      confirmButtonClass: 'Skip-Button',
+      cancelButtonClass: 'Skip-Button',
+      denyButtonClass:'Skip-Button',
+      showClass:{
+        popup: 'pop-up-class',
+        container: 'container-class',
+      }
+      })
+      
+      }
+  let mytrigger = "Child Abuse"
+    function myalert3() {
+      Swal.fire({
+    title:`<html> \
+    <span class="title-class">Wait a minute!</span> <br> \
+    <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+    <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+    </html>`,
+    showDenyButton: true,
+    showCancelButton: true,
+    confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
+    denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
+    cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
+    confirmButtonClass: 'Skip-Button',
+    denyButtonClass:'Skip-Button',
+    showClass:{
+      popup: 'pop-up-class',
+      container: 'container-class',
+    }
+
+    }
+)
+      
+      }
+
+
+
+
+
+
+
+
+
+
+// side bar things
+
+
+
+
 
 chrome.runtime.onMessage.addListener((message,sender)=>{
   if (message.from === "settings" && message.query === "inject_side_bar"){
-
 // inject the timer page 
 let mainDiv =  document.createElement("div")
 mainDiv.setAttribute("id","MindCuecontainer")
@@ -174,8 +274,7 @@ function startTimer() {
 function onTimesUp() {
   clearInterval(timerInterval);
   // sweetalert 
-  alert('alert')
-  // You can also add any additional logic here for when the timer reaches zero.
+  myalert2()
 }
 
 
@@ -339,18 +438,20 @@ function captureAndSendFrames() {
 // nodejs retrive trigger list
 // sweet alert
 socket.on('predictions', function(data) {
-  console.log(data);
-  if (data=='gun'){
-  // sweetalert
-  }
+  let x = data
+  console.log(typeof(x))
+ if(x==="gun"){
+  mytrigger = x
+  myalert3()
+ }
+  
 });
 
 // nodejs retrive hardware mode
 // sweet alert for hardware
 socket.on('anomaly_data', function(data) {
-  console.log(data);
- 
-  
+
+
 });
 
 async function getTriggers() {
@@ -386,13 +487,7 @@ getTriggers()
       console.error('Error:', error); // Handles any errors that occurred during either fetch
   });
   
-
-
-
-
   }
-
-
 
 })
 
