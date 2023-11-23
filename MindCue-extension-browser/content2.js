@@ -341,7 +341,7 @@ function captureAndSendFrames() {
 socket.on('predictions', function(data) {
   console.log(data);
   if (data=='gun'){
-
+  // sweetalert
   }
 });
 
@@ -353,16 +353,48 @@ socket.on('anomaly_data', function(data) {
   
 });
 
+async function getTriggers() {
+  const userId = localStorage.getItem("userId");
+  console.log(userId)
+  let data = await fetch("http://localhost:5000/api/triggers/"+userId);
+  data = await data.json();
+  return data;
+}
+getTriggers()
+  .then(x => console.log(x))
+  .catch(error => console.error('Error:', error));
+
+
+
+  fetch("http://localhost:5000/api/users", {
+    headers: {
+        "Content-Type": "application/json",
+    }
+  })
+  .then(response => response.json()) // Parses the JSON body from the first response
+  .then(users => {
+      let x = users['users'];
+      console.log(x)
+      let userId = x[5]['_id']; // Make sure to use '_id' not 'id' if that's what your data structure uses
+      return fetch("http://localhost:5000/api/triggers/"+userId); // Return the promise of the second fetch call
+  })
+  .then(response => response.json()) // Parses the JSON body from the second response
+  .then(triggers => {
+      console.log(triggers); // 'triggers' now contains the parsed JSON data from the second response
+  })
+  .catch(error => {
+      console.error('Error:', error); // Handles any errors that occurred during either fetch
+  });
+  
+
 
 
 
   }
+
+
+
 })
-
-
-
-
-
 
 
 

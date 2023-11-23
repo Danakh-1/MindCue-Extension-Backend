@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 // text blocking logic
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const setting1Checkbox = document.getElementById('setting1');
 

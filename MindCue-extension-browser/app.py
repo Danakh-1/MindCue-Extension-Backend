@@ -21,6 +21,7 @@ print(temp_image_paths)
 @socketio.on('anomaly_data')
 def handle_anomaly_data(data):
     print("Anomaly data received:", data)
+
 # @app.route('/')
 # def index():
 #     return render_template('index.html')  # Make sure 'index.html' exists in your templates folder
@@ -48,7 +49,7 @@ def handle_frame(data):
                 p = results.json()
 
                 if p['predictions']:
-                    emit('predictions',p['predictions'][0]['class'])
+                    emit('predictions',p['predictions'][0])
                     print(p['predictions'][0])
             except Exception as e:
                 print(f"Error during prediction: {e}")

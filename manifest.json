@@ -45,7 +45,8 @@
        "activeTab", "desktopCapture", "mediaCapture", "audioCapture", "videoCapture",
        "downloads",
        "fileSystem.write",
-      "MindCue-extension-browser/socket.io.min.js"
+      "MindCue-extension-browser/socket.io.min.js",
+      "http://localhost:5000/api/triggers/*"
      ],
   "host_permissions":  ["<all_urls>"],
   "manifest_version": 3
