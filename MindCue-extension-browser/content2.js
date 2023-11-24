@@ -100,7 +100,13 @@ function myalert() {
 
 
 
+let userId
 chrome.runtime.onMessage.addListener((message,sender)=>{
+  if (message.from === "popup" && message.query === "userid") {
+    // Handle message from popup
+    userId = message.userId
+    console.log(message.userId);
+}
   if (message.from === "settings" && message.query === "inject_side_bar"){
 // inject the timer page 
 let mainDiv =  document.createElement("div")
@@ -362,7 +368,6 @@ async function toggleRecording() {
 if (!isRecording) {
   try {
     // Start the timer
-    console.log(video)
     startTimer();
     navigator.mediaDevices.getDisplayMedia()
     .then(stream=>{
@@ -434,62 +439,52 @@ function captureAndSendFrames() {
       }
   }, captureInterval);
 }
-
+///////////////////////////////////////
 // nodejs retrive trigger list
-// sweet alert
+// getting the last user triggers 
+let userTrigger = [];
+
+fetch("http://localhost:5000/api/users", {
+  headers: {
+    "Content-Type": "application/json",
+  }
+})
+.then(response => response.json())
+.then(() => {
+
+  return fetch("http://localhost:5000/api/triggers/" + userId);
+})
+.then(response => response.json())
+.then(triggers => {
+  const uniqueNamesSet = new Set();
+  triggers["triggers"].forEach(trigger => {
+    if (!uniqueNamesSet.has(trigger.name)) {
+      uniqueNamesSet.add(trigger.name);
+      userTrigger.push(trigger.name); // Assuming you only want to store the names
+    }
+  });
+})
+.catch(error => {
+  console.error('Error:', error);
+});
+//////////////////////////////////////////////////
+// alert logic for triggers detected
 socket.on('predictions', function(data) {
-  let x = data
-  console.log(typeof(x))
- if(x==="gun"){
-  mytrigger = x
-  myalert3()
- }
-  
+  if (userTrigger.includes(data)) {
+    myalert()
+  }
 });
 
 // nodejs retrive hardware mode
 // sweet alert for hardware
 socket.on('anomaly_data', function(data) {
-
-
+console.log(data)
+if (data===-1){
+  myalert1()
+}
 });
 
-async function getTriggers() {
-  const userId = localStorage.getItem("userId");
-  console.log(userId)
-  let data = await fetch("http://localhost:5000/api/triggers/"+userId);
-  data = await data.json();
-  return data;
-}
-getTriggers()
-  .then(x => console.log(x))
-  .catch(error => console.error('Error:', error));
 
-
-
-  fetch("http://localhost:5000/api/users", {
-    headers: {
-        "Content-Type": "application/json",
-    }
-  })
-  .then(response => response.json()) // Parses the JSON body from the first response
-  .then(users => {
-      let x = users['users'];
-      console.log(x)
-      let userId = x[5]['_id']; // Make sure to use '_id' not 'id' if that's what your data structure uses
-      return fetch("http://localhost:5000/api/triggers/"+userId); // Return the promise of the second fetch call
-  })
-  .then(response => response.json()) // Parses the JSON body from the second response
-  .then(triggers => {
-      console.log(triggers); // 'triggers' now contains the parsed JSON data from the second response
-  })
-  .catch(error => {
-      console.error('Error:', error); // Handles any errors that occurred during either fetch
-  });
-  
   }
 
 })
-
-
-

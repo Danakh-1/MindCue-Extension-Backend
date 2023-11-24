@@ -35,6 +35,15 @@ document.getElementById("sign_in_form").addEventListener("submit", function (e) 
         }
     })
     .then(data => {
+   // Fetch the current active tab first
+   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    // Now send the message to the content script of the active tab
+    chrome.tabs.sendMessage(tabs[0].id, {
+        from: "popup",
+        query: "userid",
+        userId: data.userId
+    });
+});
         localStorage.setItem("userId", data.userId);
         window.location.href = "Dashboard.html";
     })
