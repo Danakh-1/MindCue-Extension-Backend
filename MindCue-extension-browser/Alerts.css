@@ -147,3 +147,19 @@ outline: none !important;
 font-family: 'Poppins', sans-serif !important;
 font-family: 'Roboto', sans-serif !important;
 }
+
+
+
+.myVideo{
+  position: relative;
+}
+.myVideo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width : 916.266px;
+  height:515px;
+  background-color: black;
+  display: none; /* hide the box by default */
+}

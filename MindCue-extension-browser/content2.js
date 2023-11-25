@@ -1,106 +1,9 @@
-// alerts 
-function myalert() {
-  Swal.fire({
-  title:'<html> \
-  <span class="title-class">Wait a minute!</span> <br> \
-  <span class="title-class2">The following content may contain material you are not comfortable with</span>\
-  </html>',
-  showDenyButton: true,
-  showCancelButton: true,
-  confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
-  denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
-  cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
-  showClass:{
-    popup: 'pop-up-class',
-    container: 'container-class',
-  }
-  })
-  
-  }
-
-  function myalert1() {
-    Swal.fire({
-    title:'<html> \
-    <span class="title-class">Hmm... </span> <br> \
-    <span class="title-class2">Are you comfortable with what you are currently browsing?</span>\
-    </html>',
-    showDenyButton: true,
-    confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
-    denyButtonText: `<html><span class="skip-button-text">I don't want to see this</span></html>`,
-    confirmButtonClass: 'Skip-Button',
-    denyButtonClass:'Skip-Button',
-    showClass:{
-      popup: 'pop-up-class',
-      container: 'container-class',
-    }
-
-    }
-)
-    
-    }
-  
-    function myalert2() {
-      Swal.fire({
-      title:'<html> \
-      <span class="title-class">Oops!</span> <br> \
-      <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through your app settings or take a break</span>\
-      </html>',
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: '<html><span class="skip-button-text">Continue</span></html>',
-      denyButtonText: `<html><span class="skip-button-text"</span>Take a break </html>`,
-      cancelButtonText:'<html><span class="skip-button-text">Close browser</span></html>',
-      confirmButtonClass: 'Skip-Button',
-      cancelButtonClass: 'Skip-Button',
-      denyButtonClass:'Skip-Button',
-      showClass:{
-        popup: 'pop-up-class',
-        container: 'container-class',
-      }
-      })
-      
-      }
-  let mytrigger = "Child Abuse"
-    function myalert3() {
-      Swal.fire({
-    title:`<html> \
-    <span class="title-class">Wait a minute!</span> <br> \
-    <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
-    <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
-    </html>`,
-    showDenyButton: true,
-    showCancelButton: true,
-    confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
-    denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
-    cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
-    confirmButtonClass: 'Skip-Button',
-    denyButtonClass:'Skip-Button',
-    showClass:{
-      popup: 'pop-up-class',
-      container: 'container-class',
-    }
-
-    }
-)
-      
-      }
-
-
-
-
-
-
-
-
-
 
 // side bar things
 
-
-
-
-
+let isAlertDisplayed = false;
 let userId
+
 chrome.runtime.onMessage.addListener((message,sender)=>{
   if (message.from === "popup" && message.query === "userid") {
     // Handle message from popup
@@ -461,6 +364,7 @@ fetch("http://localhost:5000/api/users", {
     if (!uniqueNamesSet.has(trigger.name)) {
       uniqueNamesSet.add(trigger.name);
       userTrigger.push(trigger.name); // Assuming you only want to store the names
+      console.log(userTrigger)
     }
   });
 })
@@ -471,6 +375,7 @@ fetch("http://localhost:5000/api/users", {
 // alert logic for triggers detected
 socket.on('predictions', function(data) {
   if (userTrigger.includes(data)) {
+    document.querySelector('video.html5-main-video').pause();
     myalert()
   }
 });
@@ -483,6 +388,135 @@ if (data===-1){
   myalert1()
 }
 });
+
+
+
+
+// alerts 
+function myalert() {
+  Swal.fire({
+  title:'<html> \
+  <span class="title-class">Wait a minute!</span> <br> \
+  <span class="title-class2">The following content may contain material you are not comfortable with</span>\
+  </html>',
+  showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
+  denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
+  cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
+  showClass:{
+    popup: 'pop-up-class',
+    container: 'container-class',
+  }
+  }).then((result) => {
+    if (result.isDenied) {
+      // dismiss
+      document.querySelector('video.html5-main-video').play();
+    }else if (result.isConfirmed) {
+      // skipp the scene untill the label is not there
+      // document.querySelector('video.html5-main-video').currentTime +=7
+      x.play();
+  }else{
+
+    document.querySelector('video.html5-main-video').className='myVideo'
+
+// is cancelled --> play audio only
+  }})
+  
+  }
+
+  function myalert1() {
+    Swal.fire({
+    title:'<html> \
+    <span class="title-class">Hmm... </span> <br> \
+    <span class="title-class2">Are you comfortable with what you are currently browsing?</span>\
+    </html>',
+    showDenyButton: true,
+    confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
+    denyButtonText: `<html><span class="skip-button-text">I don't want to see this</span></html>`,
+    confirmButtonClass: 'Skip-Button',
+    denyButtonClass:'Skip-Button',
+    showClass:{
+      popup: 'pop-up-class',
+      container: 'container-class',
+    }
+
+    }
+)
+    
+    }
+  // SCREEN TIME
+    function myalert2() {
+      Swal.fire({
+      title:'<html> \
+      <span class="title-class">Oops!</span> <br> \
+      <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through your app settings or take a break</span>\
+      </html>',
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '<html><span class="skip-button-text">Continue</span></html>',
+      denyButtonText: `<html><span class="skip-button-text"</span>Take a break </html>`,
+      cancelButtonText:'<html><span class="skip-button-text">Close browser</span></html>',
+      confirmButtonClass: 'Skip-Button',
+      cancelButtonClass: 'Skip-Button',
+      denyButtonClass:'Skip-Button',
+      showClass:{
+        popup: 'pop-up-class',
+        container: 'container-class',
+      }
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          document.querySelector('video.html5-main-video').play();
+        
+        } else if (result.isDenied) {
+          document.querySelector('video.html5-main-video').pause();
+          const toggleButton = document.getElementById("toggleButton");
+          toggleButton.textContent = "Start Recording";
+          toggleRecording()
+
+        }
+        else if (result.isDismissed) {
+          document.querySelector('video.html5-main-video').pause();
+          // Example: Sending a message to the background script
+chrome.runtime.sendMessage({closeTab: true});
+          
+      }
+        })
+      
+      }
+  let mytrigger = "Child Abuse"
+    function myalert3() {
+      Swal.fire({
+    title:`<html> \
+    <span class="title-class">Wait a minute!</span> <br> \
+    <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+    <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+    </html>`,
+    showDenyButton: true,
+    showCancelButton: true,
+    confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
+    denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
+    cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
+    confirmButtonClass: 'Skip-Button',
+    denyButtonClass:'Skip-Button',
+    showClass:{
+      popup: 'pop-up-class',
+      container: 'container-class',
+    }
+
+    }
+)
+      
+      }
+
+
+
+
+
+
+
+
 
 
   }
