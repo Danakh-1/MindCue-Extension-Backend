@@ -289,3 +289,8 @@ margin-bottom: 33.5%;
   font-weight: 400;
   src: url(https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
 }
+
+.black-overlay {
+  /* Assuming you want to keep the video playing but not visible */
+  opacity: 0; /* Hides the video but keeps it playing */
+}

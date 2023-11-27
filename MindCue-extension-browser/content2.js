@@ -67,6 +67,7 @@ function toggleMySideBar() {
   } else {
    
     document.getElementById("mySidebar").style.width = "85px";
+
     mini = true;
   }
   
@@ -319,7 +320,7 @@ function captureAndSendFrames() {
   console.log(video)
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  const captureInterval = 500; // Capture frame every 1000ms (1 second)
+  const captureInterval = 200; 
 
   video.addEventListener('loadedmetadata', function() {
       canvas.width = video.videoWidth;
@@ -390,10 +391,14 @@ if (data===-1){
 });
 
 
-
-
 // alerts 
 function myalert() {
+  if (isAlertDisplayed) {
+    return; // Do not display the alert if it is already displayed
+  }
+
+  isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
+
   Swal.fire({
   title:'<html> \
   <span class="title-class">Wait a minute!</span> <br> \
@@ -415,11 +420,12 @@ function myalert() {
     }else if (result.isConfirmed) {
       // skipp the scene untill the label is not there
       // document.querySelector('video.html5-main-video').currentTime +=7
-      x.play();
+      document.querySelector('video.html5-main-video').play();
   }else{
 
-    document.querySelector('video.html5-main-video').className='myVideo'
-
+    // document.querySelector('video.html5-main-video').className='overlay'
+    applyBlackOverlay();
+    document.querySelector('video.html5-main-video').play();
 // is cancelled --> play audio only
   }})
   
@@ -510,15 +516,26 @@ chrome.runtime.sendMessage({closeTab: true});
       
       }
 
-
-
-
-
-
-
-
-
-
-  }
+      function applyBlackOverlay() {
+        // Target the active YouTube video
+        const video = document.querySelector('video.html5-main-video');
+        if (!video) {
+          console.log('No active YouTube video found.');
+          return;
+        }
+      
+        // Add CSS to hide the video visually
+        video.style.opacity = '0';
+      
+        // Optionally, reset the video visibility after a certain time
+        setTimeout(() => {
+          video.style.opacity = '1';
+        }, 10000); // 600000 milliseconds = 10 minutes
+      }
+      
+     
+      
+    
+    }
 
 })
