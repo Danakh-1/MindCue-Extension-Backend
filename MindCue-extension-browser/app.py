@@ -54,7 +54,8 @@ def handle_frame(data):
                     emit('predictions', prediction_class)
                 else:
                     # If there are no predictions, emit None
-                    emit('predictions', "None")
+                    print('none')
+                    emit('predictions', "none")
 
             except Exception as e:
                 print(f"Error during prediction: {e}")

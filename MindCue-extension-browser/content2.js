@@ -356,24 +356,34 @@ fetch("http://localhost:5000/api/users", {
 let mytrigger 
 //////////////////////////////////////////////////
 // alert logic for triggers detected
+// Global variable to track the number of 'none' responses
+let noneResponseCount = 0;
+const NONE_RESPONSE_THRESHOLD = 3; // Threshold for 'none' responses
+
 // Assuming this is where you receive predictions
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
 
-  // Check if there are predictions
-  if (data) {
-    // There are predictions, so check if the trigger should be displayed
-    if (userTrigger.includes(data)) {
-      document.querySelector('video.html5-main-video').pause();
-      myalert3();
-    }
+  // Increment counter if the prediction is 'none'
+  if (data === 'none') {
+    noneResponseCount++;
   } else {
-    // No predictions, so you can handle this case as needed
-    // For example, you might want to resume video playback
+    // Reset counter for any other prediction
+    noneResponseCount = 0;
+  }
+
+  // Check if there are relevant predictions and the counter is below the threshold
+  if (data !== 'none' && userTrigger.includes(data) && noneResponseCount < NONE_RESPONSE_THRESHOLD) {
+    document.querySelector('video.html5-main-video').pause();
+    myalert3();
+  } else {
+    // No relevant predictions or counter has reached the threshold
+    // You can handle this case as needed (e.g., resume video playback)
     document.querySelector('video.html5-main-video').play();
   }
 });
+
 
 
 // nodejs retrive hardware mode
@@ -424,6 +434,40 @@ function myalert() {
   }})
   
   }
+  function checkAndSkipScene() {
+    const videoElement = document.querySelector('video.html5-main-video');
+    if (!videoElement) {
+      console.error('Video element not found');
+      return;
+    }
+  
+    // Determine the amount of time to skip
+    const skipAmount = 5; // Example: 5 seconds
+  
+    console.log('Current time before skipping:', videoElement.currentTime);
+  
+    // Check if the trigger is still present
+    if (userTrigger.includes(mytrigger)) {
+      // Skip the scene by advancing the video by a fixed amount
+      videoElement.currentTime += skipAmount;
+      console.log('Skipped, new time:', videoElement.currentTime);
+  
+      // Continue skipping without user interaction as long as the trigger is present
+      skipInterval = setTimeout(checkAndSkipScene, 100);
+    } else {
+      // If the trigger is no longer present, stop the skipping process
+      clearTimeout(skipInterval);
+      isSkipping = false;
+  
+      // Resume video playback if it was playing before
+      if (wasPlayingBeforeSkip) {
+        videoElement.play();
+        console.log('Resuming playback');
+      }
+    }
+  }
+  
+  
   let isAlertDisplayed = false;
   let isSkipping = false;
   let skipInterval;
@@ -461,9 +505,7 @@ function myalert() {
       } else if (result.isConfirmed) {
         // Set isSkipping to true to prevent multiple skips
         isSkipping = true;
-  
-        // Start the skip interval
-        skipInterval = setInterval(checkAndSkipScene, 200);
+        checkAndSkipScene();
       } else {
         // Is canceled --> play audio only
         applyBlackOverlay();
@@ -471,22 +513,7 @@ function myalert() {
     });
   }
   
-  function checkAndSkipScene() {
-    // Check if the trigger is still present
-    if (userTrigger.includes(mytrigger)) {
-      // Skip the scene by advancing the video by a fixed amount
-      document.querySelector('video.html5-main-video').currentTime += 1;
-    } else {
-      // If the trigger is no longer present, stop the skip interval and resume playback
-      clearInterval(skipInterval);
-      isSkipping = false;
-  
-      // Resume video playback
-      document.querySelector('video.html5-main-video').play();
-  
-      // You can also consider adding any additional logic you need after resuming here
-    }
-  }
+
   
 
 
