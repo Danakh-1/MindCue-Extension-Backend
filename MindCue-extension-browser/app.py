@@ -49,10 +49,12 @@ def handle_frame(data):
                 p = results.json()
 
                 if p['predictions']:
-                    # emit('predictions',p['predictions'][0])
-                    # print(p['predictions'][0])
-                    print('predictions',p['predictions'][0]['class'])
-                    emit('predictions',p['predictions'][0]['class'])
+                    prediction_class = p['predictions'][0]['class']
+                    print('predictions', prediction_class)
+                    emit('predictions', prediction_class)
+                else:
+                    # If there are no predictions, emit None
+                    emit('predictions', "None")
 
             except Exception as e:
                 print(f"Error during prediction: {e}")
@@ -65,6 +67,7 @@ def handle_frame(data):
             print(f"Deleted: {image_path}")
         except Exception as e:
             print(f"Error deleting {image_path}: {e}")
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=9000)

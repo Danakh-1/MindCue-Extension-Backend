@@ -261,87 +261,67 @@ function stopTimer() {
   isPaused = false;
 }
 
-
+isRecording = false;
+let captureStream = null;
 // Function to start or stop screen recording
-const video = document.createElement('video');
-video.setAttribute('id','remote')
-video.setAttribute('autoplay', '');
-video.style.display = 'none';
-document.body.appendChild(video)
 async function toggleRecording() {
-if (!isRecording) {
-  try {
-    // Start the timer
-    startTimer();
-    navigator.mediaDevices.getDisplayMedia({video: true
-          }      )
-    .then(stream=>{
-      if (stream){
-        video.srcObject = stream
-        captureAndSendFrames()
-      }
-    })
-    .catch(error => {
+  if (!isRecording) {
+    try {
+      // Start the timer
+      startTimer();
+      captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      isRecording = true;
+      console.log("Recording started.");
+      toggleButton.textContent = "Stop Recording";
+      captureAndSendFrames(captureStream);
+    } catch (error) {
       console.error('Error accessing media devices.', error);
-  });
-
-    isRecording = true;
-    console.log("Recording started.");
-    toggleButton.textContent = "Stop Recording"; // Update button text
- 
-  } catch (error) {
-    console.error("Error starting recording:", error);
+    }
+  } else {
+    toggleButton.textContent = "Start Recording";
+    stopRecording();
   }
-} else {
-  toggleButton.textContent = "Start Recording";
-
-  stopRecording();
 }
-}
-
 function stopRecording() {
-  if (isRecording) {
-      // Stop each track on the stream
-      if (video.srcObject) {
-          video.srcObject.getTracks().forEach(track => track.stop());
-          video.srcObject = null; // Clear the srcObject
-      }
-
-      isRecording = false;
-      console.log("Recording stopped.");
-      toggleButton.textContent = "Start Recording"; // Update button text
-
-      // Stop and reset the timer
-      stopTimer();
+  if (isRecording && captureStream) {
+    captureStream.getTracks().forEach(track => track.stop());
+    captureStream = null;
+    isRecording = false;
+    console.log("Recording stopped.");
+    toggleButton.textContent = "Start Recording";
+    stopTimer();
   }
 }
+function captureAndSendFrames(stream) {
+  const video = document.createElement('video');
+  video.srcObject = stream;
+  video.play();
+  video.muted = true;
+  video.style.display = 'none'; // Hide the video element
 
-function captureAndSendFrames() {
-  const video = document.getElementById('remote');
-  console.log(video)
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  const captureInterval = 500; 
+  const captureInterval = 500;
 
   video.addEventListener('loadedmetadata', function() {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
   });
 
   setInterval(() => {
-      if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0 && video.videoHeight > 0) {
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob(blob => {
-              if (blob) {
-                  const reader = new FileReader();
-                  reader.onloadend = function() {
-                      const base64data = reader.result;
-                      socket.emit('send_frame', base64data);
-                  };
-                  reader.readAsDataURL(blob);
-              }
-          }, 'image/jpeg');
-      }
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        if (blob) {
+          const reader = new FileReader();
+          reader.onloadend = function() {
+            const base64data = reader.result;
+            socket.emit('send_frame', base64data);
+          };
+          reader.readAsDataURL(blob);
+        }
+      }, 'image/jpeg');
+    }
   }, captureInterval);
 }
 ///////////////////////////////////////
@@ -374,17 +354,27 @@ fetch("http://localhost:5000/api/users", {
   console.error('Error:', error);
 });
 let mytrigger 
-
 //////////////////////////////////////////////////
 // alert logic for triggers detected
+// Assuming this is where you receive predictions
 socket.on('predictions', function(data) {
-  mytrigger = data
-  console.log(data)
-  if (userTrigger.includes(data)) {
-    document.querySelector('video.html5-main-video').pause();
-    myalert3()
+  mytrigger = data;
+  console.log(data);
+
+  // Check if there are predictions
+  if (data) {
+    // There are predictions, so check if the trigger should be displayed
+    if (userTrigger.includes(data)) {
+      document.querySelector('video.html5-main-video').pause();
+      myalert3();
+    }
+  } else {
+    // No predictions, so you can handle this case as needed
+    // For example, you might want to resume video playback
+    document.querySelector('video.html5-main-video').play();
   }
 });
+
 
 // nodejs retrive hardware mode
 // sweet alert for hardware
@@ -424,7 +414,6 @@ function myalert() {
       document.querySelector('video.html5-main-video').play();
     }else if (result.isConfirmed) {
       // skipp the scene untill the label is not there
-      // document.querySelector('video.html5-main-video').currentTime +=7
       document.querySelector('video.html5-main-video').play();
   }else{
 
@@ -435,46 +424,70 @@ function myalert() {
   }})
   
   }
+  let isAlertDisplayed = false;
+  let isSkipping = false;
+  let skipInterval;
+  
   function myalert3() {
-    if (isAlertDisplayed) {
-      return; // Do not display the alert if it is already displayed
+    if (isAlertDisplayed || isSkipping) {
+      return; // Do not display the alert if it is already displayed or if we are currently skipping
     }
   
     isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
   
     Swal.fire({
-  title:`<html> \
-  <span class="title-class">Wait a minute!</span> <br> \
-  <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
-  <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
-  </html>`,
-  showDenyButton: true,
-  showCancelButton: true,
-  confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
-  denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
-  cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
-  confirmButtonClass: 'Skip-Button',
-  denyButtonClass:'Skip-Button',
-  showClass:{
-    popup: 'pop-up-class',
-    container: 'container-class',
-  }}).then((result) => {
-    if (result.isDenied) {
-      // dismiss
+      title: `<html> \
+        <span class="title-class">Wait a minute!</span> <br> \
+        <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+        <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+      </html>`,
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
+      denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
+      cancelButtonText: '<html><span class="skip-button-text">Play Audio Only</span></html>',
+      confirmButtonClass: 'Skip-Button',
+      denyButtonClass: 'Skip-Button',
+      showClass: {
+        popup: 'pop-up-class',
+        container: 'container-class',
+      },
+    }).then((result) => {
+      isAlertDisplayed = false;
+  
+      if (result.isDenied) {
+        // Dismiss
+        document.querySelector('video.html5-main-video').play();
+      } else if (result.isConfirmed) {
+        // Set isSkipping to true to prevent multiple skips
+        isSkipping = true;
+  
+        // Start the skip interval
+        skipInterval = setInterval(checkAndSkipScene, 200);
+      } else {
+        // Is canceled --> play audio only
+        applyBlackOverlay();
+      }
+    });
+  }
+  
+  function checkAndSkipScene() {
+    // Check if the trigger is still present
+    if (userTrigger.includes(mytrigger)) {
+      // Skip the scene by advancing the video by a fixed amount
+      document.querySelector('video.html5-main-video').currentTime += 1;
+    } else {
+      // If the trigger is no longer present, stop the skip interval and resume playback
+      clearInterval(skipInterval);
+      isSkipping = false;
+  
+      // Resume video playback
       document.querySelector('video.html5-main-video').play();
-    }else if (result.isConfirmed) {
-      // skipp the scene untill the label is not there
-      // document.querySelector('video.html5-main-video').currentTime +=7
-      document.querySelector('video.html5-main-video').play();
-  }else{
-    applyBlackOverlay()
-    // document.querySelector('video.html5-main-video').pause();
-// is cancelled --> play audio only
-  }})
-    
+  
+      // You can also consider adding any additional logic you need after resuming here
     }
-
-
+  }
+  
 
 
 
