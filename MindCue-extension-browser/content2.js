@@ -104,14 +104,12 @@ toggleButton.addEventListener('click',function(){
 })
 
 toggleButton.addEventListener("click", () => {
-  // if (isRecording) {
-  //   toggleRecording();
+  if (isRecording) {
+    toggleRecording();
    
-  // } else {
-  //   toggleRecording();
-  // }
-  document.querySelector('video.html5-main-video').pause();
-  myalert()
+  } else {
+    toggleRecording();
+  }
 });
 
 
@@ -185,7 +183,7 @@ function startTimer() {
 
 function onTimesUp() {
   clearInterval(timerInterval);
-  // sweetalert 
+  // sweetalert  for screen time
   myalert2()
 }
 
@@ -275,7 +273,8 @@ if (!isRecording) {
   try {
     // Start the timer
     startTimer();
-    navigator.mediaDevices.getDisplayMedia()
+    navigator.mediaDevices.getDisplayMedia({video: true
+          }      )
     .then(stream=>{
       if (stream){
         video.srcObject = stream
@@ -322,7 +321,7 @@ function captureAndSendFrames() {
   console.log(video)
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  const captureInterval = 200; 
+  const captureInterval = 500; 
 
   video.addEventListener('loadedmetadata', function() {
       canvas.width = video.videoWidth;
@@ -374,12 +373,16 @@ fetch("http://localhost:5000/api/users", {
 .catch(error => {
   console.error('Error:', error);
 });
+let mytrigger 
+
 //////////////////////////////////////////////////
 // alert logic for triggers detected
 socket.on('predictions', function(data) {
+  mytrigger = data
+  console.log(data)
   if (userTrigger.includes(data)) {
     document.querySelector('video.html5-main-video').pause();
-    myalert()
+    myalert3()
   }
 });
 
@@ -393,7 +396,7 @@ if (data===-1){
 });
 
 
-// alerts 
+// TRIGGER alerts 
 function myalert() {
   if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed
@@ -426,13 +429,56 @@ function myalert() {
   }else{
 
     // document.querySelector('video.html5-main-video').className='overlay'
-    applyBlackOverlay()
+    applyBlackOverlay();
     document.querySelector('video.html5-main-video').play();
 // is cancelled --> play audio only
   }})
   
   }
+  function myalert3() {
+    if (isAlertDisplayed) {
+      return; // Do not display the alert if it is already displayed
+    }
+  
+    isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
+  
+    Swal.fire({
+  title:`<html> \
+  <span class="title-class">Wait a minute!</span> <br> \
+  <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+  <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+  </html>`,
+  showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
+  denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
+  cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
+  confirmButtonClass: 'Skip-Button',
+  denyButtonClass:'Skip-Button',
+  showClass:{
+    popup: 'pop-up-class',
+    container: 'container-class',
+  }}).then((result) => {
+    if (result.isDenied) {
+      // dismiss
+      document.querySelector('video.html5-main-video').play();
+    }else if (result.isConfirmed) {
+      // skipp the scene untill the label is not there
+      // document.querySelector('video.html5-main-video').currentTime +=7
+      document.querySelector('video.html5-main-video').play();
+  }else{
+    applyBlackOverlay()
+    // document.querySelector('video.html5-main-video').pause();
+// is cancelled --> play audio only
+  }})
+    
+    }
 
+
+
+
+
+// HARDWARE
   function myalert1() {
     Swal.fire({
     title:'<html> \
@@ -476,7 +522,6 @@ function myalert() {
         /* Read more about isConfirmed, isDenied below */
         if (result.isConfirmed) {
           document.querySelector('video.html5-main-video').play();
-        
         } else if (result.isDenied) {
           document.querySelector('video.html5-main-video').pause();
           const toggleButton = document.getElementById("toggleButton");
@@ -493,59 +538,35 @@ chrome.runtime.sendMessage({closeTab: true});
         })
       
       }
-  let mytrigger = "Child Abuse"
-    function myalert3() {
-      Swal.fire({
-    title:`<html> \
-    <span class="title-class">Wait a minute!</span> <br> \
-    <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
-    <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
-    </html>`,
-    showDenyButton: true,
-    showCancelButton: true,
-    confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
-    denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
-    cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
-    confirmButtonClass: 'Skip-Button',
-    denyButtonClass:'Skip-Button',
-    showClass:{
-      popup: 'pop-up-class',
-      container: 'container-class',
-    }
-
-    }
-)
-      
-      }
 
       function applyBlackOverlay() {
-        // Target the active YouTube video
-        const videoContainer = document.querySelector('div.html5-video-container'); // Container of the YouTube video
-        if (!videoContainer) {
-            console.log('No active YouTube video container found.');
-            return;
-        }
-    
-        // Create a black overlay div
-        const overlay = document.createElement('div');
-        overlay.style.position = 'absolute';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'black';
-        overlay.style.zIndex = '9999'; // Ensure it covers the video
-    
-        // Append the overlay to the video container
-        videoContainer.appendChild(overlay);
-    
-        // Optionally, you can remove the overlay after a certain time
-        setTimeout(() => {
-            videoContainer.removeChild(overlay);
-        }, 10000); // Adjust the time as needed (10000 milliseconds = 10 seconds)
-    }
-    
+        // Find the video container
+        var playerContainer = document.querySelector('#movie_player');
+        document.querySelector('.ytp-chrome-bottom').style.zIndex = '9001';
       
+        // Check if the blackout div already exists
+        var existingBlackout = playerContainer.querySelector('.blackout-div');
+        if (!existingBlackout) {
+          // Create the black box element
+          var blackoutDiv = document.createElement('div');
+          blackoutDiv.className = 'blackout-div'; // Assign a class for easy reference
+          blackoutDiv.style.position = 'absolute';
+          blackoutDiv.style.width = '100%';
+          blackoutDiv.style.height = '100%';
+          blackoutDiv.style.backgroundColor = 'black';
+          blackoutDiv.style.top = 0;
+          blackoutDiv.style.left = 0;
+          blackoutDiv.style.zIndex = '9000'; // Use a high z-index value to cover the player
+      
+          // Append the black box to the player container
+          // Using 'prepend' to ensure it covers the video player itself
+          playerContainer.prepend(blackoutDiv);
+        }
+      }
+      
+    
+    
+        
      
       
     
