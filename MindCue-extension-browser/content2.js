@@ -104,12 +104,14 @@ toggleButton.addEventListener('click',function(){
 })
 
 toggleButton.addEventListener("click", () => {
-  if (isRecording) {
-    toggleRecording();
+  // if (isRecording) {
+  //   toggleRecording();
    
-  } else {
-    toggleRecording();
-  }
+  // } else {
+  //   toggleRecording();
+  // }
+  document.querySelector('video.html5-main-video').pause();
+  myalert()
 });
 
 
@@ -424,7 +426,7 @@ function myalert() {
   }else{
 
     // document.querySelector('video.html5-main-video').className='overlay'
-    applyBlackOverlay();
+    applyBlackOverlay()
     document.querySelector('video.html5-main-video').play();
 // is cancelled --> play audio only
   }})
@@ -518,20 +520,31 @@ chrome.runtime.sendMessage({closeTab: true});
 
       function applyBlackOverlay() {
         // Target the active YouTube video
-        const video = document.querySelector('video.html5-main-video');
-        if (!video) {
-          console.log('No active YouTube video found.');
-          return;
+        const videoContainer = document.querySelector('div.html5-video-container'); // Container of the YouTube video
+        if (!videoContainer) {
+            console.log('No active YouTube video container found.');
+            return;
         }
-      
-        // Add CSS to hide the video visually
-        video.style.opacity = '0';
-      
-        // Optionally, reset the video visibility after a certain time
+    
+        // Create a black overlay div
+        const overlay = document.createElement('div');
+        overlay.style.position = 'absolute';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'black';
+        overlay.style.zIndex = '9999'; // Ensure it covers the video
+    
+        // Append the overlay to the video container
+        videoContainer.appendChild(overlay);
+    
+        // Optionally, you can remove the overlay after a certain time
         setTimeout(() => {
-          video.style.opacity = '1';
-        }, 10000); // 600000 milliseconds = 10 minutes
-      }
+            videoContainer.removeChild(overlay);
+        }, 10000); // Adjust the time as needed (10000 milliseconds = 10 seconds)
+    }
+    
       
      
       
