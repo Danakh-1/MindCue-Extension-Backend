@@ -21,6 +21,8 @@ print(temp_image_paths)
 @socketio.on('anomaly_data')
 def handle_anomaly_data(data):
     print("Anomaly data received:", data)
+    # send to the client the either -1 or 1
+    emit(data)
 
 # @app.route('/')
 # def index():
