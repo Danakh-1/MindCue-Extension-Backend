@@ -18,9 +18,23 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 temp_image_paths=[]
 print(temp_image_paths)
 
+
+dataSent = ''
+
+
+
 @socketio.on('anomaly_data')
-def handle_anomaly_data(data):
-    print("Anomaly data received:", data)
+def handle_receive_anomaly(data):
+    # Once processing is done, call emit_anomaly to send it to clients
+    emit_anomaly(data)
+    
+
+def emit_anomaly(data):
+    # This function emits the processed anomaly data to clients
+    socketio.emit('anomaly', data)
+    print("Anomaly data emitted:", data)
+
+
 # @app.route('/')
 # def index():
 #     return render_template('index.html')  # Make sure 'index.html' exists in your templates folder
@@ -48,8 +62,14 @@ def handle_frame(data):
                 p = results.json()
 
                 if p['predictions']:
-                    emit('predictions',p['predictions'][0]['class'])
-                    print(p['predictions'][0])
+                    prediction_class = p['predictions'][0]['class']
+                    print('predictions', prediction_class)
+                    # emit('predictions', prediction_class)
+                else:
+                    # If there are no predictions, emit None
+                    print('none')
+                    # emit('predictions', "none")
+
             except Exception as e:
                 print(f"Error during prediction: {e}")
 
@@ -61,6 +81,7 @@ def handle_frame(data):
             print(f"Deleted: {image_path}")
         except Exception as e:
             print(f"Error deleting {image_path}: {e}")
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=9000)

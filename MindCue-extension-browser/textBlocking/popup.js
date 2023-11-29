@@ -66,7 +66,6 @@ async function getSpoilerTerms() {
 
 function generateTermsListHTML(triggersData) {
   // Start popuplating the list
-
   // Refresh the list if it exists
   var oldList = document.getElementById("spoiler-list");
   if (oldList) {
@@ -182,10 +181,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 const searchInput = document.getElementById("searchInput");
 
 const wordList = [
-  "Child Abuse",
-  "War",
-  "Drugs",
-  "Self-Harm",
+  "spider",
+  "wound",
+  "gun",
+  "cockroach",
+  "soldier",
+  "accident"
   // Add more words to this list
 ];
 
@@ -259,7 +260,9 @@ saveTriggerBtn.addEventListener("click", async function (e) {
     for (let i = 0; i < selectedTriggerValues.length; i++) {
       await addTrigger(selectedTriggerValues[i]);
     }
-    let triggersData = await getTriggers();
+    let  triggersData= await getTriggers();
     generateTermsListHTML(triggersData?.triggers);
+    alert('Trigger list saved')
   }
+
 });
