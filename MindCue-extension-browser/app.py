@@ -18,11 +18,25 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 temp_image_paths=[]
 print(temp_image_paths)
 
+
+dataSent = ''
+
+
+
 @socketio.on('anomaly_data')
-def handle_anomaly_data(data):
-    print("Anomaly data received:", data)
-    # send to the client the either -1 or 1
-    emit(data)
+def handle_receive_anomaly(data):
+    # print("Anomaly data received:", data)
+    # Process the data as needed
+    # For example, you might analyze or modify the data here
+
+    # Once processing is done, call emit_anomaly to send it to clients
+    emit_anomaly(data)
+
+def emit_anomaly(data):
+    # This function emits the processed anomaly data to clients
+    socketio.emit('anomaly', data)
+    print("Anomaly data emitted:", data)
+
 
 # @app.route('/')
 # def index():
@@ -53,11 +67,11 @@ def handle_frame(data):
                 if p['predictions']:
                     prediction_class = p['predictions'][0]['class']
                     print('predictions', prediction_class)
-                    emit('predictions', prediction_class)
+                    # emit('predictions', prediction_class)
                 else:
                     # If there are no predictions, emit None
                     print('none')
-                    emit('predictions', "none")
+                    # emit('predictions', "none")
 
             except Exception as e:
                 print(f"Error during prediction: {e}")

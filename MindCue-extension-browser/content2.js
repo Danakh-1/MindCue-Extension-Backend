@@ -360,40 +360,41 @@ let mytrigger
 let noneResponseCount = 0;
 const NONE_RESPONSE_THRESHOLD = 3; // Threshold for 'none' responses
 
-// Assuming this is where you receive predictions
-socket.on('predictions', function(data) {
-  mytrigger = data;
-  console.log(data);
+// // Assuming this is where you receive predictions
+// socket.on('predictions', function(data) {
+//   mytrigger = data;
+//   console.log(data);
 
-  // Increment counter if the prediction is 'none'
-  if (data === 'none') {
-    noneResponseCount++;
-  } else {
-    // Reset counter for any other prediction
-    noneResponseCount = 0;
-  }
+//   // Increment counter if the prediction is 'none'
+//   if (data === 'none') {
+//     noneResponseCount++;
+//   } else {
+//     // Reset counter for any other prediction
+//     noneResponseCount = 0;
+//   }
 
-  // Check if there are relevant predictions and the counter is below the threshold
-  if (data !== 'none' && userTrigger.includes(data) && noneResponseCount < NONE_RESPONSE_THRESHOLD) {
-    document.querySelector('video.html5-main-video').pause();
-    myalert3();
-  } else {
-    // No relevant predictions or counter has reached the threshold
-    // You can handle this case as needed (e.g., resume video playback)
-    document.querySelector('video.html5-main-video').play();
-  }
-});
+//   // Check if there are relevant predictions and the counter is below the threshold
+//   if (data !== 'none' && userTrigger.includes(data) && noneResponseCount < NONE_RESPONSE_THRESHOLD) {
+//     document.querySelector('video.html5-main-video').pause();
+//     myalert3();
+//   } else {
+//     // No relevant predictions or counter has reached the threshold
+//     // You can handle this case as needed (e.g., resume video playback)
+//     document.querySelector('video.html5-main-video').play();
+//   }
+// });
 
 
 
 // nodejs retrive hardware mode
 // sweet alert for hardware
-socket.on('anomaly_data', function(data) {
-console.log(data)
-if (data===-1){
-  myalert1()
-}
+socket.on('anomaly', function(data) {
+  console.log("Received data:", data[0]);
+  if(data[0]===-1){
+    myalert1()
+  }
 });
+
 
 
 // TRIGGER alerts 
