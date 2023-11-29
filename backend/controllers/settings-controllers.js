@@ -4,17 +4,75 @@ const HttpError = require('../models/http-error');
 const Setting = require('../models/settings.js');
 
 // How to retrieve user's data from jwt token
+// const saveGeneralSettings = async (req, res, next) => {
+//   let generalSettings;
+//   try {
+//     const { userId, selectedCheckBoxes } = req.body;
+//     console.log(req?.body)
+//     generalSettings = await Setting.updateOne({user: userId}, {checkboxValues: selectedCheckBoxes}, {new: true});
+//     console.log(generalSettings);
+//     res.status(200).json(generalSettings);
+//   } catch(err) {
+//     console.log(err)
+//     console.log('test');
+//   }
+// };
+
 const saveGeneralSettings = async (req, res, next) => {
-  let generalSettings;
   try {
-    const { userId, testValue } = req.body;
-    generalSettings = await Setting.updateOne({user: userId}, {testValue: testValue}, {new: true});
-    console.log(generalSettings);
-    res.status(200).json(generalSettings);
-  } catch(err) {
-    console.log('test');
+    const { userId } = req.body;
+
+    // Find the setting document for the user or create if it doesn't exist
+    let setting = await Setting.findOne({ user: userId });
+    console.log(req.body)
+
+    console.log("check boxes",req?.body?.selectedCheckboxes)
+    
+    if (!setting) {
+      setting = new Setting({ user: userId });
+    }
+    // Update the checkbox valuescheckboxValues
+    setting.checkboxValues = req?.body?.selectedCheckboxes;
+    // Save the changes to the document
+    await setting.save();
+
+    res.status(200).json({ message: 'General settings saved successfully', 
+    data:  setting
+   });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred while saving general settings' });
   }
 };
+
+const saveWarningSettings = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+
+    // Find the setting document for the user or create if it doesn't exist
+    let setting = await Setting.findOne({ user: userId });
+    console.log(req.body)
+
+    console.log("radioButtonValue",req?.body?.selectedRadio)
+    
+    if (!setting) {
+      setting = new Setting({ user: userId });
+    }
+    // Update the checkbox valuescheckboxValues
+    setting.radioButtonValue = req?.body?.selectedRadio;
+    // Save the changes to the document
+    await setting.save();
+
+    res.status(200).json({ message: 'warning settings saved successfully', 
+    data:  setting
+   });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred while saving warning settings' });
+  }
+};
+
+
 
 const getSettings = async (req, res, next) => {
   let settings;
@@ -26,6 +84,7 @@ const getSettings = async (req, res, next) => {
       'Fetching settings failed, please try again later.',
       500
     );
+
     return next(error);
   }
   res.json({ settings: settings.map(setting => setting.toObject({ getters: true })) });
@@ -140,6 +199,7 @@ exports.addSetting = addSetting;
 exports.updateSetting = updateSetting;
 exports.deleteSetting = deleteSetting;
 exports.saveGeneralSettings = saveGeneralSettings;
+exports.saveWarningSettings = saveWarningSettings;
 // 
 
 

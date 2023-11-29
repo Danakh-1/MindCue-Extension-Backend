@@ -8,6 +8,7 @@ const router = express.Router();
 router.get('/:userId', settingsController.getSettings);
 router.get('/:id', settingsController.getSettingById);
 router.post('/saveGeneralSettings', settingsController.saveGeneralSettings);
+router.post('/saveWarningSettings', settingsController.saveWarningSettings);
 router.post('/addSetting', [
   check('name').not().isEmpty(),
   check('userId').not().isEmpty()
@@ -20,6 +21,9 @@ router.put('/updateSetting/:id', [
 router.delete('/:id', settingsController.deleteSetting);
 
 module.exports = router;
+
+
+
 
 
 // const express = require('express');
@@ -35,6 +39,7 @@ module.exports = router;
 //             checkboxValues,
 //             radioButtonValue,
 //         });
+
 
 //         res.json({ message: 'Settings saved successfully', savedSettings });
 //     } catch (error) {

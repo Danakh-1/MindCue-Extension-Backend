@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  
   function handleRadioChange(value) {
     selectedRadio = value;
   }
@@ -39,11 +40,11 @@ document.addEventListener("DOMContentLoaded", function () {
 })
 .then(response => {
     if (response.status === 200) {
-        console.log("Login successful");
+        console.log("Warning settings saved successfully");
         return response.json(); 
     } else {
-        console.log("Login failed");
-        throw new Error("Login failed. Please check your credentials.");
+        console.log("Failed to save warning settings");
+        throw new Error("Failed to save warning settings.");
     }
 })
 .then(data => {
@@ -58,10 +59,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Event listener for radio button changes
   radioContainer.addEventListener("change", function (event) {
+    // const radio = event.target;
+    // const value = radio.value;
+    // handleRadioChange(value);
+    // console.log("Selected Radio:", selectedRadio);
+
     const radio = event.target;
-    const value = radio.value;
-    handleRadioChange(value);
-    console.log("Selected Radio:", selectedRadio);
+  const value = radio.value;
+  handleRadioChange(value); // Capture the selected radio value
+  console.log("Selected Radio:", selectedRadio);
+
+  const userId = localStorage.getItem("userId");
+
+  // Make an API call to save the warning settings with the selectedRadio value
+  fetch("http://localhost:5000/api/settings/saveWarningSettings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ userId, selectedRadio }), // Include selectedRadio
+  })
+    .then((response) => {
+      if (response.status === 200) {
+        console.log("Warning settings saved successfully");
+        return response.json();
+      } else {
+        console.log("Failed to save warning settings");
+        throw new Error("Failed to save warning settings");
+      }
+    })
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.error("An error occurred:", error);
+      alert("An error occurred: " + error.message);
+    });
   });
 
   // Example: Handle the form submission
@@ -81,7 +114,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener("DOMContentLoaded",()=>{
     const StartButton = document.getElementById("startRecording")
-    chrome.tabs.query({active:true , currentWindow:true},(tabs)=>{
+    console.log()
+    chrome?.tabs?.query({active:true , currentWindow:true},(tabs)=>{
         const tab = tabs[0]
         if(tab.url === undefined || tab.url.indexOf('chrome') == 0){
             StartButton.innerHTML="MindCue Can't Access Chrome page"
@@ -89,10 +123,9 @@ document.addEventListener("DOMContentLoaded",()=>{
         else if (tab.url.indexOf('file') === 0) {
             StartButton.innerHTML="MindCue Can't Access local files"}
         else{
-    
-
+  
             StartButton.addEventListener("click",async ()=>{
-            chrome.tabs.sendMessage(
+            chrome?.tabs?.sendMessage(
                 tabs[0].id,
                 {from :"settings",
                 query:"inject_side_bar",
@@ -106,29 +139,17 @@ document.addEventListener("DOMContentLoaded",()=>{
 })
 })
 
-
-
-
-
-
-
-
-
-
-
-
 // text blocking logic
-
 
 document.addEventListener("DOMContentLoaded", () => {
   const setting1Checkbox = document.getElementById('setting1');
 
   // Load the checkbox state from Chrome storage and set the initial state
-  chrome.storage.sync.get({ setting1: false }, (data) => {
+  chrome?.storage?.sync.get({ setting1: false }, (data) => {
     setting1Checkbox.checked = data.setting1;
   });
 
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  chrome?.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0];
     if (tab.url === undefined || tab.url.startsWith('chrome')) {
       setting1Checkbox.disabled = true;
@@ -138,17 +159,17 @@ document.addEventListener("DOMContentLoaded", () => {
       setting1Checkbox.innerHTML = "MindCue Can't Access local files";
     } else {
       setting1Checkbox.addEventListener("click", () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome?.tabs?.query({ active: true, currentWindow: true }, function (tabs) {
           const activeTab = tabs[0];
           if (activeTab) {
-            chrome.tabs.reload(activeTab.id);
+            chrome?.tabs?.reload(activeTab.id);
           }
         });
         // Save the checkbox state in Chrome storage
-        chrome.storage.sync.set({ setting1: setting1Checkbox.checked });
+        chrome?.storage?.sync?.set({ setting1: setting1Checkbox.checked });
         
         // Send a message to the content script if needed
-        chrome.tabs.sendMessage(
+        chrome?.tabs?.sendMessage(
           tabs[0].id,
           { from: "settings", query: "text_blocking" }
         );
