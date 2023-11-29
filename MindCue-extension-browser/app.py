@@ -25,12 +25,9 @@ dataSent = ''
 
 @socketio.on('anomaly_data')
 def handle_receive_anomaly(data):
-    # print("Anomaly data received:", data)
-    # Process the data as needed
-    # For example, you might analyze or modify the data here
-
     # Once processing is done, call emit_anomaly to send it to clients
     emit_anomaly(data)
+    
 
 def emit_anomaly(data):
     # This function emits the processed anomaly data to clients
