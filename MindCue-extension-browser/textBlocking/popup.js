@@ -178,7 +178,31 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 // List of triggers and search
-const searchInput = document.getElementById("searchInput");
+var userId = localStorage.getItem("userId");
+let userTrigger = []; // List for only trigger names
+let triggerDetails = []; // List for trigger objects with name and ID
+
+if (userId) {
+    fetch("http://localhost:5000/api/triggers/" + userId)
+    .then(response => response.json())
+    .then(triggers => {
+        const uniqueNamesSet = new Set();
+        triggers["triggers"].forEach(trigger => {
+            if (!uniqueNamesSet.has(trigger.name)) {
+                uniqueNamesSet.add(trigger.name);
+                // Add only name to userTrigger
+                userTrigger.push(trigger.name);
+                // Add object with name and ID to triggerDetails
+                triggerDetails.push({ name: trigger.name, id: trigger._id });
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching triggers:', error);
+    });
+}
+
+
 
 const wordList = [
   "spider",
@@ -189,27 +213,47 @@ const wordList = [
   "accident"
   // Add more words to this list
 ];
-
-//generating tigger lsit secion checkboxes with labels from hardcoded values of wordList array
 function generateCheckboxes() {
   for (let i = 0; i < wordList.length; i++) {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.id = `checkbox${i}`;
+    if (userTrigger.includes(wordList[i])) {
+      checkbox.checked = true;
+    }
     checkbox.addEventListener("change", async function (e) {
+      const word = wordList[i];
       if (e.currentTarget.checked) {
-        console.log("e.currentTarget.checked ", true, wordList[i]);
-        selectedTriggerValues.push(wordList[i]);
-      } else {
-        console.log(
-          "e.currentTarget.checked is not checked",
-          e.currentTarget.checked
-        );
+        console.log("Checkbox checked for:", word);
+        // Call a function to add the trigger
+        await addTrigger(word);
+        alert("Trigger added successfully:", word)
 
-        var index = selectedTriggerValues.indexOf(wordList[i]);
-        if (index !== -1) {
-          console.log("iindex ", index);
-          selectedTriggerValues.splice(index, 1);
+      } else {
+        console.log("Checkbox unchecked for:", word);
+        alert("Trigger deleted successfully:", word)
+
+        const trigger = triggerDetails.find(t => t.name === word);
+        if (trigger) {
+          await fetch(`http://localhost:5000/api/triggers/${trigger.id}`, { method: "DELETE" })
+            .then(response => {
+              if (response.ok) {
+                console.log("Trigger deleted successfully:", word);
+                const index = triggerDetails.findIndex(t => t.id === trigger.id);
+                if (index !== -1) {
+                  triggerDetails.splice(index, 1);
+                }
+                const nameIndex = userTrigger.indexOf(word);
+                if (nameIndex !== -1) {
+                  userTrigger.splice(nameIndex, 1);
+                }
+              } else {
+                console.error("Failed to delete trigger:", word);
+              }
+            })
+            .catch(error => {
+              console.error("Error deleting trigger:", word, error);
+            });
         }
       }
     });
@@ -227,42 +271,31 @@ function generateCheckboxes() {
   }
 }
 
-// Add event listener for search input changes
-searchInput.addEventListener("input", filterCheckboxes);
 
-function filterCheckboxes() {
-  const searchTerm = searchInput.value.toLowerCase();
-  const checkboxes = checkboxContainer.getElementsByClassName("checkbox-item");
+// const saveTriggerBtn = document.getElementById("add-btn-trig");
 
-  for (let i = 0; i < checkboxes.length; i++) {
-    const label = checkboxes[i].getElementsByTagName("label")[0];
-    const labelValue = label.textContent.toLowerCase();
-    console.log("labelValue ", labelValue);
-    if (labelValue.includes(searchTerm)) {
-      checkboxes[i].style.display = "flex";
-    } else {
-      checkboxes[i].style.display = "none";
-    }
-  }
-}
+// // Add click event and on which function add selected triggers from trigger list
+// saveTriggerBtn.addEventListener("click", async function (e) {
+//   console.log(
+//     "save btn worked",
+//     selectedTriggerValues,
+//     selectedTriggerValues[0]
+//   );
 
-const saveTriggerBtn = document.getElementById("add-btn-trig");
+//   if (selectedTriggerValues.length > 0) {
+//     for (let i = 0; i < selectedTriggerValues.length; i++) {
+//       await addTrigger(selectedTriggerValues[i]);
+//     }
+//     let  triggersData= await getTriggers();
+//     generateTermsListHTML(triggersData?.triggers);
+//     alert('Trigger list saved')
+//   }
 
-// Add click event and on which function add selected triggers from trigger list
-saveTriggerBtn.addEventListener("click", async function (e) {
-  console.log(
-    "save btn worked",
-    selectedTriggerValues,
-    selectedTriggerValues[0]
-  );
+// });
 
-  if (selectedTriggerValues.length > 0) {
-    for (let i = 0; i < selectedTriggerValues.length; i++) {
-      await addTrigger(selectedTriggerValues[i]);
-    }
-    let  triggersData= await getTriggers();
-    generateTermsListHTML(triggersData?.triggers);
-    alert('Trigger list saved')
-  }
 
-});
+
+
+
+
+
