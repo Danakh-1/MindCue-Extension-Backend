@@ -21,8 +21,6 @@ print(temp_image_paths)
 
 dataSent = ''
 
-
-
 @socketio.on('anomaly_data')
 def handle_receive_anomaly(data):
     # Once processing is done, call emit_anomaly to send it to clients
@@ -34,10 +32,6 @@ def emit_anomaly(data):
     socketio.emit('anomaly', data)
     print("Anomaly data emitted:", data)
 
-
-# @app.route('/')
-# def index():
-#     return render_template('index.html')  # Make sure 'index.html' exists in your templates folder
 
 @socketio.on('connect')
 def handle_connect():
@@ -58,17 +52,17 @@ def handle_frame(data):
             temp_image_paths.append(image_path)
             temp_file.close()
             try:
-                results = model.predict(image_path)
+                results = model.predict(image_path,hosted=True)
                 p = results.json()
 
                 if p['predictions']:
                     prediction_class = p['predictions'][0]['class']
                     print('predictions', prediction_class)
-                    # emit('predictions', prediction_class)
+                    emit('predictions', prediction_class)
                 else:
                     # If there are no predictions, emit None
                     print('none')
-                    # emit('predictions', "none")
+                    emit('predictions', "none")
 
             except Exception as e:
                 print(f"Error during prediction: {e}")

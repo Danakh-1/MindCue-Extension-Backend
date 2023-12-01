@@ -102,7 +102,7 @@ toggleButton.addEventListener('click',function(){
       console.log('Connected to Flask server');
   });
 })
-
+// start and end screen recording
 toggleButton.addEventListener("click", () => {
   if (isRecording) {
     toggleRecording();
@@ -113,8 +113,7 @@ toggleButton.addEventListener("click", () => {
 });
 
 
-// timerrr
-
+// timerrr css and html
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
 const ALERT_THRESHOLD = 5;
@@ -180,13 +179,52 @@ function startTimer() {
       setRemainingPathColor(timeLeft);
   }, 1000);
 }
-
+// if the time limit was reached
 function onTimesUp() {
   clearInterval(timerInterval);
   // sweetalert  for screen time
   myalert2()
 }
 
+ // SCREEN TIME
+ function myalert2() {
+  Swal.fire({
+  title:'<html> \
+  <span class="title-class">Oops!</span> <br> \
+  <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through your app settings or take a break</span>\
+  </html>',
+  showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: '<html><span class="skip-button-text">Continue</span></html>',
+  denyButtonText: `<html><span class="skip-button-text"</span>Take a break </html>`,
+  cancelButtonText:'<html><span class="skip-button-text">Close browser</span></html>',
+  confirmButtonClass: 'Skip-Button',
+  cancelButtonClass: 'Skip-Button',
+  denyButtonClass:'Skip-Button',
+  showClass:{
+    popup: 'pop-up-class',
+    container: 'container-class',
+  }
+  }).then((result) => {
+    /* Read more about isConfirmed, isDenied below */
+    if (result.isConfirmed) {
+      document.querySelector('video.html5-main-video').play();
+    } else if (result.isDenied) {
+      document.querySelector('video.html5-main-video').pause();
+      const toggleButton = document.getElementById("toggleButton");
+      toggleButton.textContent = "Start Recording";
+      toggleRecording()
+
+    }
+    else if (result.isDismissed) {
+      document.querySelector('video.html5-main-video').pause();
+      // Example: Sending a message to the background script
+chrome.runtime.sendMessage({closeTab: true});
+      
+  }
+    })
+  
+  }
 
 function formatTime(time) {
   const hours = Math.floor(time / 3600);
@@ -292,6 +330,8 @@ function stopRecording() {
     stopTimer();
   }
 }
+
+// send the screen recording frames to backend
 function captureAndSendFrames(stream) {
   const video = document.createElement('video');
   video.srcObject = stream;
@@ -324,7 +364,12 @@ function captureAndSendFrames(stream) {
     }
   }, captureInterval);
 }
-///////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 // nodejs retrive trigger list
 // getting the last user triggers 
 let userTrigger = [];
@@ -354,49 +399,138 @@ fetch("http://localhost:5000/api/users", {
   console.error('Error:', error);
 });
 let mytrigger 
-//////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 // alert logic for triggers detected
 // Global variable to track the number of 'none' responses
 let noneResponseCount = 0;
 const NONE_RESPONSE_THRESHOLD = 3; // Threshold for 'none' responses
+let isAlertDisplayed = false;
+let isSkipping = false;
+let skipInterval;
 
-// // Assuming this is where you receive predictions
-// socket.on('predictions', function(data) {
-//   mytrigger = data;
-//   console.log(data);
+socket.on('predictions', function(data) {
+  mytrigger = data;
+  console.log(data);
 
-//   // Increment counter if the prediction is 'none'
-//   if (data === 'none') {
-//     noneResponseCount++;
-//   } else {
-//     // Reset counter for any other prediction
-//     noneResponseCount = 0;
-//   }
-
-//   // Check if there are relevant predictions and the counter is below the threshold
-//   if (data !== 'none' && userTrigger.includes(data) && noneResponseCount < NONE_RESPONSE_THRESHOLD) {
-//     document.querySelector('video.html5-main-video').pause();
-//     myalert3();
-//   } else {
-//     // No relevant predictions or counter has reached the threshold
-//     // You can handle this case as needed (e.g., resume video playback)
-//     document.querySelector('video.html5-main-video').play();
-//   }
-// });
-
-
-
-// nodejs retrive hardware mode
-// sweet alert for hardware
-socket.on('anomaly', function(data) {
-  console.log("Received data:", data[0]);
-  if(data[0]===-1){
-    myalert1()
+  if (data === 'none') {
+    noneResponseCount++;
+    if (noneResponseCount >= NONE_RESPONSE_THRESHOLD && !isSkipping) {
+      delayedResetSkippingState();  // Reset with a delay
+    }
+  } else {
+    noneResponseCount = 0;
+    if (userTrigger.includes(data)) {
+      document.querySelector('video.html5-main-video').pause();
+      myalert3();
+    }
   }
 });
 
+function delayedResetSkippingState() {
+  setTimeout(() => {
+    if (noneResponseCount >= NONE_RESPONSE_THRESHOLD && !isSkipping) {
+      resetSkippingState();
+    }
+  }, 5000); // Delay of 2000 milliseconds, adjust as necessary
+}
+
+function resetSkippingState() {
+  clearTimeout(skipInterval);
+  isSkipping = false;
+  const videoElement = document.querySelector('video.html5-main-video');
+  if (videoElement && videoElement.paused) {
+    videoElement.play();
+  }
+}
 
 
+  function checkAndSkipScene() {
+    const videoElement = document.querySelector('video.html5-main-video');
+    if (!videoElement) {
+      console.error('Video element not found');
+      return;
+    }
+    let wasPlayingBeforeSkip = false;
+    // Determine the amount of time to skip
+    const skipAmount = 10; 
+    setTimeout(() => {
+      console.log('Skipped, new time:', videoElement.currentTime);
+  }, 100); // Delay of 100 milliseconds
+    // Check if the trigger is still present
+    if (userTrigger.includes(mytrigger)) {
+      isSkipping = true;  // Set the flag when skipping starts
+      wasPlayingBeforeSkip = !videoElement.paused;
+      // Skip the scene by advancing the video by a fixed amount
+      videoElement.currentTime += skipAmount;
+      console.log('Skipped, new time:', videoElement.currentTime);
+      // Continue skipping without user interaction as long as the trigger is present
+      skipInterval = setTimeout(checkAndSkipScene, 5000);
+    } else {
+      // If the trigger is no longer present, stop the skipping process
+      clearTimeout(skipInterval);
+      isSkipping = false;
+  
+      // Resume video playback if it was playing before
+      if (wasPlayingBeforeSkip) {
+        videoElement.play();
+        console.log('Resuming playback');
+      }
+    }
+  }
+  
+
+  function myalert3() {
+    if (isAlertDisplayed || isSkipping) {
+      return; // Do not display the alert if it is already displayed or if we are currently skipping
+    }
+  
+    isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
+  
+    Swal.fire({
+      title: `<html> \
+        <span class="title-class">Wait a minute!</span> <br> \
+        <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+        <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+      </html>`,
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '<span class="skip-button-text">Skip the scene</span>',
+      denyButtonText: `<span class="skip-button-text">Dismiss</span>`,
+      cancelButtonText:'<span class="skip-button-text">Play Audio Only</span>',
+      customClass: {
+        confirmButton: 'skip-button', // Replace with your actual class name
+        denyButton: 'skip-button',       // Replace with your actual class name
+        cancelButton: 'skip-button'    // Replace with your actual class name
+        // Add other custom classes if needed
+      },
+      showClass: {
+        popup: 'pop-up-class',
+        container: 'container-class',
+      },
+    }).then((result) => {
+      isAlertDisplayed = false;
+  
+      if (result.isDenied) {
+        // Dismiss
+        document.querySelector('video.html5-main-video').play();
+      } else if (result.isConfirmed) {
+        // Set isSkipping to true to prevent multiple skips
+        isSkipping = true;
+        checkAndSkipScene();
+        document.querySelector('video.html5-main-video').play();
+      } else {
+        // Is canceled --> play audio only
+        applyBlackOverlay();
+      }
+    });
+  }
+  
+
+  
 // TRIGGER alerts 
 function myalert() {
   if (isAlertDisplayed) {
@@ -412,9 +546,15 @@ function myalert() {
   </html>',
   showDenyButton: true,
   showCancelButton: true,
-  confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
-  denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
-  cancelButtonText:'<html><span class="skip-button-text">Play Audio Only</span></html>',
+  confirmButtonText: '<span>Skip the scene</span>',
+  denyButtonText: `<span >Dismiss</span>`,
+  cancelButtonText:'<span >Play Audio Only</span>',
+  customClass: {
+    confirmButton: 'skip-button', // Replace with your actual class name
+    denyButton: 'skip-button',       // Replace with your actual class name
+    cancelButton: 'skip-button'    // Replace with your actual class name
+    // Add other custom classes if needed
+  },
   showClass:{
     popup: 'pop-up-class',
     container: 'container-class',
@@ -435,89 +575,17 @@ function myalert() {
   }})
   
   }
-  function checkAndSkipScene() {
-    const videoElement = document.querySelector('video.html5-main-video');
-    if (!videoElement) {
-      console.error('Video element not found');
-      return;
-    }
-  
-    // Determine the amount of time to skip
-    const skipAmount = 5; // Example: 5 seconds
-  
-    console.log('Current time before skipping:', videoElement.currentTime);
-  
-    // Check if the trigger is still present
-    if (userTrigger.includes(mytrigger)) {
-      // Skip the scene by advancing the video by a fixed amount
-      videoElement.currentTime += skipAmount;
-      console.log('Skipped, new time:', videoElement.currentTime);
-  
-      // Continue skipping without user interaction as long as the trigger is present
-      skipInterval = setTimeout(checkAndSkipScene, 100);
-    } else {
-      // If the trigger is no longer present, stop the skipping process
-      clearTimeout(skipInterval);
-      isSkipping = false;
-  
-      // Resume video playback if it was playing before
-      if (wasPlayingBeforeSkip) {
-        videoElement.play();
-        console.log('Resuming playback');
-      }
-    }
+
+
+
+// nodejs retrive hardware mode
+// sweet alert for hardware
+socket.on('anomaly', function(data) {
+  console.log("Received data:", data[0]);
+  if(data[0]===-1){
+    myalert1()
   }
-  
-  
-  let isAlertDisplayed = false;
-  let isSkipping = false;
-  let skipInterval;
-  
-  function myalert3() {
-    if (isAlertDisplayed || isSkipping) {
-      return; // Do not display the alert if it is already displayed or if we are currently skipping
-    }
-  
-    isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
-  
-    Swal.fire({
-      title: `<html> \
-        <span class="title-class">Wait a minute!</span> <br> \
-        <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
-        <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
-      </html>`,
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: '<html><span class="skip-button-text">Skip the scene</span></html>',
-      denyButtonText: `<html><span class="skip-button-text">Dismiss</span></html>`,
-      cancelButtonText: '<html><span class="skip-button-text">Play Audio Only</span></html>',
-      confirmButtonClass: 'Skip-Button',
-      denyButtonClass: 'Skip-Button',
-      showClass: {
-        popup: 'pop-up-class',
-        container: 'container-class',
-      },
-    }).then((result) => {
-      isAlertDisplayed = false;
-  
-      if (result.isDenied) {
-        // Dismiss
-        document.querySelector('video.html5-main-video').play();
-      } else if (result.isConfirmed) {
-        // Set isSkipping to true to prevent multiple skips
-        isSkipping = true;
-        checkAndSkipScene();
-      } else {
-        // Is canceled --> play audio only
-        applyBlackOverlay();
-      }
-    });
-  }
-  
-
-  
-
-
+});
 
 // HARDWARE
   function myalert1() {
@@ -537,48 +605,55 @@ function myalert() {
     }
 
     }
-)
+).then((result) => {
+  if (result.isDenied) {
+    document.querySelector('video.html5-main-video').pause();
+    myalert4()
+  }else if (result.isConfirmed) {
+    document.querySelector('video.html5-main-video').play();
+}})
     
     }
-  // SCREEN TIME
-    function myalert2() {
+    function myalert4() {
+      if (isAlertDisplayed || isSkipping) {
+        return; // Do not display the alert if it is already displayed or if we are currently skipping
+      }
+    
+      isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
+    
       Swal.fire({
-      title:'<html> \
-      <span class="title-class">Oops!</span> <br> \
-      <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through your app settings or take a break</span>\
-      </html>',
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: '<html><span class="skip-button-text">Continue</span></html>',
-      denyButtonText: `<html><span class="skip-button-text"</span>Take a break </html>`,
-      cancelButtonText:'<html><span class="skip-button-text">Close browser</span></html>',
-      confirmButtonClass: 'Skip-Button',
-      cancelButtonClass: 'Skip-Button',
-      denyButtonClass:'Skip-Button',
-      showClass:{
-        popup: 'pop-up-class',
-        container: 'container-class',
-      }
+        title: `<html> \
+          <span class="title-class">Wait a minute!</span> <br> \
+          <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+          <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+        </html>`,
+        showCancelButton: true,
+        confirmButtonText: '<span class="skip-button-text">Skip the scene</span>',
+        cancelButtonText:'<span class="skip-button-text">Play Audio Only</span>',
+        customClass: {
+          confirmButton: 'skip-button', // Replace with your actual class name
+          cancelButton: 'skip-button'    // Replace with your actual class name
+          // Add other custom classes if needed
+        },
+        showClass: {
+          popup: 'pop-up-class',
+          container: 'container-class',
+        },
       }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed) {
+        isAlertDisplayed = false;
+    if (result.isConfirmed) {
+          // Set isSkipping to true to prevent multiple skips
+          isSkipping = true;
+          checkAndSkipScene();
           document.querySelector('video.html5-main-video').play();
-        } else if (result.isDenied) {
-          document.querySelector('video.html5-main-video').pause();
-          const toggleButton = document.getElementById("toggleButton");
-          toggleButton.textContent = "Start Recording";
-          toggleRecording()
-
+        } else {
+          // Is canceled --> play audio only
+          applyBlackOverlay();
         }
-        else if (result.isDismissed) {
-          document.querySelector('video.html5-main-video').pause();
-          // Example: Sending a message to the background script
-chrome.runtime.sendMessage({closeTab: true});
-          
-      }
-        })
-      
-      }
+      });
+    }
+    
+ 
 
       function applyBlackOverlay() {
         // Find the video container
@@ -604,13 +679,6 @@ chrome.runtime.sendMessage({closeTab: true});
           playerContainer.prepend(blackoutDiv);
         }
       }
-      
-    
-    
-        
-     
-      
-    
     }
 
 })
