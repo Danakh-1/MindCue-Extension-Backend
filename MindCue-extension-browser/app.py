@@ -5,7 +5,7 @@ from flask import Flask
 from flask_socketio import SocketIO, emit                
 from roboflow import Roboflow
 
-rf = Roboflow(api_key="U2IS7o5eMZzast1kxJDr")
+rf = Roboflow(api_key="0IQdCqhcFmykh7J751c2")
 project = rf.workspace().project("combo-dataset-2-bqmkx")
 model = project.version(1).model
 

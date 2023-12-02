@@ -319,9 +319,9 @@ async function toggleRecording() {
 
       // START OF JANNA'S CHANGES
       // Store the current timestamp as the start time of recording
-      recordingStartTime = Date.now();
-      timeString1 = recordingStartTime.toLocaleTimeString();
-      dateString1 = recordingStartTime.toLocaleDateString();
+      // recordingStartTime = Date.now();
+      // timeString1 = recordingStartTime.toLocaleTimeString();
+      // dateString1 = recordingStartTime.toLocaleDateString();
       // END OF JANNA'S CHANGES
 
       captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
@@ -345,10 +345,10 @@ function stopRecording() {
 
     // START OF JANNA'S CHANGES
     // Store the current timestamp as the end time of recording
-    recordingEndTime = Date.now();
-    timeString = recordingEndTime.toLocaleTimeString();
-    dateString = recordingEndTime.toLocaleDateString();
-    sendDataToDatabase();
+    // recordingEndTime = Date.now();
+    // timeString = recordingEndTime.toLocaleTimeString();
+    // dateString = recordingEndTime.toLocaleDateString();
+    // sendDataToDatabase();
     // END OF JANNA'S CHANGES
 
     console.log("Recording stopped.");
@@ -458,7 +458,6 @@ function resetSkippingState() {
     videoElement.play();
   }
 }
-
 function checkAndSkipScene() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (!videoElement) {
@@ -466,15 +465,15 @@ function checkAndSkipScene() {
     return;
   }
   let wasPlayingBeforeSkip = !videoElement.paused;
-  const skipAmount = 10; // Time to skip in seconds
-  
+  const skipAmount = 5; // Time to skip in seconds
+
   if (userTrigger.includes(mytrigger)) {
     isSkipping = true;
     videoElement.currentTime += skipAmount;
     console.log('Skipped, new time:', videoElement.currentTime);
-    skipInterval = setTimeout(checkAndSkipScene, 5000); // Continue skipping every 5 seconds
+    skipInterval = setTimeout(checkAndSkipScene, 1000); // Check again after 1 second
   } else {
-    clearTimeout(skipInterval);
+    clearTimeout(skipInterval); // Clear the timeout if the condition is no longer true
     isSkipping = false;
     if (wasPlayingBeforeSkip) {
       videoElement.play();
@@ -519,7 +518,6 @@ function checkAndSkipScene() {
         document.querySelector('video.html5-main-video').play();
       } else if (result.isConfirmed) {
         // Set isSkipping to true to prevent multiple skips
-  
         isSkipping = true;
         checkAndSkipScene();
       } else {
