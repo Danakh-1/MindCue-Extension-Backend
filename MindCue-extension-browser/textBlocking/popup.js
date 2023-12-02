@@ -230,15 +230,15 @@ function generateCheckboxes() {
         alert("Trigger added successfully:", word)
 
       } else {
-        console.log("Checkbox unchecked for:", word);
-        alert("Trigger deleted successfully:", word)
+        console.log("Checkbox unchecked for");
+        alert("Trigger deleted successfully")
 
         const trigger = triggerDetails.find(t => t.name === word);
         if (trigger) {
           await fetch(`http://localhost:5000/api/triggers/${trigger.id}`, { method: "DELETE" })
             .then(response => {
               if (response.ok) {
-                console.log("Trigger deleted successfully:", word);
+                console.log("Trigger deleted successfully");
                 const index = triggerDetails.findIndex(t => t.id === trigger.id);
                 if (index !== -1) {
                   triggerDetails.splice(index, 1);

@@ -11,8 +11,8 @@
       console.log('Retrieved setting1 from storage:', setting1Value);
       if(setting1Value){
         let cachedTerms = [];
-        const elementsWithTextContentToSearch = "a, p, h1, h2, h3, h4, h5, h6,input";
-        const containerElements = "form,span, div, li, th, td, dt, dd";
+        const elementsWithTextContentToSearch = "a, p, h1, h2, h3, h4, h5, h6";
+        const containerElements = "span, div, li, th, td, dt, dd";
         
         // Check if text blocking should be enabled
         if (true) {

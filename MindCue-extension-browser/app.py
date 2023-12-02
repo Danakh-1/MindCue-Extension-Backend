@@ -1,17 +1,15 @@
 import base64
-from io import BytesIO
 import os
 import tempfile
-from PIL import Image
-from flask import Flask, render_template
+from flask import Flask
 from flask_socketio import SocketIO, emit                
-from ultralytics import YOLO
-import signal
 from roboflow import Roboflow
 
-rf = Roboflow(api_key="7Hl9FLL5IgTbW6A70Nue")
-project = rf.workspace("mindcue").project("combo-dataset")
-model = project.version(3).model
+rf = Roboflow(api_key="U2IS7o5eMZzast1kxJDr")
+project = rf.workspace().project("combo-dataset-2-bqmkx")
+model = project.version(1).model
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -20,8 +18,6 @@ print(temp_image_paths)
 
 
 dataSent = ''
-
-
 
 @socketio.on('anomaly_data')
 def handle_receive_anomaly(data):
@@ -34,10 +30,6 @@ def emit_anomaly(data):
     socketio.emit('anomaly', data)
     print("Anomaly data emitted:", data)
 
-
-# @app.route('/')
-# def index():
-#     return render_template('index.html')  # Make sure 'index.html' exists in your templates folder
 
 @socketio.on('connect')
 def handle_connect():
@@ -64,11 +56,11 @@ def handle_frame(data):
                 if p['predictions']:
                     prediction_class = p['predictions'][0]['class']
                     print('predictions', prediction_class)
-                    # emit('predictions', prediction_class)
+                    emit('predictions', prediction_class)
                 else:
                     # If there are no predictions, emit None
                     print('none')
-                    # emit('predictions', "none")
+                    emit('predictions', "none")
 
             except Exception as e:
                 print(f"Error during prediction: {e}")
