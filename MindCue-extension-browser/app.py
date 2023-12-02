@@ -1,16 +1,12 @@
 import base64
-from io import BytesIO
 import os
 import tempfile
-from PIL import Image
-from flask import Flask, render_template
+from flask import Flask
 from flask_socketio import SocketIO, emit                
-from ultralytics import YOLO
-import signal
 from roboflow import Roboflow
 
-rf = Roboflow(api_key="7Hl9FLL5IgTbW6A70Nue")
-project = rf.workspace("mindcue").project("combo-dataset")
+rf = Roboflow(api_key="0IQdCqhcFmykh7J751c2")
+project = rf.workspace("mindcue2").project("combo-dataset-2-bqmkx")
 model = project.version(3).model
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'

@@ -682,3 +682,47 @@ socket.on('anomaly', function(data) {
     }
 
 })
+
+
+
+// // old skipping function checkAndSkipScene() {
+//     const videoElement = document.querySelector('video.html5-main-video');
+//     if (!videoElement) {
+//       console.error('Video element not found');
+//       return;
+//     }
+  
+//     // Determine the amount of time to skip
+//     const skipAmount = 5; // Example: 5 seconds
+  
+//     console.log('Current time before skipping:', videoElement.currentTime);
+  
+//     // Check if the trigger is still present
+//     if (userTrigger.includes(mytrigger)) {
+//       // Skip the scene by advancing the video by a fixed amount
+//       videoElement.currentTime += skipAmount;
+//       console.log('Skipped, new time:', videoElement.currentTime);
+  
+//       // Continue skipping without user interaction as long as the trigger is present
+//       skipInterval = setTimeout(checkAndSkipScene, 100);
+//     } else {
+//       // If the trigger is no longer present, stop the skipping process
+//       clearTimeout(skipInterval);
+//       isSkipping = false;
+  
+//       // Resume video playback if it was playing before
+//       if (wasPlayingBeforeSkip) {
+//         videoElement.play();
+//         console.log('Resuming playback');
+//       }
+//     }
+  
+
+
+// logic inside isconfirmend button inside alert()
+    //  // Set isSkipping to true to prevent multiple skips
+    //  isSkipping = true;
+  
+    //  // Start the skip interval
+    //  skipInterval = setInterval(checkAndSkipScene, 200);
+    //  checkAndSkipScene();
