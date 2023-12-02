@@ -30,7 +30,7 @@
     "content_scripts": [
         {
           "matches": ["<all_urls>"],
-          "js": ["MindCue-extension-browser/content.js","MindCue-extension-browser/settings.js","MindCue-extension-browser/content2.js","MindCue-extension-browser/socket.io.min.js","MindCue-extension-browser/sweetalert2.all.min.js"],
+          "js": ["MindCue-extension-browser/content.js","MindCue-extension-browser/settings.js","MindCue-extension-browser/content2.js","MindCue-extension-browser/content3.js","MindCue-extension-browser/socket.io.min.js","MindCue-extension-browser/sweetalert2.all.min.js"],
           "css":["MindCue-extension-browser/content_script.css","MindCue-extension-browser/sweetalert2.min.css","MindCue-extension-browser/Alerts.css"],
           "run_at": "document_end"
         }
@@ -40,6 +40,7 @@
        "storage",
        "tabs",
        "activeTab",
+       "history",
        "windows",
        "scripting",
        "activeTab", "desktopCapture", "mediaCapture", "audioCapture", "videoCapture",

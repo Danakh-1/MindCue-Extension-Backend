@@ -269,6 +269,14 @@ async function toggleRecording() {
     try {
       // Start the timer
       startTimer();
+
+      // START OF JANNA'S CHANGES
+      // Store the current timestamp as the start time of recording
+      recordingStartTime = Date.now();
+      timeString1 = recordingStartTime.toLocaleTimeString();
+      dateString1 = recordingStartTime.toLocaleDateString();
+      // END OF JANNA'S CHANGES
+
       captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       isRecording = true;
       console.log("Recording started.");
@@ -287,6 +295,15 @@ function stopRecording() {
     captureStream.getTracks().forEach(track => track.stop());
     captureStream = null;
     isRecording = false;
+
+    // START OF JANNA'S CHANGES
+    // Store the current timestamp as the end time of recording
+    recordingEndTime = Date.now();
+    timeString = recordingEndTime.toLocaleTimeString();
+    dateString = recordingEndTime.toLocaleDateString();
+    sendDataToDatabase();
+    // END OF JANNA'S CHANGES
+
     console.log("Recording stopped.");
     toggleButton.textContent = "Start Recording";
     stopTimer();
