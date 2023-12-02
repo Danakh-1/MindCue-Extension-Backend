@@ -177,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
 document.getElementById('logout').addEventListener('click', function() {
   // Clear token and user data from localStorage
   localStorage.removeItem('token');

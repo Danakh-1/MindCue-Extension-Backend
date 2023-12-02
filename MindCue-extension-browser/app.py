@@ -5,9 +5,11 @@ from flask import Flask
 from flask_socketio import SocketIO, emit                
 from roboflow import Roboflow
 
-rf = Roboflow(api_key="0IQdCqhcFmykh7J751c2")
-project = rf.workspace("mindcue2").project("combo-dataset-2-bqmkx")
-model = project.version(3).model
+rf = Roboflow(api_key="U2IS7o5eMZzast1kxJDr")
+project = rf.workspace().project("combo-dataset-2-bqmkx")
+model = project.version(1).model
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -48,7 +50,7 @@ def handle_frame(data):
             temp_image_paths.append(image_path)
             temp_file.close()
             try:
-                results = model.predict(image_path,hosted=True)
+                results = model.predict(image_path)
                 p = results.json()
 
                 if p['predictions']:

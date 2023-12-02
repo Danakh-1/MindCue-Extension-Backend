@@ -4,11 +4,20 @@
 let isAlertDisplayed = false;
 let userId
 
+chrome.storage.local.get(['userId'], function(result) {
+  console.log('UserId currently is ' + result.userId);
+  userId =result.userId
+});
+
+
 chrome.runtime.onMessage.addListener((message,sender)=>{
   if (message.from === "popup" && message.query === "userid") {
     // Handle message from popup
-    userId = message.userId
-    console.log(message.userId);
+    if(message.userId){
+      userId = message.userId
+      console.log(message.userId);
+    }
+  
 }
   if (message.from === "settings" && message.query === "inject_side_bar"){
 // inject the timer page 
@@ -381,7 +390,6 @@ fetch("http://localhost:5000/api/users", {
 })
 .then(response => response.json())
 .then(() => {
-
   return fetch("http://localhost:5000/api/triggers/" + userId);
 })
 .then(response => response.json())
@@ -398,45 +406,32 @@ fetch("http://localhost:5000/api/users", {
 .catch(error => {
   console.error('Error:', error);
 });
-let mytrigger 
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // alert logic for triggers detected
 // Global variable to track the number of 'none' responses
 let noneResponseCount = 0;
-const NONE_RESPONSE_THRESHOLD = 3; // Threshold for 'none' responses
 let isAlertDisplayed = false;
 let isSkipping = false;
 let skipInterval;
+let mytrigger 
 
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
-
   if (data === 'none') {
     noneResponseCount++;
-    if (noneResponseCount >= NONE_RESPONSE_THRESHOLD && !isSkipping) {
-      delayedResetSkippingState();  // Reset with a delay
+    if (noneResponseCount >= 3 && isSkipping) {
+      resetSkippingState();
     }
   } else {
     noneResponseCount = 0;
-    if (userTrigger.includes(data)) {
-      document.querySelector('video.html5-main-video').pause();
+    if (userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
       myalert3();
     }
   }
 });
 
-function delayedResetSkippingState() {
-  setTimeout(() => {
-    if (noneResponseCount >= NONE_RESPONSE_THRESHOLD && !isSkipping) {
-      resetSkippingState();
-    }
-  }, 5000); // Delay of 2000 milliseconds, adjust as necessary
-}
 
 function resetSkippingState() {
   clearTimeout(skipInterval);
@@ -447,41 +442,29 @@ function resetSkippingState() {
   }
 }
 
-
-  function checkAndSkipScene() {
-    const videoElement = document.querySelector('video.html5-main-video');
-    if (!videoElement) {
-      console.error('Video element not found');
-      return;
-    }
-    let wasPlayingBeforeSkip = false;
-    // Determine the amount of time to skip
-    const skipAmount = 10; 
-    setTimeout(() => {
-      console.log('Skipped, new time:', videoElement.currentTime);
-  }, 100); // Delay of 100 milliseconds
-    // Check if the trigger is still present
-    if (userTrigger.includes(mytrigger)) {
-      isSkipping = true;  // Set the flag when skipping starts
-      wasPlayingBeforeSkip = !videoElement.paused;
-      // Skip the scene by advancing the video by a fixed amount
-      videoElement.currentTime += skipAmount;
-      console.log('Skipped, new time:', videoElement.currentTime);
-      // Continue skipping without user interaction as long as the trigger is present
-      skipInterval = setTimeout(checkAndSkipScene, 5000);
-    } else {
-      // If the trigger is no longer present, stop the skipping process
-      clearTimeout(skipInterval);
-      isSkipping = false;
+function checkAndSkipScene() {
+  const videoElement = document.querySelector('video.html5-main-video');
+  if (!videoElement) {
+    console.error('Video element not found');
+    return;
+  }
+  let wasPlayingBeforeSkip = !videoElement.paused;
+  const skipAmount = 10; // Time to skip in seconds
   
-      // Resume video playback if it was playing before
-      if (wasPlayingBeforeSkip) {
-        videoElement.play();
-        console.log('Resuming playback');
-      }
+  if (userTrigger.includes(mytrigger)) {
+    isSkipping = true;
+    videoElement.currentTime += skipAmount;
+    console.log('Skipped, new time:', videoElement.currentTime);
+    skipInterval = setTimeout(checkAndSkipScene, 5000); // Continue skipping every 5 seconds
+  } else {
+    clearTimeout(skipInterval);
+    isSkipping = false;
+    if (wasPlayingBeforeSkip) {
+      videoElement.play();
+      console.log('Resuming playback');
     }
   }
-  
+}
 
   function myalert3() {
     if (isAlertDisplayed || isSkipping) {
@@ -519,9 +502,9 @@ function resetSkippingState() {
         document.querySelector('video.html5-main-video').play();
       } else if (result.isConfirmed) {
         // Set isSkipping to true to prevent multiple skips
+  
         isSkipping = true;
         checkAndSkipScene();
-        document.querySelector('video.html5-main-video').play();
       } else {
         // Is canceled --> play audio only
         applyBlackOverlay();
@@ -685,7 +668,8 @@ socket.on('anomaly', function(data) {
 
 
 
-// // old skipping function checkAndSkipScene() {
+// // old skipping 
+// function checkAndSkipScene() {
 //     const videoElement = document.querySelector('video.html5-main-video');
 //     if (!videoElement) {
 //       console.error('Video element not found');

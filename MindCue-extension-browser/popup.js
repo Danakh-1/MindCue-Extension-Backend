@@ -1,6 +1,6 @@
 
 //// Now Ill try not to loging out each time 
-document.addEventListener("load", function() {
+window.addEventListener("load", function() {
     const userId = localStorage.getItem("userId");
     if (userId) {
         window.location.href = "Dashboard.html";
@@ -10,7 +10,6 @@ document.addEventListener("load", function() {
 ///////////////////////////////////////////code BOODAI
 document.getElementById("sign_in_form").addEventListener("submit", function (e) {
     e.preventDefault();
-
     // Get user input
     const email = document.getElementById("sign_in_email").value;
     const password = document.getElementById("sign_in_password").value;
@@ -32,7 +31,10 @@ document.getElementById("sign_in_form").addEventListener("submit", function (e) 
     .then(data => {
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("token", data.token); // Store the token
-
+    
+        chrome.storage.local.set({ userId: data.userId }, function() {
+            console.log('UserId is saved in Chrome local storage.');
+        });
         window.location.href = "Dashboard.html";
     })
     .catch(error => {
