@@ -399,7 +399,6 @@ function captureAndSendFrames(stream) {
 // nodejs retrive trigger list
 // getting the last user triggers 
 let userTrigger = [];
-
 fetch("http://localhost:5000/api/users", {
   headers: {
     "Content-Type": "application/json",
@@ -482,7 +481,7 @@ function checkAndSkipScene() {
   }
 }
 
-  function myalert3() {
+function myalert3() {
     if (isAlertDisplayed || isSkipping) {
       return; // Do not display the alert if it is already displayed or if we are currently skipping
     }

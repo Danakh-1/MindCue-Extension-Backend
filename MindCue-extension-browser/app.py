@@ -50,7 +50,7 @@ def handle_frame(data):
             temp_image_paths.append(image_path)
             temp_file.close()
             try:
-                results = model.predict(image_path)
+                results = model.predict(image_path,hosted=True)
                 p = results.json()
 
                 if p['predictions']:

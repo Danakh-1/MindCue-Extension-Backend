@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Frame Sender</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script type="text/javascript">
+       let socket;
+       document.addEventListener("DOMContentLoaded", function() {
+           socket =io.connect('http://127.0.0.1:8080');
+           
+           socket.on('connect', function() {
+               console.log('Connected to WebSocket server.');
+           });
+
+           socket.on('disconnect', function(reason) {
+               console.log('Disconnected:', reason);
+           });
+
+           socket.on('predictions', function(data) {
+               console.log('Predictions:', data);
+               // Add any logic to handle predictions here
+           });
+
+           document.getElementById('startButton').addEventListener('click', startVideoStream);
+       });
+
+       function startVideoStream() {
+           const video = document.getElementById('remote');
+           navigator.mediaDevices.getDisplayMedia()
+               .then(stream => {
+                   video.srcObject = stream;
+                   captureAndSendFrames();
+               })
+               .catch(error => {
+                   console.error('Error accessing media devices.', error);
+               });
+       }
+
+       function captureAndSendFrames() {
+           const video = document.getElementById('remote');
+           const canvas = document.createElement('canvas');
+           const context = canvas.getContext('2d');
+           const captureInterval = 1000; // Adjusted to 1000ms for performance
+
+           video.addEventListener('loadedmetadata', function() {
+               canvas.width = video.videoWidth;
+               canvas.height = video.videoHeight;
+           });
+
+           setInterval(() => {
+               if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                   context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                   canvas.toBlob(blob => {
+                       if (blob) {
+                           const reader = new FileReader();
+                           reader.onloadend = function() {
+                               socket.emit('send_frame', reader.result);
+                           };
+                           reader.readAsDataURL(blob);
+                       }
+                   }, 'image/jpeg');
+               }
+           }, captureInterval);
+       }
+    </script>
+</head>
+<body>
+    <h1>WebSocket Frame Sender</h1>
+    <video id="remote" autoplay></video>
+    <button id="startButton">Start Video Stream</button>
+</body>
+</html>
