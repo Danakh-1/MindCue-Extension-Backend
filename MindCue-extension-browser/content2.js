@@ -3,6 +3,8 @@
 
 let isAlertDisplayed = false;
 let userId
+let recordingStartTime
+let recordingEndTime
 
 chrome.storage.local.get(['userId'], function(result) {
   console.log('UserId currently is ' + result.userId);
@@ -20,6 +22,7 @@ chrome.runtime.onMessage.addListener((message,sender)=>{
   
 }
   if (message.from === "settings" && message.query === "inject_side_bar"){
+    
 // inject the timer page 
 let mainDiv =  document.createElement("div")
 mainDiv.setAttribute("id","MindCuecontainer")
@@ -316,19 +319,39 @@ async function toggleRecording() {
     try {
       // Start the timer
       startTimer();
-
-      // START OF JANNA'S CHANGES
-      // Store the current timestamp as the start time of recording
-      recordingStartTime = Date.now();
-      timeString1 = recordingStartTime.toLocaleTimeString();
-      dateString1 = recordingStartTime.toLocaleDateString();
-      // END OF JANNA'S CHANGES
-
       captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       isRecording = true;
       console.log("Recording started.");
       toggleButton.textContent = "Stop Recording";
       captureAndSendFrames(captureStream);
+
+      // START OF JANNA'S CHANGES
+      // Store the current timestamp as the start time of recording
+      recordingStartTime = Date.now();
+
+      // Convert the timestamp to a Date object
+      var date = new Date(recordingStartTime);
+
+      // Format the date and time into a string
+      var startTime = date.toLocaleString();
+
+      console.log(startTime)
+      chrome.storage.local.set({ startTime: startTime}, function() {
+        console.log('startTime is saved in Chrome local storage.');
+    });
+
+    chrome.runtime.sendMessage({ startTime: startTime }, function(response) {
+      console.log("Timestamp sent to background script.", response);
+    });
+
+    // getting the timestmps
+    // chrome.storage.local.get(['startTime'], function(result) {
+    //   console.log(' from background startTime currently is ' + result.startTime);
+    // });
+
+      /// send to background
+
+      // END OF JANNA'S CHANGES
     } catch (error) {
       console.error('Error accessing media devices.', error);
     }
@@ -345,10 +368,23 @@ function stopRecording() {
 
     // START OF JANNA'S CHANGES
     // Store the current timestamp as the end time of recording
-    recordingEndTime = Date.now();
-    timeString = recordingEndTime.toLocaleTimeString();
-    dateString = recordingEndTime.toLocaleDateString();
-    sendDataToDatabase();
+      recordingEndTime = Date.now();
+
+      // Convert the timestamp to a Date object
+      var date = new Date(recordingEndTime);
+
+      // Format the date and time into a string
+      var endTime = date.toLocaleString();
+
+      console.log(endTime)
+      chrome.storage.local.set({ endTime: endTime}, function() {
+        console.log('endTime is saved in Chrome local storage.');
+    });
+
+    chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
+      console.log("Timestamp sent to background script.", response);
+    });
+    // sendDataToDatabase();
     // END OF JANNA'S CHANGES
 
     console.log("Recording stopped.");

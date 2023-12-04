@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 // Create Schema
 //we need a reference back to the users
+//THE YouTubr URL snd description,timestap of the session saved in TET file created by mongDB. 
 const TrackSchema = new Schema({
   user: {type: mongoose.Schema.Types.ObjectId,
     required: true,
