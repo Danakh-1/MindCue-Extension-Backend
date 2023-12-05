@@ -319,6 +319,7 @@ async function toggleRecording() {
     try {
       // Start the timer
       startTimer();
+
       captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       isRecording = true;
       console.log("Recording started.");
@@ -384,8 +385,7 @@ function stopRecording() {
     chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
       console.log("Timestamp sent to background script.", response);
     });
-    // sendDataToDatabase();
-    // END OF JANNA'S CHANGES
+
 
     console.log("Recording stopped.");
     toggleButton.textContent = "Start Recording";
@@ -403,7 +403,7 @@ function captureAndSendFrames(stream) {
 
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  const captureInterval = 500;
+  const captureInterval = 1000;
 
   video.addEventListener('loadedmetadata', function() {
     canvas.width = video.videoWidth;
@@ -435,7 +435,6 @@ function captureAndSendFrames(stream) {
 // nodejs retrive trigger list
 // getting the last user triggers 
 let userTrigger = [];
-
 fetch("http://localhost:5000/api/users", {
   headers: {
     "Content-Type": "application/json",
@@ -461,31 +460,39 @@ fetch("http://localhost:5000/api/users", {
 });
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// alert logic for triggers detected
-// Global variable to track the number of 'none' responses
+// Global variables
 let noneResponseCount = 0;
 let isAlertDisplayed = false;
 let isSkipping = false;
-let skipInterval;
-let mytrigger 
+let isAudioOnlyMode = false;
 
+let skipInterval;
+let mytrigger;
+
+// Socket event for receiving predictions
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
+
+  // Handle 'none' predictions
   if (data === 'none') {
     noneResponseCount++;
-    if (noneResponseCount >= 3 && isSkipping) {
+    if (noneResponseCount >= 3) {
+      if (isAudioOnlyMode) {
+        removeBlackOverlay();
+        isAudioOnlyMode = false;
+      }
       resetSkippingState();
     }
   } else {
     noneResponseCount = 0;
-    if (userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
+    if (!isAudioOnlyMode && userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
       myalert3();
     }
   }
 });
 
-
+// Reset skipping state
 function resetSkippingState() {
   clearTimeout(skipInterval);
   isSkipping = false;
@@ -495,6 +502,7 @@ function resetSkippingState() {
   }
 }
 
+// Check and skip scene
 function checkAndSkipScene() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (!videoElement) {
@@ -502,13 +510,13 @@ function checkAndSkipScene() {
     return;
   }
   let wasPlayingBeforeSkip = !videoElement.paused;
-  const skipAmount = 10; // Time to skip in seconds
-  
+  const skipAmount = 5; // Time to skip in seconds
+
   if (userTrigger.includes(mytrigger)) {
     isSkipping = true;
     videoElement.currentTime += skipAmount;
     console.log('Skipped, new time:', videoElement.currentTime);
-    skipInterval = setTimeout(checkAndSkipScene, 5000); // Continue skipping every 5 seconds
+    skipInterval = setTimeout(checkAndSkipScene, 1000);
   } else {
     clearTimeout(skipInterval);
     isSkipping = false;
@@ -519,54 +527,70 @@ function checkAndSkipScene() {
   }
 }
 
-  function myalert3() {
-    if (isAlertDisplayed || isSkipping) {
-      return; // Do not display the alert if it is already displayed or if we are currently skipping
-    }
-  
-    isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
-  
-    Swal.fire({
-      title: `<html> \
-        <span class="title-class">Wait a minute!</span> <br> \
-        <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
-        <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
-      </html>`,
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: '<span class="skip-button-text">Skip the scene</span>',
-      denyButtonText: `<span class="skip-button-text">Dismiss</span>`,
-      cancelButtonText:'<span class="skip-button-text">Play Audio Only</span>',
-      customClass: {
-        confirmButton: 'skip-button', // Replace with your actual class name
-        denyButton: 'skip-button',       // Replace with your actual class name
-        cancelButton: 'skip-button'    // Replace with your actual class name
-        // Add other custom classes if needed
-      },
-      showClass: {
-        popup: 'pop-up-class',
-        container: 'container-class',
-      },
-    }).then((result) => {
-      isAlertDisplayed = false;
-  
-      if (result.isDenied) {
-        // Dismiss
-        document.querySelector('video.html5-main-video').play();
-      } else if (result.isConfirmed) {
-        // Set isSkipping to true to prevent multiple skips
-  
-        isSkipping = true;
-        checkAndSkipScene();
-      } else {
-        // Is canceled --> play audio only
-        applyBlackOverlay();
-      }
-    });
+// Custom alert for detections
+function myalert3() {
+  if (isAlertDisplayed || isSkipping) {
+    return; // Do not display the alert if it is already displayed or if we are currently skipping
   }
-  
 
-  
+  isAlertDisplayed = true;
+
+  Swal.fire({
+    title: `<html> \
+      <span class="title-class">Wait a minute!</span> <br> \
+      <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+      <span class="title-class2">The subject identified is: <b>${mytrigger}<b/></span> <br> \
+    </html>`,
+    showDenyButton: true,
+    showCancelButton: true,
+    confirmButtonText: '<span class="skip-button-text">Skip the scene</span>',
+    denyButtonText: `<span class="skip-button-text">Dismiss</span>`,
+    cancelButtonText: '<span class="skip-button-text">Play Audio Only</span>',
+    customClass: {
+      confirmButton: 'skip-button',
+      denyButton: 'skip-button',
+      cancelButton: 'skip-button'
+    },
+    showClass: {
+      popup: 'pop-up-class',
+      container: 'container-class',
+    },
+  }).then((result) => {
+    isAlertDisplayed = false;
+
+    if (result.isDenied) {
+      document.querySelector('video.html5-main-video').play();
+    } else if (result.isConfirmed) {
+      isSkipping = true;
+      checkAndSkipScene();
+    } else {
+      applyBlackOverlay();
+      isAudioOnlyMode = true;
+      document.querySelector('video.html5-main-video').play();
+    }
+  });
+}
+
+// Apply a black overlay with blur
+function applyBlackOverlay() {
+  const videoElement = document.querySelector('video.html5-main-video');
+  if (videoElement) {
+    videoElement.style.opacity = '0.1';
+    videoElement.style.filter = 'blur(8px)';
+    videoElement.style.backgroundColor = 'black';
+  }
+}
+
+// Remove the black overlay and blur
+function removeBlackOverlay() {
+  const videoElement = document.querySelector('video.html5-main-video');
+  if (videoElement) {
+    videoElement.style.opacity = '';
+    videoElement.style.filter = '';
+    videoElement.style.backgroundColor = '';
+  }
+}
+
 // TRIGGER alerts 
 function myalert() {
   if (isAlertDisplayed) {
@@ -611,8 +635,6 @@ function myalert() {
   }})
   
   }
-
-
 
 // nodejs retrive hardware mode
 // sweet alert for hardware
@@ -690,31 +712,6 @@ socket.on('anomaly', function(data) {
     }
     
  
-
-      function applyBlackOverlay() {
-        // Find the video container
-        var playerContainer = document.querySelector('#movie_player');
-        document.querySelector('.ytp-chrome-bottom').style.zIndex = '9001';
-      
-        // Check if the blackout div already exists
-        var existingBlackout = playerContainer.querySelector('.blackout-div');
-        if (!existingBlackout) {
-          // Create the black box element
-          var blackoutDiv = document.createElement('div');
-          blackoutDiv.className = 'blackout-div'; // Assign a class for easy reference
-          blackoutDiv.style.position = 'absolute';
-          blackoutDiv.style.width = '100%';
-          blackoutDiv.style.height = '100%';
-          blackoutDiv.style.backgroundColor = 'black';
-          blackoutDiv.style.top = 0;
-          blackoutDiv.style.left = 0;
-          blackoutDiv.style.zIndex = '9000'; // Use a high z-index value to cover the player
-      
-          // Append the black box to the player container
-          // Using 'prepend' to ensure it covers the video player itself
-          playerContainer.prepend(blackoutDiv);
-        }
-      }
     }
 
 })
