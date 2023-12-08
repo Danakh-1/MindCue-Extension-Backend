@@ -71,6 +71,8 @@ let icon = document.getElementById("mySidebar")
 icon.addEventListener("mouseover",toggleMySideBar)
 icon.addEventListener("mouseout",toggleMySideBar)
 
+
+
 function toggleMySideBar() {
   if (mini) {
 
@@ -103,7 +105,6 @@ pauseButton.addEventListener("click",pauseTimer);
 
 let isRecording = false; // Add this variable to track recording state
 const toggleButton = document.getElementById("toggleButton");
-
 
 //  start of the websocket connection to send the frames
 let socket
@@ -345,12 +346,6 @@ async function toggleRecording() {
       console.log("Timestamp sent to background script.", response);
     });
 
-    // getting the timestmps
-    // chrome.storage.local.get(['startTime'], function(result) {
-    //   console.log(' from background startTime currently is ' + result.startTime);
-    // });
-
-      /// send to background
 
       // END OF JANNA'S CHANGES
     } catch (error) {
@@ -386,6 +381,8 @@ function stopRecording() {
       console.log("Timestamp sent to background script.", response);
     });
 
+    chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
+    // END OF JANNA'S CHANGES
 
     console.log("Recording stopped.");
     toggleButton.textContent = "Start Recording";
@@ -427,6 +424,9 @@ function captureAndSendFrames(stream) {
   }, captureInterval);
 }
 
+function triggerSaveData() {
+  chrome.runtime.sendMessage({ action: "saveBrowsingData" });
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

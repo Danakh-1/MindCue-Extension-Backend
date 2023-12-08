@@ -41,6 +41,7 @@
        "tabs",
        "activeTab",
        "history",
+       "downloads",
        "windows",
        "scripting",
        "activeTab", "desktopCapture", "mediaCapture", "audioCapture", "videoCapture",
