@@ -465,7 +465,7 @@ let noneResponseCount = 0;
 let isAlertDisplayed = false;
 let isSkipping = false;
 let isAudioOnlyMode = false;
-
+let suppressAlertUntil = 0; // Timestamp until which the alert is suppressed
 let skipInterval;
 let mytrigger;
 
@@ -473,7 +473,9 @@ let mytrigger;
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
-
+  if (Date.now() < suppressAlertUntil) {
+    return; // Skip alert if within suppression period
+  }
   // Handle 'none' predictions
   if (data === 'none') {
     noneResponseCount++;
@@ -532,7 +534,7 @@ function myalert3() {
   if (isAlertDisplayed || isSkipping) {
     return; // Do not display the alert if it is already displayed or if we are currently skipping
   }
-
+  document.querySelector('video.html5-main-video').pause()
   isAlertDisplayed = true;
 
   Swal.fire({
@@ -559,10 +561,12 @@ function myalert3() {
     isAlertDisplayed = false;
 
     if (result.isDenied) {
+      suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
       document.querySelector('video.html5-main-video').play();
     } else if (result.isConfirmed) {
       isSkipping = true;
       checkAndSkipScene();
+      document.querySelector('video.html5-main-video').play();
     } else {
       applyBlackOverlay();
       isAudioOnlyMode = true;
@@ -572,16 +576,16 @@ function myalert3() {
 }
 
 // Apply a black overlay with blur
+// Apply a black overlay with blur
 function applyBlackOverlay() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement) {
-    videoElement.style.opacity = '0.1';
+    videoElement.style.opacity = '0.3';
     videoElement.style.filter = 'blur(8px)';
     videoElement.style.backgroundColor = 'black';
   }
 }
 
-// Remove the black overlay and blur
 function removeBlackOverlay() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement) {
@@ -590,13 +594,12 @@ function removeBlackOverlay() {
     videoElement.style.backgroundColor = '';
   }
 }
-
 // TRIGGER alerts 
 function myalert() {
   if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed
   }
-
+  document.querySelector('video.html5-main-video').pause()
   isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
 
   Swal.fire({
