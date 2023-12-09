@@ -5,18 +5,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const selectedCheckboxes = [];
   let selectedRadio = "";
 
-  function handleCheckboxChange(value) {
-    if (selectedCheckboxes.includes(value)) {
-      // Unselect checkbox
-      const index = selectedCheckboxes.indexOf(value);
-      if (index !== -1) {
-        selectedCheckboxes.splice(index, 1);
-      }
-    } else {
-      // Select checkbox
-      selectedCheckboxes.push(value);
-    }
-  }
+  // function handleCheckboxChange(value) {
+  //   if (selectedCheckboxes.includes(value)) {
+  //     // Unselect checkbox
+  //     const index = selectedCheckboxes.indexOf(value);
+  //     if (index !== -1) {
+  //       selectedCheckboxes.splice(index, 1);
+  //     }
+  //   } else {
+  //     // Select checkbox
+  //     selectedCheckboxes.push(value);
+  //   }
+  // }
 
   
   function handleRadioChange(value) {
@@ -24,37 +24,37 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Event listener for checkbox changes
-  checkboxContainer.addEventListener("change", function (event) {
-    const checkbox = event.target;
-    const value = checkbox.value;
-    handleCheckboxChange(value);
-    const userId = localStorage.getItem("userId");
-    console.log("Selected Checkboxes:", selectedCheckboxes);
+//   checkboxContainer.addEventListener("change", function (event) {
+//     const checkbox = event.target;
+//     const value = checkbox.value;
+//     handleCheckboxChange(value);
+//     const userId = localStorage.getItem("userId");
+//     console.log("Selected Checkboxes:", selectedCheckboxes);
 
-  fetch("http://localhost:5000/api/settings/saveGeneralSettings", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ userId, selectedCheckboxes }),
-})
-.then(response => {
-    if (response.status === 200) {
-        console.log("Warning settings saved successfully");
-        return response.json(); 
-    } else {
-        console.log("Failed to save warning settings");
-        throw new Error("Failed to save warning settings.");
-    }
-})
-.then(data => {
-    console.log(data);
-})
-.catch(error => {
-    console.error("An error occurred:", error);
-    alert("An error occurred: " + error.message); 
-});
-});
+//   fetch("http://localhost:5000/api/settings/saveGeneralSettings", {
+//     method: "POST",
+//     headers: {
+//         "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ userId, selectedCheckboxes }),
+// })
+// .then(response => {
+//     if (response.status === 200) {
+//         console.log("Warning settings saved successfully");
+//         return response.json(); 
+//     } else {
+//         console.log("Failed to save warning settings");
+//         throw new Error("Failed to save warning settings.");
+//     }
+// })
+// .then(data => {
+//     console.log(data);
+// })
+// .catch(error => {
+//     console.error("An error occurred:", error);
+//     alert("An error occurred: " + error.message); 
+// });
+// });
 
 
   // Event listener for radio button changes
@@ -175,6 +175,34 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       });
     }
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const setting2Checkbox = document.getElementById('setting2');
+
+  // Load the checkbox states from Chrome storage
+  chrome.storage.sync.get({ setting2: false }, (data) => {
+    setting2Checkbox.checked = data.setting2;
+  });
+
+  // Event listener for changes in setting2Checkbox
+  setting2Checkbox.addEventListener("change", () => {
+    // Save the new state of setting2Checkbox to Chrome storage
+    chrome.storage.sync.set({ setting2: setting2Checkbox.checked }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('Error setting setting2:', chrome.runtime.lastError);
+      }
+    });
+
+    // Send a message to the content script or perform other actions for setting2
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        from: "settings", 
+        query: "hardware_mode", 
+        state: setting2Checkbox.checked
+      });
+    });
   });
 });
 

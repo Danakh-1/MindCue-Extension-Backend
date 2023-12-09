@@ -5,12 +5,11 @@ let isAlertDisplayed = false;
 let userId
 let recordingStartTime
 let recordingEndTime
-
+let hardware_mode
 chrome.storage.local.get(['userId'], function(result) {
   console.log('UserId currently is ' + result.userId);
   userId =result.userId
 });
-
 
 chrome.runtime.onMessage.addListener((message,sender)=>{
   if (message.from === "popup" && message.query === "userid") {
@@ -21,8 +20,14 @@ chrome.runtime.onMessage.addListener((message,sender)=>{
     }
   
 }
+
   if (message.from === "settings" && message.query === "inject_side_bar"){
-    
+    chrome.storage.sync.get('setting2', function(result) {
+      if ('setting2' in result) {
+          hardware_mode = result.setting2;
+          console.log('Retrieved setting2 for inject_side_bar:', hardware_mode)
+      }
+  });
 // inject the timer page 
 let mainDiv =  document.createElement("div")
 mainDiv.setAttribute("id","MindCuecontainer")
@@ -469,26 +474,61 @@ let suppressAlertUntil = 0; // Timestamp until which the alert is suppressed
 let skipInterval;
 let mytrigger;
 
+// // Socket event for receiving predictions
+// socket.on('predictions', function(data) {
+//   mytrigger = data;
+//   console.log(data);
+//   if (Date.now() < suppressAlertUntil) {
+//     return; // Skip alert if within suppression period
+//   }
+
+//   // Handle 'none' predictions
+//   if (data === 'none') {
+//     noneResponseCount++;
+//     if (noneResponseCount >= 3) {
+//       removeBlackOverlay();
+//       if (isAudioOnlyMode) {
+//         isAudioOnlyMode = false;
+//       }
+//       resetSkippingState();
+//     }
+//   } else {
+//     noneResponseCount = 0;
+//     if (userTrigger.includes(data)) {
+//       if (!isSkipping && !isAlertDisplayed && !isAudioOnlyMode) {
+//         myalert3();
+//       } else {
+//         // Continue skipping if the trigger is still present
+//         isSkipping = true;
+//         checkAndSkipScene();
+//       }
+//     }
+//   }
+// });
 // Socket event for receiving predictions
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
+
   if (Date.now() < suppressAlertUntil) {
     return; // Skip alert if within suppression period
   }
+
   // Handle 'none' predictions
   if (data === 'none') {
     noneResponseCount++;
-    if (noneResponseCount >= 3) {
+    if (noneResponseCount >= 5) {
       if (isAudioOnlyMode) {
         removeBlackOverlay();
         isAudioOnlyMode = false;
       }
       resetSkippingState();
+      noneResponseCount = 0; // Reset count after handling
     }
   } else {
-    noneResponseCount = 0;
+    noneResponseCount = 0; // Reset count as we got a different prediction
     if (!isAudioOnlyMode && userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
+       isSkipping = true;
       myalert3();
     }
   }
@@ -511,23 +551,24 @@ function checkAndSkipScene() {
     console.error('Video element not found');
     return;
   }
-  let wasPlayingBeforeSkip = !videoElement.paused;
-  const skipAmount = 5; // Time to skip in seconds
 
+  // Skip the scene if the trigger is still present
   if (userTrigger.includes(mytrigger)) {
-    isSkipping = true;
+    const skipAmount = 5; // Time to skip in seconds
     videoElement.currentTime += skipAmount;
     console.log('Skipped, new time:', videoElement.currentTime);
-    skipInterval = setTimeout(checkAndSkipScene, 1000);
+    skipInterval = setTimeout(checkAndSkipScene, 1000); // Recheck after a short delay
   } else {
+    // Stop skipping if the trigger is no longer present
     clearTimeout(skipInterval);
     isSkipping = false;
-    if (wasPlayingBeforeSkip) {
+    if (!videoElement.paused) {
       videoElement.play();
       console.log('Resuming playback');
     }
   }
 }
+
 
 // Custom alert for detections
 function myalert3() {
@@ -575,7 +616,6 @@ function myalert3() {
   });
 }
 
-// Apply a black overlay with blur
 // Apply a black overlay with blur
 function applyBlackOverlay() {
   const videoElement = document.querySelector('video.html5-main-video');
@@ -643,9 +683,23 @@ function myalert() {
 // sweet alert for hardware
 socket.on('anomaly', function(data) {
   console.log("Received data:", data[0]);
-  if(data[0]===-1){
-    myalert1()
-  }
+
+  // Retrieve the current state of hardware_mode from Chrome storage
+  chrome.storage.sync.get('setting2', function(result) {
+    if ('setting2' in result) {
+      let hardware_mode = result.setting2;
+      console.log('Retrieved setting2:', hardware_mode);
+
+      // Process the anomaly only if hardware_mode is not false
+      if (hardware_mode !== false) {
+        if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
+          myalert1();
+        }
+      } else {
+        console.log('Anomaly data received, but not processing due to hardware_mode being false');
+      }
+    }
+  });
 });
 
 // HARDWARE
@@ -675,13 +729,13 @@ socket.on('anomaly', function(data) {
 }})
     
     }
-    function myalert4() {
-      if (isAlertDisplayed || isSkipping) {
-        return; // Do not display the alert if it is already displayed or if we are currently skipping
-      }
-    
-      isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
-    
+function myalert4() {
+  if (isAlertDisplayed || isSkipping) {
+    return; // Do not display the alert if it is already displayed or if we are currently skipping
+  }
+  document.querySelector('video.html5-main-video').pause()
+  isAlertDisplayed = true;
+
       Swal.fire({
         title: `<html> \
           <span class="title-class">Wait a minute!</span> <br> \
@@ -702,64 +756,22 @@ socket.on('anomaly', function(data) {
         },
       }).then((result) => {
         isAlertDisplayed = false;
-    if (result.isConfirmed) {
-          // Set isSkipping to true to prevent multiple skips
+    
+        if (result.isDenied) {
+          suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
+          document.querySelector('video.html5-main-video').play();
+        } else if (result.isConfirmed) {
           isSkipping = true;
           checkAndSkipScene();
           document.querySelector('video.html5-main-video').play();
         } else {
-          // Is canceled --> play audio only
           applyBlackOverlay();
+          isAudioOnlyMode = true;
+          document.querySelector('video.html5-main-video').play();
         }
       });
     }
-    
- 
+
     }
 
 })
-
-
-
-// // old skipping 
-// function checkAndSkipScene() {
-//     const videoElement = document.querySelector('video.html5-main-video');
-//     if (!videoElement) {
-//       console.error('Video element not found');
-//       return;
-//     }
-  
-//     // Determine the amount of time to skip
-//     const skipAmount = 5; // Example: 5 seconds
-  
-//     console.log('Current time before skipping:', videoElement.currentTime);
-  
-//     // Check if the trigger is still present
-//     if (userTrigger.includes(mytrigger)) {
-//       // Skip the scene by advancing the video by a fixed amount
-//       videoElement.currentTime += skipAmount;
-//       console.log('Skipped, new time:', videoElement.currentTime);
-  
-//       // Continue skipping without user interaction as long as the trigger is present
-//       skipInterval = setTimeout(checkAndSkipScene, 100);
-//     } else {
-//       // If the trigger is no longer present, stop the skipping process
-//       clearTimeout(skipInterval);
-//       isSkipping = false;
-  
-//       // Resume video playback if it was playing before
-//       if (wasPlayingBeforeSkip) {
-//         videoElement.play();
-//         console.log('Resuming playback');
-//       }
-//     }
-  
-
-
-// logic inside isconfirmend button inside alert()
-    //  // Set isSkipping to true to prevent multiple skips
-    //  isSkipping = true;
-  
-    //  // Start the skip interval
-    //  skipInterval = setInterval(checkAndSkipScene, 200);
-    //  checkAndSkipScene();
