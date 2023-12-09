@@ -1,11 +1,14 @@
 
 // side bar things
-
+// const { tr } = require("date-fns/locale");
 let isAlertDisplayed = false;
 let userId
 let recordingStartTime
 let recordingEndTime
 let hardware_mode
+let DiscloseRadio
+let NotDiscloseRadio
+
 chrome.storage.local.get(['userId'], function(result) {
   console.log('UserId currently is ' + result.userId);
   userId =result.userId
@@ -18,16 +21,32 @@ chrome.runtime.onMessage.addListener((message,sender)=>{
       userId = message.userId
       console.log(message.userId);
     }
-  
 }
-
-  if (message.from === "settings" && message.query === "inject_side_bar"){
-    chrome.storage.sync.get('setting2', function(result) {
-      if ('setting2' in result) {
-          hardware_mode = result.setting2;
-          console.log('Retrieved setting2 for inject_side_bar:', hardware_mode)
-      }
+if (message.from === "settings" && message.query === "inject_side_bar"){
+  chrome.storage.sync.get('wsetting', (data) => {
+    const wsetting = data.wsetting;
+    if (wsetting === 'Disclose') {
+      DiscloseRadio = true
+    } else {
+      DiscloseRadio = false
+    }
+    
+    if (wsetting === 'NoDisclose') {
+      NotDiscloseRadio = true
+  
+    }else{
+      NotDiscloseRadio = false
+      
+    }
   });
+  
+  chrome.storage.sync.get('setting2', function(result) {
+    if ('setting2' in result) {
+        hardware_mode = result.setting2;
+        console.log('Retrieved setting2 for inject_side_bar:', hardware_mode)
+    }
+  });
+
 // inject the timer page 
 let mainDiv =  document.createElement("div")
 mainDiv.setAttribute("id","MindCuecontainer")
@@ -509,6 +528,9 @@ let mytrigger;
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
+  console.log('disclose',DiscloseRadio);
+  console.log('not disclose',NotDiscloseRadio);
+
 
   if (Date.now() < suppressAlertUntil) {
     return; // Skip alert if within suppression period
@@ -528,11 +550,16 @@ socket.on('predictions', function(data) {
   } else {
     noneResponseCount = 0; // Reset count as we got a different prediction
     if (!isAudioOnlyMode && userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
-       isSkipping = true;
-      myalert3();
+      isSkipping = true;
+      if (DiscloseRadio) {
+        myalertDisclose(); // Call myalert3() when DiscloseRadio is true
+      } else if (NotDiscloseRadio) {
+        myalert(); // Call myalert() when NotDiscloseRadio is true
+      }
     }
   }
 });
+
 
 // Reset skipping state
 function resetSkippingState() {
@@ -570,9 +597,10 @@ function checkAndSkipScene() {
 }
 
 
+// disclose
 // Custom alert for detections
-function myalert3() {
-  if (isAlertDisplayed || isSkipping) {
+function myalertDisclose() {
+  if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed or if we are currently skipping
   }
   document.querySelector('video.html5-main-video').pause()
@@ -635,52 +663,75 @@ function removeBlackOverlay() {
   }
 }
 // TRIGGER alerts 
+// not disclose
 function myalert() {
   if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed
   }
-  document.querySelector('video.html5-main-video').pause()
+  document.querySelector('video.html5-main-video').pause();
   isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
 
   Swal.fire({
-  title:'<html> \
-  <span class="title-class">Wait a minute!</span> <br> \
-  <span class="title-class2">The following content may contain material you are not comfortable with</span>\
-  </html>',
-  showDenyButton: true,
-  showCancelButton: true,
-  confirmButtonText: '<span>Skip the scene</span>',
-  denyButtonText: `<span >Dismiss</span>`,
-  cancelButtonText:'<span >Play Audio Only</span>',
-  customClass: {
-    confirmButton: 'skip-button', // Replace with your actual class name
-    denyButton: 'skip-button',       // Replace with your actual class name
-    cancelButton: 'skip-button'    // Replace with your actual class name
-    // Add other custom classes if needed
-  },
-  showClass:{
-    popup: 'pop-up-class',
-    container: 'container-class',
-  }
+    title: '<html> \
+      <span class="title-class">Wait a minute!</span> <br> \
+      <span class="title-class2">The following content may contain material you are not comfortable with</span> \
+    </html>',
+    showDenyButton: true,
+    showCancelButton: true,
+    confirmButtonText: '<span class="skip-button-text">Skip the scene</span>',
+    denyButtonText: '<span class="skip-button-text">Dismiss</span>',
+    cancelButtonText: '<span class="skip-button-text">Play Audio Only</span>',
+    customClass: {
+      confirmButton: 'skip-button',
+      denyButton: 'skip-button',
+      cancelButton: 'skip-button'
+      // Add other custom classes if needed
+    },
+    showClass: {
+      popup: 'pop-up-class',
+      container: 'container-class'
+    }
   }).then((result) => {
-    if (result.isDenied) {
-      // dismiss
-      document.querySelector('video.html5-main-video').play();
-    }else if (result.isConfirmed) {
-      // skipp the scene untill the label is not there
-      document.querySelector('video.html5-main-video').play();
-  }else{
+    isAlertDisplayed = false;
 
-    // document.querySelector('video.html5-main-video').className='overlay'
-    applyBlackOverlay();
-    document.querySelector('video.html5-main-video').play();
-// is cancelled --> play audio only
-  }})
-  
-  }
+    if (result.isDenied) {
+      suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
+      document.querySelector('video.html5-main-video').play();
+    } else if (result.isConfirmed) {
+      isSkipping = true;
+      checkAndSkipScene();
+      document.querySelector('video.html5-main-video').play();
+    } else {
+      applyBlackOverlay();
+      isAudioOnlyMode = true;
+      document.querySelector('video.html5-main-video').play();
+    }
+  });
+}
+
 
 // nodejs retrive hardware mode
 // sweet alert for hardware
+// socket.on('anomaly', function(data) {
+//   console.log("Received data:", data[0]);
+
+//   // Retrieve the current state of hardware_mode from Chrome storage
+//   chrome.storage.sync.get('setting2', function(result) {
+//     if ('setting2' in result) {
+//       let hardware_mode = result.setting2;
+//       console.log('Retrieved setting2:', hardware_mode);
+
+//       // Process the anomaly only if hardware_mode is not false
+//       if (hardware_mode !== false) {
+//         if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
+//           myalert1();
+//         }
+//       } else {
+//         console.log('Anomaly data received, but not processing due to hardware_mode being false');
+//       }
+//     }
+//   });
+// });
 socket.on('anomaly', function(data) {
   console.log("Received data:", data[0]);
 
@@ -693,7 +744,11 @@ socket.on('anomaly', function(data) {
       // Process the anomaly only if hardware_mode is not false
       if (hardware_mode !== false) {
         if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
-          myalert1();
+          if (DiscloseRadio) {
+            myalert4(); // Call myalert4() when DiscloseRadio is true
+          } else if (NotDiscloseRadio) {
+            myalert5(); // Call myalert5() when NotDiscloseRadio is true
+          }
         }
       } else {
         console.log('Anomaly data received, but not processing due to hardware_mode being false');
@@ -701,6 +756,9 @@ socket.on('anomaly', function(data) {
     }
   });
 });
+
+
+
 
 // HARDWARE
   function myalert1() {
@@ -729,6 +787,10 @@ socket.on('anomaly', function(data) {
 }})
     
     }
+
+
+
+// disclose trigger for harware alert
 function myalert4() {
   if (isAlertDisplayed || isSkipping) {
     return; // Do not display the alert if it is already displayed or if we are currently skipping
@@ -771,6 +833,49 @@ function myalert4() {
         }
       });
     }
+
+// not disclose for harware alert 
+    function myalert5() {
+      if (isAlertDisplayed || isSkipping) {
+        return; // Do not display the alert if it is already displayed or if we are currently skipping
+      }
+      document.querySelector('video.html5-main-video').pause()
+      isAlertDisplayed = true;
+    
+          Swal.fire({
+            title: `<html> \
+              <span class="title-class">Wait a minute!</span> <br> \
+              <span class="title-class2">The following content may contain material you are not comfortable with</span> <br> \
+            </html>`,
+            showCancelButton: true,
+            confirmButtonText: '<span class="skip-button-text">Skip the scene</span>',
+            cancelButtonText:'<span class="skip-button-text">Play Audio Only</span>',
+            customClass: {
+              confirmButton: 'skip-button', // Replace with your actual class name
+              cancelButton: 'skip-button'    // Replace with your actual class name
+              // Add other custom classes if needed
+            },
+            showClass: {
+              popup: 'pop-up-class',
+              container: 'container-class',
+            },
+          }).then((result) => {
+            isAlertDisplayed = false;
+        
+            if (result.isDenied) {
+              suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
+              document.querySelector('video.html5-main-video').play();
+            } else if (result.isConfirmed) {
+              isSkipping = true;
+              checkAndSkipScene();
+              document.querySelector('video.html5-main-video').play();
+            } else {
+              applyBlackOverlay();
+              isAudioOnlyMode = true;
+              document.querySelector('video.html5-main-video').play();
+            }
+          });
+        }
 
     }
 

@@ -19,9 +19,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // }
 
   
-  function handleRadioChange(value) {
-    selectedRadio = value;
-  }
+  // function handleRadioChange(value) {
+  //   selectedRadio = value;
+  // }
 
   // Event listener for checkbox changes
 //   checkboxContainer.addEventListener("change", function (event) {
@@ -58,44 +58,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   // Event listener for radio button changes
-  radioContainer.addEventListener("change", function (event) {
-    // const radio = event.target;
-    // const value = radio.value;
-    // handleRadioChange(value);
-    // console.log("Selected Radio:", selectedRadio);
+  // radioContainer.addEventListener("change", function (event) {
+  //   // const radio = event.target;
+  //   // const value = radio.value;
+  //   // handleRadioChange(value);
+  //   // console.log("Selected Radio:", selectedRadio);
 
-    const radio = event.target;
-  const value = radio.value;
-  handleRadioChange(value); // Capture the selected radio value
-  console.log("Selected Radio:", selectedRadio);
+  //   const radio = event.target;
+  // const value = radio.value;
+  // handleRadioChange(value); // Capture the selected radio value
+  // console.log("Selected Radio:", selectedRadio);
 
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
 
-  // Make an API call to save the warning settings with the selectedRadio value
-  fetch("http://localhost:5000/api/settings/saveWarningSettings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ userId, selectedRadio }), // Include selectedRadio
-  })
-    .then((response) => {
-      if (response.status === 200) {
-        console.log("Warning settings saved successfully");
-        return response.json();
-      } else {
-        console.log("Failed to save warning settings");
-        throw new Error("Failed to save warning settings");
-      }
-    })
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.error("An error occurred:", error);
-      alert("An error occurred: " + error.message);
-    });
-  });
+  // // Make an API call to save the warning settings with the selectedRadio value
+  // fetch("http://localhost:5000/api/settings/saveWarningSettings", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({ userId, selectedRadio }), // Include selectedRadio
+  // })
+  //   .then((response) => {
+  //     if (response.status === 200) {
+  //       console.log("Warning settings saved successfully");
+  //       return response.json();
+  //     } else {
+  //       console.log("Failed to save warning settings");
+  //       throw new Error("Failed to save warning settings");
+  //     }
+  //   })
+  //   .then((data) => {
+  //     console.log(data);
+  //   })
+  //   .catch((error) => {
+  //     console.error("An error occurred:", error);
+  //     alert("An error occurred: " + error.message);
+  //   });
+  // });
 
   // Example: Handle the form submission
   const startRecordingBtn = document.getElementById("startRecording");
@@ -205,6 +205,45 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const radio1 = document.getElementById('radio1');
+  const radio2 = document.getElementById('radio2');
+
+  // Load the radio button state from Chrome storage
+  chrome.storage.sync.get('wsetting', (data) => {
+    if(data.wsetting === 'Disclose') {
+      radio1.checked = true;
+    } else if(data.wsetting === 'NoDisclose') {
+      radio2.checked = true;
+    }
+  });
+
+  // Event listener for radio1
+  radio1.addEventListener("change", () => {
+    if(radio1.checked) {
+      chrome.storage.sync.set({ wsetting: 'Disclose' }, () => {
+        if (chrome.runtime.lastError) {
+          console.error('Error setting wsetting to Disclose:', chrome.runtime.lastError);
+        }
+      });
+    }
+  });
+
+  // Event listener for radio2
+  radio2.addEventListener("change", () => {
+    if(radio2.checked) {
+      chrome.storage.sync.set({ wsetting: 'NoDisclose' }, () => {
+        if (chrome.runtime.lastError) {
+          console.error('Error setting wsetting to NoDisclose:', chrome.runtime.lastError);
+        }
+      });
+    }
+  });
+});
+
 
 document.getElementById('logout').addEventListener('click', function() {
   // Clear token and user data from localStorage
