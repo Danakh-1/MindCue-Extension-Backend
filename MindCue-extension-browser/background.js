@@ -84,7 +84,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 let browsingData = {
   startTime: null,
   endTime: null,
-  urls: []
+  urls: [],
+  SessionTriggers:[],
+  alerts: {} 
 };
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -96,6 +98,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       browsingData.endTime = request.endTime;
       console.log("Received endTime:", browsingData.endTime);
   }
+  if (request.subject === 'updateUniqueTriggers') {
+    browsingData.SessionTriggers = request.uniqueTriggersLogs;
+    console.log("Received uniqueTriggersLogs:", browsingData.SessionTriggers);
+  }
+  if (request.subject === 'sendAlerts') {  // Handle the new 'updateAlerts' subject
+    browsingData.alerts = request.alerts;
+    console.log("Received ALERTS:", browsingData.alerts);
+  }
+
 });
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -139,11 +150,28 @@ function saveBrowsingData() {
     return;
   }
 
+  
   let fileContent = `Start Time: ${browsingData.startTime}\nEnd Time: ${browsingData.endTime}\nURLs:\n`;
   browsingData.urls.forEach(url => {
     fileContent += url + "\n";
   });
 
+  // Append unique triggers to the file content
+  if (browsingData.SessionTriggers && browsingData.SessionTriggers.length > 0) {
+    fileContent += "\nSession Triggers:\n";
+    browsingData.SessionTriggers.forEach(trigger => {
+      fileContent += trigger + "\n";
+    });
+  }
+
+    // Append ALERTS data to the file content
+    if (browsingData.alerts && Object.keys(browsingData.alerts).length > 0) {
+      fileContent += "\nAlert Names:\n";
+      for (let key in browsingData.alerts) {
+        let alert = browsingData.alerts[key];
+        fileContent += `${alert.name}\n`;  // Append only the name of each alert
+      }
+    }
   // Create a Blob from the file content
   let blob = new Blob([fileContent], { type: "text/plain" });
   if (!blob) {

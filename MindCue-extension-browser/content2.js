@@ -8,7 +8,7 @@ let recordingEndTime
 let hardware_mode
 let DiscloseRadio
 let NotDiscloseRadio
-
+let uniqueTriggersLogs = [];
 chrome.storage.local.get(['userId'], function(result) {
   console.log('UserId currently is ' + result.userId);
   userId =result.userId
@@ -225,6 +225,7 @@ function onTimesUp() {
 
  // SCREEN TIME
  function myalert2() {
+  alerts.reachedTimeLimit.triggered = true;
   Swal.fire({
   title:'<html> \
   <span class="title-class">Oops!</span> <br> \
@@ -405,9 +406,19 @@ function stopRecording() {
       console.log("Timestamp sent to background script.", response);
     });
 
-    chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
     // END OF JANNA'S CHANGES
-
+    console.log("Unique Triggers during this session:", uniqueTriggersLogs);
+  chrome.runtime.sendMessage({
+    from: 'content',
+    subject: 'updateUniqueTriggers',
+    uniqueTriggersLogs: uniqueTriggersLogs
+  });
+  chrome.runtime.sendMessage({
+    from: 'content',
+    subject: 'sendAlerts',
+    alerts: alerts
+  });
+  chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
     console.log("Recording stopped.");
     toggleButton.textContent = "Start Recording";
     stopTimer();
@@ -492,6 +503,27 @@ let isAudioOnlyMode = false;
 let suppressAlertUntil = 0; // Timestamp until which the alert is suppressed
 let skipInterval;
 let mytrigger;
+let alerts = {
+  triggerDetected: {
+      name: "Trigger Detected",
+      triggered: false,
+      message: "A trigger has been detected.",
+      // other properties related to triggerDetected
+  },
+  sensorFeedback: {
+      name: "Sensor Feedback",
+      triggered: false,
+      message: "Feedback received from the sensor.",
+      // other properties related to sensorFeedback
+  },
+  reachedTimeLimit: {
+      name: "Reached Time Limit",
+      triggered: false,
+      message: "You have reached the time limit.",
+      // other properties related to reachedTimeLimit
+  }
+};
+
 
 // // Socket event for receiving predictions
 // socket.on('predictions', function(data) {
@@ -528,10 +560,6 @@ let mytrigger;
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
-  console.log('disclose',DiscloseRadio);
-  console.log('not disclose',NotDiscloseRadio);
-
-
   if (Date.now() < suppressAlertUntil) {
     return; // Skip alert if within suppression period
   }
@@ -552,13 +580,26 @@ socket.on('predictions', function(data) {
     if (!isAudioOnlyMode && userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
       isSkipping = true;
       if (DiscloseRadio) {
-        myalertDisclose(); // Call myalert3() when DiscloseRadio is true
+        myalert3(); // Call myalert3() when DiscloseRadio is true
       } else if (NotDiscloseRadio) {
         myalert(); // Call myalert() when NotDiscloseRadio is true
       }
     }
+    // Check if the trigger is unique and append to the list
+    if (userTrigger.includes(data) && !uniqueTriggersLogs.includes(data) && data !== 'none') {
+      uniqueTriggersLogs.push(data);
+      // Save the updated list to Chrome local storage
+      chrome.storage.local.set({'uniqueTriggers': uniqueTriggersLogs}, function() {
+        if (chrome.runtime.error) {
+          console.log("Runtime error.");
+        } else {
+          console.log("Unique triggers updated in storage.");
+        }
+      });
+    }    
   }
 });
+
 
 
 // Reset skipping state
@@ -599,7 +640,8 @@ function checkAndSkipScene() {
 
 // disclose
 // Custom alert for detections
-function myalertDisclose() {
+function myalert3() {
+  alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed or if we are currently skipping
   }
@@ -665,6 +707,7 @@ function removeBlackOverlay() {
 // TRIGGER alerts 
 // not disclose
 function myalert() {
+  alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed
   }
@@ -779,19 +822,20 @@ socket.on('anomaly', function(data) {
 
     }
 ).then((result) => {
+  alerts.sensorFeedback.triggered = true;
   if (result.isDenied) {
     document.querySelector('video.html5-main-video').pause();
     myalert4()
   }else if (result.isConfirmed) {
     document.querySelector('video.html5-main-video').play();
 }})
-    
     }
 
 
 
 // disclose trigger for harware alert
 function myalert4() {
+  alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed || isSkipping) {
     return; // Do not display the alert if it is already displayed or if we are currently skipping
   }
@@ -836,6 +880,7 @@ function myalert4() {
 
 // not disclose for harware alert 
     function myalert5() {
+      alerts.triggerDetected.triggered = true;
       if (isAlertDisplayed || isSkipping) {
         return; // Do not display the alert if it is already displayed or if we are currently skipping
       }
