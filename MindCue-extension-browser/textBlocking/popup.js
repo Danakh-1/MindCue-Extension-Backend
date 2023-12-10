@@ -4,6 +4,49 @@ let selectedTriggerValues = [];
 const checkboxContainer = document.getElementById("checkboxContainer");
 
 //add new trigger in db and after inserting fetching all triggers from db and display it page
+// dana's draft
+// async function addTermToList() {
+//   var newTerm = document.getElementById("spoiler-textfield").value;
+//   document.getElementById("spoiler-textfield").value = "";
+
+//   if (newTerm == "") {
+//     return;
+//   }
+//   //add new tirgger in db
+//   await addTrigger(newTerm);
+
+//   //fetching all trigger from db
+//   let triggersData = await getTriggers();
+
+//   //rendring all triggers in page
+//   generateTermsListHTML(triggersData?.triggers);
+// }
+// 2nd draft
+// async function addTermToList() {
+//   var newTerm = document.getElementById("spoiler-textfield").value;
+//   document.getElementById("spoiler-textfield").value = "";
+
+//   if (newTerm == "") {
+//     return;
+//   }
+
+//   // Add new trigger in db
+//   await addTrigger(newTerm);
+
+//   // Fetching all triggers from db
+//   let triggersData = await getTriggers();
+
+//   // Rendering all triggers on page
+//   generateTermsListHTML(triggersData?.triggers);
+
+//   // Update terms and save to local storage
+//   terms = triggersData?.triggers.map(trigger => trigger.name);
+//   chrome.storage.sync.set({'spoilerterms': terms}, function() {
+//     if (chrome.runtime.error) {
+//       console.log("Runtime error.");
+//     }
+//   });
+// }
 async function addTermToList() {
   var newTerm = document.getElementById("spoiler-textfield").value;
   document.getElementById("spoiler-textfield").value = "";
@@ -11,14 +54,26 @@ async function addTermToList() {
   if (newTerm == "") {
     return;
   }
-  //add new tirgger in db
+
+  // Add new trigger in db
   await addTrigger(newTerm);
 
-  //fetching all trigger from db
+  // Fetching all triggers from db
   let triggersData = await getTriggers();
 
-  //rendring all triggers in page
+  // Rendering all triggers on page
   generateTermsListHTML(triggersData?.triggers);
+
+  // Update terms by excluding wordList items and save to local storage
+  terms = triggersData?.triggers
+             .map(trigger => trigger.name)
+             .filter(term => !wordList.includes(term));
+
+  chrome.storage.sync.set({'spoilerterms': terms}, function() {
+    if (chrome.runtime.error) {
+      console.log("Runtime error.");
+    }
+  });
 }
 
 //function that takes new Trigger as argument and add that in db
@@ -52,17 +107,58 @@ async function getTriggers() {
   data = await data.json();
   return data;
 }
+// dana's draft
+// async function getSpoilerTerms() {
+//   //fetching all triggers from db
+//   let triggersData = await getTriggers();
 
+//   //rendring all triggers in page
+//   generateTermsListHTML(triggersData?.triggers);
+
+//   //generating triggerlist checkboxes using word
+//   generateCheckboxes(triggersData?.triggers);
+// }
+// 2nd draft
+// async function getSpoilerTerms() {
+//   // Fetching all triggers from db
+//   let triggersData = await getTriggers();
+
+//   // Rendering all triggers on page
+//   generateTermsListHTML(triggersData?.triggers);
+
+//   // Update terms and save to local storage
+//   terms = triggersData?.triggers.map(trigger => trigger.name);
+//   chrome.storage.sync.set({'spoilerterms': terms}, function() {
+//     if (chrome.runtime.error) {
+//       console.log("Runtime error.");
+//     }
+//   });
+
+//   // Generating trigger list checkboxes using word
+//   generateCheckboxes(triggersData?.triggers);
+// }
 async function getSpoilerTerms() {
-  //fetching all triggers from db
+  // Fetching all triggers from db
   let triggersData = await getTriggers();
 
-  //rendring all triggers in page
+  // Rendering all triggers on page
   generateTermsListHTML(triggersData?.triggers);
 
-  //generating triggerlist checkboxes using word
+  // Update terms by excluding wordList items and save to local storage
+  terms = triggersData?.triggers
+             .map(trigger => trigger.name)
+             .filter(term => !wordList.includes(term));
+
+  chrome.storage.sync.set({'spoilerterms': terms}, function() {
+    if (chrome.runtime.error) {
+      console.log("Runtime error.");
+    }
+  });
+
+  // Generating trigger list checkboxes using word
   generateCheckboxes(triggersData?.triggers);
 }
+
 
 function generateTermsListHTML(triggersData) {
   // Start popuplating the list

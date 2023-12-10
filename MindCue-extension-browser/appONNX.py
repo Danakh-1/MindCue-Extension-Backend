@@ -48,28 +48,29 @@ def handle_frame(data):
             temp_file.close()
             try:
                 results = model.predict(source=image_path)
-                class_names = ['accident', 'gun', 'soldier','spider','cockroach','wound']
+                class_names = ['accident', 'gun', 'soldier', 'spider', 'cockroach', 'wound']
+
+                # Initialize a flag to track if any prediction was made
+                prediction_made = False
+
                 for r in results:
                     for c in r.boxes.cls:
-                        print(class_names[int(c)])
                         detected_class = class_names[int(c)]
                         if detected_class in class_names:
                             print(detected_class)
-                            emit('predictions',detected_class)
-    
-        
-                
-        
+                            emit('predictions', detected_class)
+                            prediction_made = True
+
+                # If no prediction was made, emit "none"
+                if not prediction_made:
+                    print('none')
+                    emit('predictions', 'none')
+
             except Exception as e:
                 print(f"Error during prediction: {e}")
+    except Exception as e:
+        print(f"Error handling the frame: {e}")
 
-    finally:
-        # Clean up the file immediately after processing
-        try:
-            os.remove(image_path)
-            print(f"Deleted: {image_path}")
-        except Exception as e:
-            print(f"Error deleting {image_path}: {e}")
 
 
 if __name__ == '__main__':
