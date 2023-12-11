@@ -351,31 +351,28 @@ async function toggleRecording() {
       console.log("Recording started.");
       toggleButton.textContent = "Stop Recording";
       captureAndSendFrames(captureStream);
-
-      // START OF JANNA'S CHANGES
-      // Store the current timestamp as the start time of recording
-      recordingStartTime = Date.now();
-
-      // Convert the timestamp to a Date object
-      var date = new Date(recordingStartTime);
-
-      // Format the date and time into a string
-      var startTime = date.toLocaleString();
-
-      console.log(startTime)
-      chrome.storage.local.set({ startTime: startTime}, function() {
-        console.log('startTime is saved in Chrome local storage.');
-    });
-
-    chrome.runtime.sendMessage({ startTime: startTime }, function(response) {
-      console.log("Timestamp sent to background script.", response);
-    });
-
-
-      // END OF JANNA'S CHANGES
     } catch (error) {
       console.error('Error accessing media devices.', error);
     }
+    //   // START OF JANNA'S CHANGES
+    //   // Store the current timestamp as the start time of recording
+    //   recordingStartTime = Date.now();
+
+    //   // Convert the timestamp to a Date object
+    //   var date = new Date(recordingStartTime);
+
+    //   // Format the date and time into a string
+    //   var startTime = date.toLocaleString();
+
+    //   console.log(startTime)
+    //   chrome.storage.local.set({ startTime: startTime}, function() {
+    //     console.log('startTime is saved in Chrome local storage.');
+    // });
+
+    // chrome.runtime.sendMessage({ startTime: startTime }, function(response) {
+    //   console.log("Timestamp sent to background script.", response);
+    // });
+    //   // END OF JANNA'S CHANGES
   } else {
     toggleButton.textContent = "Start Recording";
     stopRecording();
@@ -387,44 +384,43 @@ function stopRecording() {
     captureStream = null;
     isRecording = false;
 
-    // START OF JANNA'S CHANGES
-    // Store the current timestamp as the end time of recording
-      recordingEndTime = Date.now();
+  //   // START OF JANNA'S CHANGES
+  //   // Store the current timestamp as the end time of recording
+  //     recordingEndTime = Date.now();
 
-      // Convert the timestamp to a Date object
-      var date = new Date(recordingEndTime);
+  //     // Convert the timestamp to a Date object
+  //     var date = new Date(recordingEndTime);
 
-      // Format the date and time into a string
-      var endTime = date.toLocaleString();
+  //     // Format the date and time into a string
+  //     var endTime = date.toLocaleString();
 
-      console.log(endTime)
-      chrome.storage.local.set({ endTime: endTime}, function() {
-        console.log('endTime is saved in Chrome local storage.');
-    });
+  //     console.log(endTime)
+  //     chrome.storage.local.set({ endTime: endTime}, function() {
+  //       console.log('endTime is saved in Chrome local storage.');
+  //   });
 
-    chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
-      console.log("Timestamp sent to background script.", response);
-    });
+  //   chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
+  //     console.log("Timestamp sent to background script.", response);
+  //   });
 
-    // END OF JANNA'S CHANGES
-    console.log("Unique Triggers during this session:", uniqueTriggersLogs);
-  chrome.runtime.sendMessage({
-    from: 'content',
-    subject: 'updateUniqueTriggers',
-    uniqueTriggersLogs: uniqueTriggersLogs
-  });
-  chrome.runtime.sendMessage({
-    from: 'content',
-    subject: 'sendAlerts',
-    alerts: alerts
-  });
-  chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
-    console.log("Recording stopped.");
-    toggleButton.textContent = "Start Recording";
-    stopTimer();
+  //   console.log("Unique Triggers during this session:", uniqueTriggersLogs);
+  // chrome.runtime.sendMessage({
+  //   from: 'content',
+  //   subject: 'updateUniqueTriggers',
+  //   uniqueTriggersLogs: uniqueTriggersLogs
+  // });
+  // chrome.runtime.sendMessage({
+  //   from: 'content',
+  //   subject: 'sendAlerts',
+  //   alerts: alerts
+  // });
+  // chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
+  //   console.log("Recording stopped.");
+  //   toggleButton.textContent = "Start Recording";
+  //   stopTimer();
+  //    // END OF JANNA'S CHANGES
   }
 }
-
 // send the screen recording frames to backend
 function captureAndSendFrames(stream) {
   const video = document.createElement('video');
@@ -524,6 +520,8 @@ let alerts = {
   }
 };
 
+console.log('disclose',DiscloseRadio)
+console.log('Notdisclose',NotDiscloseRadio)
 
 // // Socket event for receiving predictions
 // socket.on('predictions', function(data) {
@@ -557,17 +555,17 @@ let alerts = {
 //   }
 // });
 // Socket event for receiving predictions
+
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
-  if (Date.now() < suppressAlertUntil) {
-    return; // Skip alert if within suppression period
+if (Date.now() < suppressAlertUntil) {
+    return;
   }
-
   // Handle 'none' predictions
   if (data === 'none') {
     noneResponseCount++;
-    if (noneResponseCount >= 5) {
+    if (noneResponseCount >= 10) {
       if (isAudioOnlyMode) {
         removeBlackOverlay();
         isAudioOnlyMode = false;
@@ -577,16 +575,29 @@ socket.on('predictions', function(data) {
     }
   } else {
     noneResponseCount = 0; // Reset count as we got a different prediction
-    if (!isAudioOnlyMode && userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
-      isSkipping = true;
-      if (DiscloseRadio) {
-        myalert3(); // Call myalert3() when DiscloseRadio is true
-      } else if (NotDiscloseRadio) {
-        myalert(); // Call myalert() when NotDiscloseRadio is true
+
+    if (userTrigger.includes(data)) {
+      if (!isSkipping && !isAlertDisplayed) {
+        isSkipping = true;
+        // Call the appropriate alert function based on user choice
+        if (DiscloseRadio) {
+          myalert3(); // Call myalert3() when DiscloseRadio is true
+        } else if (NotDiscloseRadio) {
+          myalert(); // Call myalert() when NotDiscloseRadio is true
+        }
+        checkAndSkipScene(); // Start skipping process
+      }
+    } else {
+      // If the current data is not in userTrigger, ensure to stop skipping
+      isSkipping = false;
+      if (isAudioOnlyMode) {
+        removeBlackOverlay();
+        isAudioOnlyMode = false;
       }
     }
+
     // Check if the trigger is unique and append to the list
-    if (userTrigger.includes(data) && !uniqueTriggersLogs.includes(data) && data !== 'none') {
+    if (!uniqueTriggersLogs.includes(data) && data !== 'none') {
       uniqueTriggersLogs.push(data);
       // Save the updated list to Chrome local storage
       chrome.storage.local.set({'uniqueTriggers': uniqueTriggersLogs}, function() {
@@ -596,10 +607,9 @@ socket.on('predictions', function(data) {
           console.log("Unique triggers updated in storage.");
         }
       });
-    }    
+    }
   }
 });
-
 
 
 // Reset skipping state
@@ -612,7 +622,32 @@ function resetSkippingState() {
   }
 }
 
+
 // Check and skip scene
+// function checkAndSkipScene() {
+//   const videoElement = document.querySelector('video.html5-main-video');
+//   if (!videoElement) {
+//     console.error('Video element not found');
+//     return;
+//   }
+
+//   console.log('Current time before skip:', videoElement.currentTime);
+//   if (userTrigger.includes(mytrigger)) {
+//     // If the trigger is still present, continue skipping
+//     const skipAmount = 5; // Time to skip in seconds
+//     videoElement.currentTime += skipAmount;
+//     console.log('Skipped, new time:', videoElement.currentTime);
+//     skipInterval = setTimeout(checkAndSkipScene, 1000); // Continue checking
+//   } else {
+//     // Stop skipping if the trigger is no longer present
+//     clearTimeout(skipInterval);
+//     isSkipping = false;
+//     if (!videoElement.paused) {
+//       videoElement.play();
+//       console.log('Resuming playback');
+//     }
+//   }
+// }
 function checkAndSkipScene() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (!videoElement) {
@@ -620,34 +655,41 @@ function checkAndSkipScene() {
     return;
   }
 
-  // Skip the scene if the trigger is still present
-  if (userTrigger.includes(mytrigger)) {
-    const skipAmount = 5; // Time to skip in seconds
-    videoElement.currentTime += skipAmount;
-    console.log('Skipped, new time:', videoElement.currentTime);
-    skipInterval = setTimeout(checkAndSkipScene, 1000); // Recheck after a short delay
-  } else {
-    // Stop skipping if the trigger is no longer present
-    clearTimeout(skipInterval);
+  // Check if the video has ended
+  if (videoElement.ended) {
+    console.log('Video has ended. Stopping skip process.');
     isSkipping = false;
-    if (!videoElement.paused) {
-      videoElement.play();
-      console.log('Resuming playback');
-    }
+    clearTimeout(skipInterval); // Clear the interval to stop the skipping process
+    return; // Exit the function as the video has ended
   }
-}
 
+  if (isSkipping && mytrigger !== 'none') {
+    const skipAmount = 5; // Time to skip in seconds
+    // Ensure we do not skip beyond the video's duration
+    videoElement.currentTime = Math.min(videoElement.currentTime + skipAmount, videoElement.duration);
+    console.log('Skipped, new time:', videoElement.currentTime);
+  }
+
+  // Set up the next check
+  skipInterval = setTimeout(checkAndSkipScene, 1000);
+}
 
 // disclose
 // Custom alert for detections
 function myalert3() {
   alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed) {
-    return; // Do not display the alert if it is already displayed or if we are currently skipping
+    return; // Do not display the alert if it is already displayed
   }
-  document.querySelector('video.html5-main-video').pause()
-  isAlertDisplayed = true;
 
+  // Pause skipping process when showing a new alert
+  clearTimeout(skipInterval);
+  isSkipping = false;
+
+  document.querySelector('video.html5-main-video').pause();
+  applyBlackOverlay()
+
+  isAlertDisplayed = true;
   Swal.fire({
     title: `<html> \
       <span class="title-class">Wait a minute!</span> <br> \
@@ -672,13 +714,16 @@ function myalert3() {
     isAlertDisplayed = false;
 
     if (result.isDenied) {
+      removeBlackOverlay()
       suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
       document.querySelector('video.html5-main-video').play();
     } else if (result.isConfirmed) {
-      isSkipping = true;
-      checkAndSkipScene();
+      removeBlackOverlay()
+
+      isSkipping = true; // Only set isSkipping to true if user confirms skip
+      checkAndSkipScene(); // Trigger skipping only after user confirmation
       document.querySelector('video.html5-main-video').play();
-    } else {
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
       applyBlackOverlay();
       isAudioOnlyMode = true;
       document.querySelector('video.html5-main-video').play();
@@ -709,7 +754,7 @@ function removeBlackOverlay() {
 function myalert() {
   alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed) {
-    return; // Do not display the alert if it is already displayed
+    return; // Do not display the alert if it is already displayed or if we are currently skipping
   }
   document.querySelector('video.html5-main-video').pause();
   isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
@@ -800,9 +845,6 @@ socket.on('anomaly', function(data) {
   });
 });
 
-
-
-
 // HARDWARE
   function myalert1() {
     Swal.fire({
@@ -836,7 +878,7 @@ socket.on('anomaly', function(data) {
 // disclose trigger for harware alert
 function myalert4() {
   alerts.triggerDetected.triggered = true;
-  if (isAlertDisplayed || isSkipping) {
+  if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed or if we are currently skipping
   }
   document.querySelector('video.html5-main-video').pause()
@@ -881,7 +923,7 @@ function myalert4() {
 // not disclose for harware alert 
     function myalert5() {
       alerts.triggerDetected.triggered = true;
-      if (isAlertDisplayed || isSkipping) {
+      if (isAlertDisplayed) {
         return; // Do not display the alert if it is already displayed or if we are currently skipping
       }
       document.querySelector('video.html5-main-video').pause()
