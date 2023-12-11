@@ -165,13 +165,23 @@ function saveBrowsingData() {
   }
 
     // Append ALERTS data to the file content
+    // if (browsingData.alerts && Object.keys(browsingData.alerts).length > 0) {
+    //   fileContent += "\nAlert Names:\n";
+    //   for (let key in browsingData.alerts) {
+    //     let alert = browsingData.alerts[key];
+    //     fileContent += `${alert.name}\n`;  // Append only the name of each alert
+    //   }
+    // }
     if (browsingData.alerts && Object.keys(browsingData.alerts).length > 0) {
       fileContent += "\nAlert Names:\n";
       for (let key in browsingData.alerts) {
         let alert = browsingData.alerts[key];
-        fileContent += `${alert.name}\n`;  // Append only the name of each alert
+        if (alert.triggered) {
+          fileContent += `${alert.name}\n`;  // Append the name only if triggered is true
+        }
       }
     }
+    
   // Create a Blob from the file content
   let blob = new Blob([fileContent], { type: "text/plain" });
   if (!blob) {

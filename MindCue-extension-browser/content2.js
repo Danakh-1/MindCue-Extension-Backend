@@ -345,6 +345,7 @@ async function toggleRecording() {
     try {
       // Start the timer
       startTimer();
+
       captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       isRecording = true;
       console.log("Recording started.");
@@ -620,6 +621,8 @@ function resetSkippingState() {
     videoElement.play();
   }
 }
+
+
 // Check and skip scene
 // function checkAndSkipScene() {
 //   const videoElement = document.querySelector('video.html5-main-video');
@@ -751,11 +754,17 @@ function removeBlackOverlay() {
 function myalert() {
   alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed) {
-    return; // Do not display the alert if it is already displayed or if we are currently skipping
+    return; // Do not display the alert if it is already displayed
   }
-  document.querySelector('video.html5-main-video').pause();
-  isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
 
+  // Pause skipping process when showing a new alert
+  clearTimeout(skipInterval);
+  isSkipping = false;
+
+  document.querySelector('video.html5-main-video').pause();
+  applyBlackOverlay()
+
+  isAlertDisplayed = true;
   Swal.fire({
     title: '<html> \
       <span class="title-class">Wait a minute!</span> <br> \
@@ -780,9 +789,11 @@ function myalert() {
     isAlertDisplayed = false;
 
     if (result.isDenied) {
+      removeBlackOverlay()
       suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
       document.querySelector('video.html5-main-video').play();
     } else if (result.isConfirmed) {
+      removeBlackOverlay()
       isSkipping = true;
       checkAndSkipScene();
       document.querySelector('video.html5-main-video').play();
@@ -884,11 +895,17 @@ socket.on('anomaly', function(data) {
 function myalert4() {
   alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed) {
-    return; // Do not display the alert if it is already displayed or if we are currently skipping
+    return; // Do not display the alert if it is already displayed
   }
-  document.querySelector('video.html5-main-video').pause()
-  isAlertDisplayed = true;
 
+  // Pause skipping process when showing a new alert
+  clearTimeout(skipInterval);
+  isSkipping = false;
+
+  document.querySelector('video.html5-main-video').pause();
+  applyBlackOverlay()
+
+  isAlertDisplayed = true;
       Swal.fire({
         title: `<html> \
           <span class="title-class">Wait a minute!</span> <br> \
@@ -911,9 +928,11 @@ function myalert4() {
         isAlertDisplayed = false;
     
         if (result.isDenied) {
+          removeBlackOverlay()
           suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
           document.querySelector('video.html5-main-video').play();
         } else if (result.isConfirmed) {
+          removeBlackOverlay()
           isSkipping = true;
           checkAndSkipScene();
           document.querySelector('video.html5-main-video').play();
@@ -929,9 +948,16 @@ function myalert4() {
     function myalert5() {
       alerts.triggerDetected.triggered = true;
       if (isAlertDisplayed) {
-        return; // Do not display the alert if it is already displayed or if we are currently skipping
+        return; // Do not display the alert if it is already displayed
       }
-      document.querySelector('video.html5-main-video').pause()
+    
+      // Pause skipping process when showing a new alert
+      clearTimeout(skipInterval);
+      isSkipping = false;
+    
+      document.querySelector('video.html5-main-video').pause();
+      applyBlackOverlay()
+    
       isAlertDisplayed = true;
     
           Swal.fire({
@@ -955,9 +981,11 @@ function myalert4() {
             isAlertDisplayed = false;
         
             if (result.isDenied) {
+              removeBlackOverlay()
               suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
               document.querySelector('video.html5-main-video').play();
             } else if (result.isConfirmed) {
+              removeBlackOverlay()
               isSkipping = true;
               checkAndSkipScene();
               document.querySelector('video.html5-main-video').play();
