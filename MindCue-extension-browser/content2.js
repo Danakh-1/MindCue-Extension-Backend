@@ -736,7 +736,7 @@ function applyBlackOverlay() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement) {
     videoElement.style.opacity = '0.2';
-    videoElement.style.filter = 'blur(8px)';
+    videoElement.style.filter = 'blur(12px)';
     videoElement.style.backgroundColor = 'black';
   }
 }
