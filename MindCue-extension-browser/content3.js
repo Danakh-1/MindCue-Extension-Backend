@@ -84,3 +84,4 @@ chrome.storage.local.get(['startTime'], function(result) {
 //     // });
 //     console.log(recordingStartTime, recordingEndTime);
 // }
+
