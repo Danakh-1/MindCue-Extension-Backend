@@ -323,11 +323,11 @@ function generateCheckboxes() {
         console.log("Checkbox checked for:", word);
         // Call a function to add the trigger
         await addTrigger(word);
-        alert("Trigger added successfully:", word)
+        // alert("Trigger added successfully:", word)
 
       } else {
         console.log("Checkbox unchecked for");
-        alert("Trigger deleted successfully")
+        // alert("Trigger deleted successfully")
 
         const trigger = triggerDetails.find(t => t.name === word);
         if (trigger) {

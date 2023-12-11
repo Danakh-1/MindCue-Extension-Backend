@@ -355,23 +355,23 @@ async function toggleRecording() {
       console.error('Error accessing media devices.', error);
     }
     //   // START OF JANNA'S CHANGES
-    //   // Store the current timestamp as the start time of recording
-    //   recordingStartTime = Date.now();
+      // Store the current timestamp as the start time of recording
+      recordingStartTime = Date.now();
 
-    //   // Convert the timestamp to a Date object
-    //   var date = new Date(recordingStartTime);
+      // Convert the timestamp to a Date object
+      var date = new Date(recordingStartTime);
 
-    //   // Format the date and time into a string
-    //   var startTime = date.toLocaleString();
+      // Format the date and time into a string
+      var startTime = date.toLocaleString();
 
-    //   console.log(startTime)
-    //   chrome.storage.local.set({ startTime: startTime}, function() {
-    //     console.log('startTime is saved in Chrome local storage.');
-    // });
+      console.log(startTime)
+      chrome.storage.local.set({ startTime: startTime}, function() {
+        console.log('startTime is saved in Chrome local storage.');
+    });
 
-    // chrome.runtime.sendMessage({ startTime: startTime }, function(response) {
-    //   console.log("Timestamp sent to background script.", response);
-    // });
+    chrome.runtime.sendMessage({ startTime: startTime }, function(response) {
+      console.log("Timestamp sent to background script.", response);
+    });
     //   // END OF JANNA'S CHANGES
   } else {
     toggleButton.textContent = "Start Recording";
@@ -385,39 +385,39 @@ function stopRecording() {
     isRecording = false;
 
   //   // START OF JANNA'S CHANGES
-  //   // Store the current timestamp as the end time of recording
-  //     recordingEndTime = Date.now();
+    // Store the current timestamp as the end time of recording
+      recordingEndTime = Date.now();
 
-  //     // Convert the timestamp to a Date object
-  //     var date = new Date(recordingEndTime);
+      // Convert the timestamp to a Date object
+      var date = new Date(recordingEndTime);
 
-  //     // Format the date and time into a string
-  //     var endTime = date.toLocaleString();
+      // Format the date and time into a string
+      var endTime = date.toLocaleString();
 
-  //     console.log(endTime)
-  //     chrome.storage.local.set({ endTime: endTime}, function() {
-  //       console.log('endTime is saved in Chrome local storage.');
-  //   });
+      console.log(endTime)
+      chrome.storage.local.set({ endTime: endTime}, function() {
+        console.log('endTime is saved in Chrome local storage.');
+    });
 
-  //   chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
-  //     console.log("Timestamp sent to background script.", response);
-  //   });
+    chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
+      console.log("Timestamp sent to background script.", response);
+    });
 
-  //   console.log("Unique Triggers during this session:", uniqueTriggersLogs);
-  // chrome.runtime.sendMessage({
-  //   from: 'content',
-  //   subject: 'updateUniqueTriggers',
-  //   uniqueTriggersLogs: uniqueTriggersLogs
-  // });
-  // chrome.runtime.sendMessage({
-  //   from: 'content',
-  //   subject: 'sendAlerts',
-  //   alerts: alerts
-  // });
-  // chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
-  //   console.log("Recording stopped.");
-  //   toggleButton.textContent = "Start Recording";
-  //   stopTimer();
+    console.log("Unique Triggers during this session:", uniqueTriggersLogs);
+  chrome.runtime.sendMessage({
+    from: 'content',
+    subject: 'updateUniqueTriggers',
+    uniqueTriggersLogs: uniqueTriggersLogs
+  });
+  chrome.runtime.sendMessage({
+    from: 'content',
+    subject: 'sendAlerts',
+    alerts: alerts
+  });
+  chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
+    console.log("Recording stopped.");
+    toggleButton.textContent = "Start Recording";
+    stopTimer();
   //    // END OF JANNA'S CHANGES
   }
 }
@@ -735,7 +735,7 @@ function myalert3() {
 function applyBlackOverlay() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement) {
-    videoElement.style.opacity = '0.3';
+    videoElement.style.opacity = '0.2';
     videoElement.style.filter = 'blur(8px)';
     videoElement.style.backgroundColor = 'black';
   }
@@ -839,8 +839,9 @@ socket.on('anomaly', function(data) {
 
       // Process the anomaly only if hardware_mode is not false
       if (hardware_mode !== false) {
+        if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
        myalert1()
-        // if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
+        }
         //   if (DiscloseRadio) {
         //     myalert4(); // Call myalert4() when DiscloseRadio is true
         //   } else if (NotDiscloseRadio) {
