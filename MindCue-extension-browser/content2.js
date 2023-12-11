@@ -345,7 +345,6 @@ async function toggleRecording() {
     try {
       // Start the timer
       startTimer();
-
       captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
       isRecording = true;
       console.log("Recording started.");
@@ -621,8 +620,6 @@ function resetSkippingState() {
     videoElement.play();
   }
 }
-
-
 // Check and skip scene
 // function checkAndSkipScene() {
 //   const videoElement = document.querySelector('video.html5-main-video');
@@ -797,7 +794,7 @@ function myalert() {
   });
 }
 
-
+let hardware_anomally
 // nodejs retrive hardware mode
 // sweet alert for hardware
 // socket.on('anomaly', function(data) {
@@ -821,8 +818,8 @@ function myalert() {
 //   });
 // });
 socket.on('anomaly', function(data) {
+  hardware_anomally = data[0]
   console.log("Received data:", data[0]);
-
   // Retrieve the current state of hardware_mode from Chrome storage
   chrome.storage.sync.get('setting2', function(result) {
     if ('setting2' in result) {
@@ -831,13 +828,14 @@ socket.on('anomaly', function(data) {
 
       // Process the anomaly only if hardware_mode is not false
       if (hardware_mode !== false) {
-        if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
-          if (DiscloseRadio) {
-            myalert4(); // Call myalert4() when DiscloseRadio is true
-          } else if (NotDiscloseRadio) {
-            myalert5(); // Call myalert5() when NotDiscloseRadio is true
-          }
-        }
+       myalert1()
+        // if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
+        //   if (DiscloseRadio) {
+        //     myalert4(); // Call myalert4() when DiscloseRadio is true
+        //   } else if (NotDiscloseRadio) {
+        //     myalert5(); // Call myalert5() when NotDiscloseRadio is true
+        //   }
+        // }
       } else {
         console.log('Anomaly data received, but not processing due to hardware_mode being false');
       }
@@ -866,8 +864,15 @@ socket.on('anomaly', function(data) {
 ).then((result) => {
   alerts.sensorFeedback.triggered = true;
   if (result.isDenied) {
-    document.querySelector('video.html5-main-video').pause();
-    myalert4()
+      if (hardware_anomally === -1 && !userTrigger.includes(mytrigger)) {
+          if (DiscloseRadio) {
+            myalert4(); // Call myalert4() when DiscloseRadio is true
+          } else if (NotDiscloseRadio) {
+            myalert5(); // Call myalert5() when NotDiscloseRadio is true
+          }
+        }
+    // document.querySelector('video.html5-main-video').pause();
+    // myalert4()
   }else if (result.isConfirmed) {
     document.querySelector('video.html5-main-video').play();
 }})

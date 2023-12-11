@@ -15,8 +15,8 @@ from roboflow import Roboflow
 # app = Flask(__name__)
 # app.config['SECRET_KEY'] = 'secret!'
 # socketio = SocketIO(app, cors_allowed_origins="*")
-# model =YOLO('all2/weights/best.onnx')
-# results = model.predict(source='C:/Users/mega/AppData/Local/Temp/tmpho9757pm.jpeg')
+model =YOLO('all2/weights/best.onnx')
+results = model.predict(source='C:/Users/mega/AppData/Local/Temp/tmpho9757pm.jpeg')
 
 # temp_image_paths=[]
 # # print(temp_image_paths)
