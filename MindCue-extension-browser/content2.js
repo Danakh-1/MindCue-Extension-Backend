@@ -9,11 +9,11 @@ let hardware_mode
 let DiscloseRadio
 let NotDiscloseRadio
 let uniqueTriggersLogs = [];
+
 chrome.storage.local.get(['userId'], function(result) {
   console.log('UserId currently is ' + result.userId);
   userId =result.userId
 });
-
 chrome.runtime.onMessage.addListener((message,sender)=>{
   if (message.from === "popup" && message.query === "userid") {
     // Handle message from popup
@@ -351,8 +351,10 @@ async function toggleRecording() {
       console.log("Recording started.");
       toggleButton.textContent = "Stop Recording";
       captureAndSendFrames(captureStream);
-
-      // START OF JANNA'S CHANGES
+    } catch (error) {
+      console.error('Error accessing media devices.', error);
+    }
+    //   // START OF JANNA'S CHANGES
       // Store the current timestamp as the start time of recording
       recordingStartTime = Date.now();
 
@@ -370,12 +372,7 @@ async function toggleRecording() {
     chrome.runtime.sendMessage({ startTime: startTime }, function(response) {
       console.log("Timestamp sent to background script.", response);
     });
-
-
-      // END OF JANNA'S CHANGES
-    } catch (error) {
-      console.error('Error accessing media devices.', error);
-    }
+    //   // END OF JANNA'S CHANGES
   } else {
     toggleButton.textContent = "Start Recording";
     stopRecording();
@@ -387,7 +384,7 @@ function stopRecording() {
     captureStream = null;
     isRecording = false;
 
-    // START OF JANNA'S CHANGES
+  //   // START OF JANNA'S CHANGES
     // Store the current timestamp as the end time of recording
       recordingEndTime = Date.now();
 
@@ -406,7 +403,6 @@ function stopRecording() {
       console.log("Timestamp sent to background script.", response);
     });
 
-    // END OF JANNA'S CHANGES
     console.log("Unique Triggers during this session:", uniqueTriggersLogs);
   chrome.runtime.sendMessage({
     from: 'content',
@@ -422,9 +418,9 @@ function stopRecording() {
     console.log("Recording stopped.");
     toggleButton.textContent = "Start Recording";
     stopTimer();
+  //    // END OF JANNA'S CHANGES
   }
 }
-
 // send the screen recording frames to backend
 function captureAndSendFrames(stream) {
   const video = document.createElement('video');
@@ -523,7 +519,10 @@ let alerts = {
       // other properties related to reachedTimeLimit
   }
 };
+let blackOverlayResponseCount = 0;
 
+console.log('disclose',DiscloseRadio)
+console.log('Notdisclose',NotDiscloseRadio)
 
 // // Socket event for receiving predictions
 // socket.on('predictions', function(data) {
@@ -557,36 +556,112 @@ let alerts = {
 //   }
 // });
 // Socket event for receiving predictions
+
+// socket.on('predictions', function(data) {
+//   mytrigger = data;
+//   console.log(data);
+// if (Date.now() < suppressAlertUntil) {
+//     return;
+//   }
+//   // Handle 'none' predictions
+//   if (data === 'none') {
+//     noneResponseCount++;
+//     if (noneResponseCount >= 10) {
+//       if (isAudioOnlyMode) {
+//         removeBlackOverlay();
+//         isAudioOnlyMode = false;
+//       }
+//       resetSkippingState();
+//       noneResponseCount = 0; // Reset count after handling
+//     }
+//   } else {
+//     noneResponseCount = 0; // Reset count as we got a different prediction
+
+//     if (userTrigger.includes(data)) {
+//       if (!isSkipping && !isAlertDisplayed) {
+//         isSkipping = true;
+//         // Call the appropriate alert function based on user choice
+//         if (DiscloseRadio) {
+//           myalert3(); // Call myalert3() when DiscloseRadio is true
+//         } else if (NotDiscloseRadio) {
+//           myalert(); // Call myalert() when NotDiscloseRadio is true
+//         }
+//         checkAndSkipScene(); // Start skipping process
+//       }
+//     } else {
+//       // If the current data is not in userTrigger, ensure to stop skipping
+//       isSkipping = false;
+//       if (isAudioOnlyMode) {
+//         removeBlackOverlay();
+//         isAudioOnlyMode = false;
+//       }
+//     }
+
+//     // Check if the trigger is unique and append to the list
+//     if (!uniqueTriggersLogs.includes(data) && data !== 'none') {
+//       uniqueTriggersLogs.push(data);
+//       // Save the updated list to Chrome local storage
+//       chrome.storage.local.set({'uniqueTriggers': uniqueTriggersLogs}, function() {
+//         if (chrome.runtime.error) {
+//           console.log("Runtime error.");
+//         } else {
+//           console.log("Unique triggers updated in storage.");
+//         }
+//       });
+//     }
+//   }
+// });
+// Initialize a separate counter for black overlay
+
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
   if (Date.now() < suppressAlertUntil) {
-    return; // Skip alert if within suppression period
+    return;
   }
 
   // Handle 'none' predictions
   if (data === 'none') {
     noneResponseCount++;
-    if (noneResponseCount >= 5) {
+    blackOverlayResponseCount++;
+
+    // Check for 10 consecutive 'none' for skipping
+    if (noneResponseCount >= 7) {
+      resetSkippingState();
+      noneResponseCount = 0; // Reset skipping count after handling
+    }
+
+    // Check for 15 consecutive 'none' for removing black overlay
+    if (blackOverlayResponseCount >= 12) {
       if (isAudioOnlyMode) {
         removeBlackOverlay();
         isAudioOnlyMode = false;
       }
-      resetSkippingState();
-      noneResponseCount = 0; // Reset count after handling
+      blackOverlayResponseCount = 0; // Reset black overlay count after handling
     }
   } else {
-    noneResponseCount = 0; // Reset count as we got a different prediction
-    if (!isAudioOnlyMode && userTrigger.includes(data) && !isSkipping && !isAlertDisplayed) {
-      isSkipping = true;
-      if (DiscloseRadio) {
-        myalert3(); // Call myalert3() when DiscloseRadio is true
-      } else if (NotDiscloseRadio) {
-        myalert(); // Call myalert() when NotDiscloseRadio is true
+    // Reset counts as we got a different prediction
+    noneResponseCount = 0;
+    blackOverlayResponseCount = 0;
+
+    if (userTrigger.includes(data)) {
+      if (!isSkipping && !isAlertDisplayed) {
+        isSkipping = true;
+        // Call the appropriate alert function based on user choice
+        if (DiscloseRadio) {
+          myalert3(); // Call myalert3() when DiscloseRadio is true
+        } else if (NotDiscloseRadio) {
+          myalert(); // Call myalert() when NotDiscloseRadio is true
+        }
+        checkAndSkipScene(); // Start skipping process
       }
+    } else {
+      // If the current data is not in userTrigger, ensure to stop skipping
+      isSkipping = false;
     }
+
     // Check if the trigger is unique and append to the list
-    if (userTrigger.includes(data) && !uniqueTriggersLogs.includes(data) && data !== 'none') {
+    if (!uniqueTriggersLogs.includes(data) && data !== 'none') {
       uniqueTriggersLogs.push(data);
       // Save the updated list to Chrome local storage
       chrome.storage.local.set({'uniqueTriggers': uniqueTriggersLogs}, function() {
@@ -596,10 +671,9 @@ socket.on('predictions', function(data) {
           console.log("Unique triggers updated in storage.");
         }
       });
-    }    
+    }
   }
 });
-
 
 
 // Reset skipping state
@@ -612,7 +686,32 @@ function resetSkippingState() {
   }
 }
 
+
 // Check and skip scene
+// function checkAndSkipScene() {
+//   const videoElement = document.querySelector('video.html5-main-video');
+//   if (!videoElement) {
+//     console.error('Video element not found');
+//     return;
+//   }
+
+//   console.log('Current time before skip:', videoElement.currentTime);
+//   if (userTrigger.includes(mytrigger)) {
+//     // If the trigger is still present, continue skipping
+//     const skipAmount = 5; // Time to skip in seconds
+//     videoElement.currentTime += skipAmount;
+//     console.log('Skipped, new time:', videoElement.currentTime);
+//     skipInterval = setTimeout(checkAndSkipScene, 1000); // Continue checking
+//   } else {
+//     // Stop skipping if the trigger is no longer present
+//     clearTimeout(skipInterval);
+//     isSkipping = false;
+//     if (!videoElement.paused) {
+//       videoElement.play();
+//       console.log('Resuming playback');
+//     }
+//   }
+// }
 function checkAndSkipScene() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (!videoElement) {
@@ -620,34 +719,43 @@ function checkAndSkipScene() {
     return;
   }
 
-  // Skip the scene if the trigger is still present
-  if (userTrigger.includes(mytrigger)) {
-    const skipAmount = 5; // Time to skip in seconds
-    videoElement.currentTime += skipAmount;
-    console.log('Skipped, new time:', videoElement.currentTime);
-    skipInterval = setTimeout(checkAndSkipScene, 1000); // Recheck after a short delay
-  } else {
-    // Stop skipping if the trigger is no longer present
-    clearTimeout(skipInterval);
+  // Check if the video has ended
+  if (videoElement.ended) {
+    console.log('Video has ended. Stopping skip process.');
     isSkipping = false;
-    if (!videoElement.paused) {
-      videoElement.play();
-      console.log('Resuming playback');
-    }
+    clearTimeout(skipInterval); // Clear the interval to stop the skipping process
+    return; // Exit the function as the video has ended
   }
-}
 
+  if (isSkipping && mytrigger !== 'none') {
+    const skipAmount = 3; // Time to skip in seconds
+    // Ensure we do not skip beyond the video's duration
+    videoElement.currentTime = Math.min(videoElement.currentTime + skipAmount, videoElement.duration);
+    console.log('Skipped, new time:', videoElement.currentTime);
+  }
+
+  // Set up the next check
+  skipInterval = setTimeout(checkAndSkipScene, 1000);
+}
 
 // disclose
 // Custom alert for detections
 function myalert3() {
   alerts.triggerDetected.triggered = true;
   if (isAlertDisplayed) {
-    return; // Do not display the alert if it is already displayed or if we are currently skipping
+    return; // Do not display the alert if it is already displayed
   }
-  document.querySelector('video.html5-main-video').pause()
-  isAlertDisplayed = true;
 
+  // Pause skipping process when showing a new alert
+  clearTimeout(skipInterval);
+  isSkipping = false;
+
+  if (window.location.href.includes('youtube.com/watch')){
+    document.querySelector('video.html5-main-video').pause();
+    applyBlackOverlay()
+  }
+
+  isAlertDisplayed = true;
   Swal.fire({
     title: `<html> \
       <span class="title-class">Wait a minute!</span> <br> \
@@ -672,13 +780,16 @@ function myalert3() {
     isAlertDisplayed = false;
 
     if (result.isDenied) {
+      removeBlackOverlay()
       suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
       document.querySelector('video.html5-main-video').play();
     } else if (result.isConfirmed) {
-      isSkipping = true;
-      checkAndSkipScene();
+      removeBlackOverlay()
+
+      isSkipping = true; // Only set isSkipping to true if user confirms skip
+      checkAndSkipScene(); // Trigger skipping only after user confirmation
       document.querySelector('video.html5-main-video').play();
-    } else {
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
       applyBlackOverlay();
       isAudioOnlyMode = true;
       document.querySelector('video.html5-main-video').play();
@@ -690,8 +801,8 @@ function myalert3() {
 function applyBlackOverlay() {
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement) {
-    videoElement.style.opacity = '0.3';
-    videoElement.style.filter = 'blur(8px)';
+    videoElement.style.opacity = '0.2';
+    videoElement.style.filter = 'blur(12px)';
     videoElement.style.backgroundColor = 'black';
   }
 }
@@ -711,9 +822,16 @@ function myalert() {
   if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed
   }
-  document.querySelector('video.html5-main-video').pause();
-  isAlertDisplayed = true; // Set the flag to true as the alert will be displayed
 
+  // Pause skipping process when showing a new alert
+  clearTimeout(skipInterval);
+  isSkipping = false;
+
+  if (window.location.href.includes('youtube.com/watch')){
+    document.querySelector('video.html5-main-video').pause();
+    applyBlackOverlay()
+  }
+  isAlertDisplayed = true;
   Swal.fire({
     title: '<html> \
       <span class="title-class">Wait a minute!</span> <br> \
@@ -738,9 +856,11 @@ function myalert() {
     isAlertDisplayed = false;
 
     if (result.isDenied) {
+      removeBlackOverlay()
       suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
       document.querySelector('video.html5-main-video').play();
     } else if (result.isConfirmed) {
+      removeBlackOverlay()
       isSkipping = true;
       checkAndSkipScene();
       document.querySelector('video.html5-main-video').play();
@@ -752,7 +872,7 @@ function myalert() {
   });
 }
 
-
+let hardware_anomally
 // nodejs retrive hardware mode
 // sweet alert for hardware
 // socket.on('anomaly', function(data) {
@@ -776,8 +896,8 @@ function myalert() {
 //   });
 // });
 socket.on('anomaly', function(data) {
+  hardware_anomally = data[0]
   console.log("Received data:", data[0]);
-
   // Retrieve the current state of hardware_mode from Chrome storage
   chrome.storage.sync.get('setting2', function(result) {
     if ('setting2' in result) {
@@ -787,11 +907,7 @@ socket.on('anomaly', function(data) {
       // Process the anomaly only if hardware_mode is not false
       if (hardware_mode !== false) {
         if (data[0] === -1 && !userTrigger.includes(mytrigger)) {
-          if (DiscloseRadio) {
-            myalert4(); // Call myalert4() when DiscloseRadio is true
-          } else if (NotDiscloseRadio) {
-            myalert5(); // Call myalert5() when NotDiscloseRadio is true
-          }
+       myalert1()
         }
       } else {
         console.log('Anomaly data received, but not processing due to hardware_mode being false');
@@ -799,9 +915,6 @@ socket.on('anomaly', function(data) {
     }
   });
 });
-
-
-
 
 // HARDWARE
   function myalert1() {
@@ -824,8 +937,15 @@ socket.on('anomaly', function(data) {
 ).then((result) => {
   alerts.sensorFeedback.triggered = true;
   if (result.isDenied) {
-    document.querySelector('video.html5-main-video').pause();
-    myalert4()
+      if (hardware_anomally === -1 && !userTrigger.includes(mytrigger)) {
+          if (DiscloseRadio) {
+            myalert4(); // Call myalert4() when DiscloseRadio is true
+          } else if (NotDiscloseRadio) {
+            myalert5(); // Call myalert5() when NotDiscloseRadio is true
+          }
+        }
+    // document.querySelector('video.html5-main-video').pause();
+    // myalert4()
   }else if (result.isConfirmed) {
     document.querySelector('video.html5-main-video').play();
 }})
@@ -836,12 +956,18 @@ socket.on('anomaly', function(data) {
 // disclose trigger for harware alert
 function myalert4() {
   alerts.triggerDetected.triggered = true;
-  if (isAlertDisplayed || isSkipping) {
-    return; // Do not display the alert if it is already displayed or if we are currently skipping
+  if (isAlertDisplayed) {
+    return; // Do not display the alert if it is already displayed
   }
-  document.querySelector('video.html5-main-video').pause()
-  isAlertDisplayed = true;
 
+  // Pause skipping process when showing a new alert
+  clearTimeout(skipInterval);
+  isSkipping = false;
+if (window.location.href.includes('youtube.com/watch')){
+  document.querySelector('video.html5-main-video').pause();
+  applyBlackOverlay()
+}
+  isAlertDisplayed = true;
       Swal.fire({
         title: `<html> \
           <span class="title-class">Wait a minute!</span> <br> \
@@ -864,9 +990,11 @@ function myalert4() {
         isAlertDisplayed = false;
     
         if (result.isDenied) {
+          removeBlackOverlay()
           suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
           document.querySelector('video.html5-main-video').play();
         } else if (result.isConfirmed) {
+          removeBlackOverlay()
           isSkipping = true;
           checkAndSkipScene();
           document.querySelector('video.html5-main-video').play();
@@ -881,10 +1009,18 @@ function myalert4() {
 // not disclose for harware alert 
     function myalert5() {
       alerts.triggerDetected.triggered = true;
-      if (isAlertDisplayed || isSkipping) {
-        return; // Do not display the alert if it is already displayed or if we are currently skipping
+      if (isAlertDisplayed) {
+        return; // Do not display the alert if it is already displayed
       }
-      document.querySelector('video.html5-main-video').pause()
+    
+      // Pause skipping process when showing a new alert
+      clearTimeout(skipInterval);
+      isSkipping = false;
+    
+      if (window.location.href.includes('youtube.com/watch')){
+        document.querySelector('video.html5-main-video').pause();
+        applyBlackOverlay()
+      }
       isAlertDisplayed = true;
     
           Swal.fire({
@@ -908,9 +1044,11 @@ function myalert4() {
             isAlertDisplayed = false;
         
             if (result.isDenied) {
+              removeBlackOverlay()
               suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
               document.querySelector('video.html5-main-video').play();
             } else if (result.isConfirmed) {
+              removeBlackOverlay()
               isSkipping = true;
               checkAndSkipScene();
               document.querySelector('video.html5-main-video').play();
@@ -922,6 +1060,38 @@ function myalert4() {
           });
         }
 
+
+
+        // article alert
+         function myalert6() {
+          Swal.fire({
+          title:'<html> \
+          <span class="title-class">Hmm... </span> <br> \
+          <span class="title-class2">Are you comfortable with what you are currently browsing?</span>\
+          </html>',
+          showDenyButton: true,
+          confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
+          denyButtonText: `<html><span class="skip-button-text">Exit Tab</span></html>`,
+          confirmButtonClass: 'Skip-Button',
+          denyButtonClass:'Skip-Button',
+          showClass:{
+            popup: 'pop-up-class',
+            container: 'container-class',
+          }
+      
+          }
+      ).then((result) => {
+        alerts.sensorFeedback.triggered = true;
+        if (result.isDenied) {
+          chrome.runtime.sendMessage({closeTab: true});
+        }else if (result.isConfirmed) {
+          return
+      }})
+          }
+      
+
     }
 
 })
+
+

@@ -47,11 +47,45 @@ const checkboxContainer = document.getElementById("checkboxContainer");
 //     }
 //   });
 // }
+// async function addTermToList() {
+//   var newTerm = document.getElementById("spoiler-textfield").value;
+//   document.getElementById("spoiler-textfield").value = "";
+
+//   if (newTerm == "") {
+//     return;
+//   }
+
+//   // Add new trigger in db
+//   await addTrigger(newTerm);
+
+//   // Fetching all triggers from db
+//   let triggersData = await getTriggers();
+
+//   // Rendering all triggers on page
+//   generateTermsListHTML(triggersData?.triggers);
+
+//   // Update terms by excluding wordList items and save to local storage
+//   terms = triggersData?.triggers
+//              .map(trigger => trigger.name)
+//              .filter(term => !wordList.includes(term));
+
+//   chrome.storage.sync.set({'spoilerterms': terms}, function() {
+//     if (chrome.runtime.error) {
+//       console.log("Runtime error.");
+//     }
+//   });
+// }
 async function addTermToList() {
   var newTerm = document.getElementById("spoiler-textfield").value;
   document.getElementById("spoiler-textfield").value = "";
 
   if (newTerm == "") {
+    return;
+  }
+
+  // Check if the new term is already in the wordList
+  if (wordList.includes(newTerm)) {
+    alert("Can't add a trigger to the keywords list");
     return;
   }
 
@@ -323,11 +357,11 @@ function generateCheckboxes() {
         console.log("Checkbox checked for:", word);
         // Call a function to add the trigger
         await addTrigger(word);
-        alert("Trigger added successfully:", word)
+        // alert("Trigger added successfully:", word)
 
       } else {
         console.log("Checkbox unchecked for");
-        alert("Trigger deleted successfully")
+        // alert("Trigger deleted successfully")
 
         const trigger = triggerDetails.find(t => t.name === word);
         if (trigger) {
