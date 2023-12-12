@@ -25,6 +25,7 @@
     "mongoose-sequence": "^5.3.1",
     "mongoose-unique-validator": "^4.0.0",
     "nodejs-mobile-react-native": "^18.17.3",
+    "nodemailer": "^6.9.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

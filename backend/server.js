@@ -12,6 +12,8 @@ const TriggerRoutes = require('./routes/triggers-routes');
 const usersRoutes = require('./routes/users-routes.js');
 const settingsRoutes = require('./routes/settings-routes');
 const HttpError = require('./models/http-error');
+//const browsingDataRoutes = require('./routes/browsingData-routes');
+
 
 const app = express();
  
@@ -33,6 +35,7 @@ app.use((req, res, next) => {
 app.use('/api/triggers', TriggerRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/settings', settingsRoutes);
+//app.use('/api/session', browsingDataRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError('Could not find this route.', 404);
