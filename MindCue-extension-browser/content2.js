@@ -1,4 +1,3 @@
-
 // side bar things
 // const { tr } = require("date-fns/locale");
 let isAlertDisplayed = false;
@@ -22,6 +21,7 @@ chrome.runtime.onMessage.addListener((message,sender)=>{
       console.log(message.userId);
     }
 }
+
 if (message.from === "settings" && message.query === "inject_side_bar"){
   chrome.storage.sync.get('wsetting', (data) => {
     const wsetting = data.wsetting;
@@ -94,8 +94,6 @@ var mini = true;
 let icon = document.getElementById("mySidebar")
 icon.addEventListener("mouseover",toggleMySideBar)
 icon.addEventListener("mouseout",toggleMySideBar)
-
-
 
 function toggleMySideBar() {
   if (mini) {
@@ -342,19 +340,7 @@ let captureStream = null;
 // Function to start or stop screen recording
 async function toggleRecording() {
   if (!isRecording) {
-    try {
-      // Start the timer
-      startTimer();
-
-      captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-      isRecording = true;
-      console.log("Recording started.");
-      toggleButton.textContent = "Stop Recording";
-      captureAndSendFrames(captureStream);
-    } catch (error) {
-      console.error('Error accessing media devices.', error);
-    }
-    //   // START OF JANNA'S CHANGES
+    //  START OF JANNA'S CHANGES
       // Store the current timestamp as the start time of recording
       recordingStartTime = Date.now();
 
@@ -373,52 +359,64 @@ async function toggleRecording() {
       console.log("Timestamp sent to background script.", response);
     });
     //   // END OF JANNA'S CHANGES
+    try {
+      // Start the timer
+      startTimer();
+
+      captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      isRecording = true;
+      console.log("Recording started.");
+      toggleButton.textContent = "Stop Recording";
+      captureAndSendFrames(captureStream);
+    } catch (error) {
+      console.error('Error accessing media devices.', error);
+    }
   } else {
     toggleButton.textContent = "Start Recording";
     stopRecording();
   }
 }
 function stopRecording() {
+
   if (isRecording && captureStream) {
+      //   // START OF JANNA'S CHANGES
+    // Store the current timestamp as the end time of recording
+    recordingEndTime = Date.now();
+
+    // Convert the timestamp to a Date object
+    var date = new Date(recordingEndTime);
+
+    // Format the date and time into a string
+    var endTime = date.toLocaleString();
+
+    console.log(endTime)
+    chrome.storage.local.set({ endTime: endTime}, function() {
+      console.log('endTime is saved in Chrome local storage.');
+  });
+
+  chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
+    console.log("Timestamp sent to background script.", response);
+  });
+
+  console.log("Unique Triggers during this session:", uniqueTriggersLogs);
+chrome.runtime.sendMessage({
+  from: 'content',
+  subject: 'updateUniqueTriggers',
+  uniqueTriggersLogs: uniqueTriggersLogs
+});
+chrome.runtime.sendMessage({
+  from: 'content',
+  subject: 'sendAlerts',
+  alerts: alerts
+});
+chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
+  console.log("Recording stopped.");
+  toggleButton.textContent = "Start Recording";
+  stopTimer();
+//    // END OF JANNA'S CHANGES
     captureStream.getTracks().forEach(track => track.stop());
     captureStream = null;
     isRecording = false;
-
-  //   // START OF JANNA'S CHANGES
-    // Store the current timestamp as the end time of recording
-      recordingEndTime = Date.now();
-
-      // Convert the timestamp to a Date object
-      var date = new Date(recordingEndTime);
-
-      // Format the date and time into a string
-      var endTime = date.toLocaleString();
-
-      console.log(endTime)
-      chrome.storage.local.set({ endTime: endTime}, function() {
-        console.log('endTime is saved in Chrome local storage.');
-    });
-
-    chrome.runtime.sendMessage({ endTime: endTime }, function(response) {
-      console.log("Timestamp sent to background script.", response);
-    });
-
-    console.log("Unique Triggers during this session:", uniqueTriggersLogs);
-  chrome.runtime.sendMessage({
-    from: 'content',
-    subject: 'updateUniqueTriggers',
-    uniqueTriggersLogs: uniqueTriggersLogs
-  });
-  chrome.runtime.sendMessage({
-    from: 'content',
-    subject: 'sendAlerts',
-    alerts: alerts
-  });
-  chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
-    console.log("Recording stopped.");
-    toggleButton.textContent = "Start Recording";
-    stopTimer();
-  //    // END OF JANNA'S CHANGES
   }
 }
 // send the screen recording frames to backend
@@ -520,6 +518,7 @@ let alerts = {
   }
 };
 let blackOverlayResponseCount = 0;
+var currentSkippingTrigger = ''; // Global variable to store the current trigger
 
 console.log('disclose',DiscloseRadio)
 console.log('Notdisclose',NotDiscloseRadio)
@@ -612,6 +611,32 @@ console.log('Notdisclose',NotDiscloseRadio)
 //   }
 // });
 // Initialize a separate counter for black overlay
+function myalert6() {
+  Swal.fire({
+  title:'<html> \
+  <span class="title-class">Hmm... </span> <br> \
+  <span class="title-class2">This page contains content that you may be sensitive to. Would you like to proceed ? </span>\
+  </html>',
+  showDenyButton: true,
+  confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
+  denyButtonText: `<html><span class="skip-button-text">Close Page</span></html>`,
+  confirmButtonClass: 'Skip-Button',
+  denyButtonClass:'Skip-Button',
+  showClass:{
+    popup: 'pop-up-class',
+    container: 'container-class',
+  }
+
+  }
+).then((result) => {
+alerts.sensorFeedback.triggered = true;
+if (result.isDenied) {
+  chrome.runtime.sendMessage({closeTab: true});
+}else if (result.isConfirmed) {
+  return
+}})
+  }
+
 
 socket.on('predictions', function(data) {
   mytrigger = data;
@@ -619,20 +644,18 @@ socket.on('predictions', function(data) {
   if (Date.now() < suppressAlertUntil) {
     return;
   }
-
   // Handle 'none' predictions
-  if (data === 'none') {
+  if (data === 'none' || !userTrigger.includes(data)) {
     noneResponseCount++;
     blackOverlayResponseCount++;
 
     // Check for 10 consecutive 'none' for skipping
-    if (noneResponseCount >= 7) {
+    if (noneResponseCount >= 4) {
       resetSkippingState();
       noneResponseCount = 0; // Reset skipping count after handling
     }
-
-    // Check for 15 consecutive 'none' for removing black overlay
-    if (blackOverlayResponseCount >= 12) {
+    // Check for 10 consecutive 'none' for removing black overlay
+    if (blackOverlayResponseCount >= 7) {
       if (isAudioOnlyMode) {
         removeBlackOverlay();
         isAudioOnlyMode = false;
@@ -644,22 +667,52 @@ socket.on('predictions', function(data) {
     noneResponseCount = 0;
     blackOverlayResponseCount = 0;
 
+    // if (userTrigger.includes(data)) {
+    //   if (!isSkipping && !isAlertDisplayed) {
+    //     isSkipping = true;
+    //     if (window.location.href.includes('youtube.com/watch')){
+    //               // Call the appropriate alert function based on user choice
+    //               if (DiscloseRadio) {
+    //                 myalert3(); // Call myalert3() when DiscloseRadio is true
+    //               } else if (NotDiscloseRadio) {
+    //                 myalert(); // Call myalert() when NotDiscloseRadio is true
+    //               }
+    //               checkAndSkipScene(); // Start skipping process
+    //     }else{
+    //       myalert6()
+    //     }
+    //   }
+    // } else {
+    //   // If the current data is not in userTrigger, ensure to stop skipping
+    //   isSkipping = false;
+    // }
     if (userTrigger.includes(data)) {
-      if (!isSkipping && !isAlertDisplayed) {
-        isSkipping = true;
-        // Call the appropriate alert function based on user choice
-        if (DiscloseRadio) {
-          myalert3(); // Call myalert3() when DiscloseRadio is true
-        } else if (NotDiscloseRadio) {
-          myalert(); // Call myalert() when NotDiscloseRadio is true
+      // Check if it's a new trigger or if no skipping/alert is currently displayed
+      if (currentSkippingTrigger !== data || (!isSkipping && !isAlertDisplayed)) {
+        currentSkippingTrigger = data; // Update the current skipping trigger
+        isSkipping = true; // Start skipping for the new trigger
+        console.log("New skipping started for:", currentSkippingTrigger);
+        // Your existing logic for handling the alert based on the page and user choice
+        if (window.location.href.includes('youtube.com/watch')) {
+          if (DiscloseRadio) {
+            myalert3(); // Call myalert3() for DiscloseRadio
+          } else if (NotDiscloseRadio) {
+            myalert(); // Call myalert() for NotDiscloseRadio
+          }
+          checkAndSkipScene(); // Start skipping process for YouTube
+        } else {
+          myalert6(); // Call myalert6() for other cases
         }
-        checkAndSkipScene(); // Start skipping process
       }
     } else {
       // If the current data is not in userTrigger, ensure to stop skipping
-      isSkipping = false;
+      if (isSkipping) {
+        console.log("Stopping skipping for:", currentSkippingTrigger);
+        isSkipping = false;
+        currentSkippingTrigger = ''; // Clear the current trigger
+      }
     }
-
+  
     // Check if the trigger is unique and append to the list
     if (!uniqueTriggersLogs.includes(data) && data !== 'none') {
       uniqueTriggersLogs.push(data);
@@ -675,7 +728,6 @@ socket.on('predictions', function(data) {
   }
 });
 
-
 // Reset skipping state
 function resetSkippingState() {
   clearTimeout(skipInterval);
@@ -685,7 +737,6 @@ function resetSkippingState() {
     videoElement.play();
   }
 }
-
 
 // Check and skip scene
 // function checkAndSkipScene() {
@@ -728,7 +779,7 @@ function checkAndSkipScene() {
   }
 
   if (isSkipping && mytrigger !== 'none') {
-    const skipAmount = 3; // Time to skip in seconds
+    const skipAmount = 1; // Time to skip in seconds
     // Ensure we do not skip beyond the video's duration
     videoElement.currentTime = Math.min(videoElement.currentTime + skipAmount, videoElement.duration);
     console.log('Skipped, new time:', videoElement.currentTime);
@@ -1059,39 +1110,13 @@ if (window.location.href.includes('youtube.com/watch')){
             }
           });
         }
-
-
-
-        // article alert
-         function myalert6() {
-          Swal.fire({
-          title:'<html> \
-          <span class="title-class">Hmm... </span> <br> \
-          <span class="title-class2">Are you comfortable with what you are currently browsing?</span>\
-          </html>',
-          showDenyButton: true,
-          confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
-          denyButtonText: `<html><span class="skip-button-text">Exit Tab</span></html>`,
-          confirmButtonClass: 'Skip-Button',
-          denyButtonClass:'Skip-Button',
-          showClass:{
-            popup: 'pop-up-class',
-            container: 'container-class',
-          }
-      
-          }
-      ).then((result) => {
-        alerts.sensorFeedback.triggered = true;
-        if (result.isDenied) {
-          chrome.runtime.sendMessage({closeTab: true});
-        }else if (result.isConfirmed) {
-          return
-      }})
-          }
-      
-
     }
-
 })
+
+
+
+
+
+
 
 

@@ -253,96 +253,31 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 });
 
 
-// // Global flag to track if screen capture is in progress
-// let isCaptureInProgress = false;
+// function myalert6() {
+//   Swal.fire({
+//   title:'<html> \
+//   <span class="title-class">Hmm... </span> <br> \
+//   <span class="title-class2">Are you comfortable with what you are currently browsing?</span>\
+//   </html>',
+//   showDenyButton: true,
+//   confirmButtonText: `<html><span class="skip-button-text">I'm good!</span></html>`,
+//   denyButtonText: `<html><span class="skip-button-text">Exit Tab</span></html>`,
+//   confirmButtonClass: 'Skip-Button',
+//   denyButtonClass:'Skip-Button',
+//   showClass:{
+//     popup: 'pop-up-class',
+//     container: 'container-class',
+//   }
 
-// // Establish the WebSocket connection
-// let socket
-// socket = io('http://localhost:9000');
+//   }
+// ).then((result) => {
+// alerts.sensorFeedback.triggered = true;
+// if (result.isDenied) {
+//   chrome.runtime.sendMessage({closeTab: true});
+// }else if (result.isConfirmed) {
+//   return
+// }})
+//   }
 
-// // Listen for WebSocket connections
-// socket.on('connect', function() {
-//     console.log('Connected to Flask server');
-//     initiateScreenCapture();
-// });
-
-// // Function to initiate screen capture if not already in progress
-// function initiateScreenCapture() {
-//     if (!window.location.href.includes('youtube.com') && !isCaptureInProgress) {
-//         startCaptureAndSendFrames();
-//     }
-// }
-
-// // Function to start capturing and sending frames
-// function startCaptureAndSendFrames() {
-//     navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
-//         .then(stream => {
-//             isCaptureInProgress = true; // Set the flag when capture starts
-//             // Handle the captured stream
-//             captureAndSendFrames(stream);
-//         }).catch(error => {
-//             console.error('Error accessing media devices.', error);
-//             // Handle the error (e.g., user denied the screen capture)
-//             isCaptureInProgress = false; // Reset the flag if capture fails
-//         });
-// }
-
-// // Function to capture and send frames to the server
-// function captureAndSendFrames(stream) {
-//   const video = document.createElement('video');
-//   video.srcObject = stream;
-//   video.play();
-//   video.muted = true;
-//   video.style.display = 'none'; // Hide the video element
-
-//   const canvas = document.createElement('canvas');
-//   const context = canvas.getContext('2d');
-//   const captureInterval = 1000;
-
-//   video.addEventListener('loadedmetadata', function() {
-//     canvas.width = video.videoWidth;
-//     canvas.height = video.videoHeight;
-//   });
-
-//   setInterval(() => {
-//     if (video.readyState === video.HAVE_ENOUGH_DATA) {
-//       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-//       canvas.toBlob(blob => {
-//         if (blob) {
-//           const reader = new FileReader();
-//           reader.onloadend = function() {
-//             const base64data = reader.result;
-//             socket.emit('send_frame', base64data);
-//           };
-//           reader.readAsDataURL(blob);
-//         }
-//       }, 'image/jpeg');
-//     }
-//   }, captureInterval);
-// }
-
-// // Handle predictions from server
-// socket.on('predictions', function(data) {
-//     if (data.triggerFound) {
-//         // If trigger is found, display alert
-//         displayTriggerAlert();
-//     }
-// });
-
-// // Display alert when a trigger is found
-// function displayTriggerAlert() {
-//     Swal.fire({
-//         title: 'Trigger Detected',
-//         text: 'A trigger has been detected. What would you like to do?',
-//         showDenyButton: true,
-//         confirmButtonText: 'Dismiss',
-//         denyButtonText: 'Close Tab'
-//     }).then((result) => {
-//         if (result.isDenied) {
-//             // Close the current tab
-//             chrome.runtime.sendMessage({ closeTab: true });
-//         }
-//     });
-// }
-
+// myalert6()
 
