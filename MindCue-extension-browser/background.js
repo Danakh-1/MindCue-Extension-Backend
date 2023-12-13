@@ -172,6 +172,7 @@ function saveBrowsingData() {
     //     fileContent += `${alert.name}\n`;  // Append only the name of each alert
     //   }
     // }
+    
     if (browsingData.alerts && Object.keys(browsingData.alerts).length > 0) {
       fileContent += "\nAlert Names:\n";
       for (let key in browsingData.alerts) {

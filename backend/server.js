@@ -13,7 +13,7 @@ const usersRoutes = require('./routes/users-routes.js');
 const settingsRoutes = require('./routes/settings-routes');
 const HttpError = require('./models/http-error');
 //const browsingDataRoutes = require('./routes/browsingData-routes');
-
+const trackRoutes = require('./routes/browsingData-routes'); // Create this file later
 
 const app = express();
  
@@ -32,6 +32,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+app.use('/api/track', trackRoutes);
 app.use('/api/triggers', TriggerRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/settings', settingsRoutes);
