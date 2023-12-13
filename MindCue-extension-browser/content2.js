@@ -649,8 +649,8 @@ socket.on('predictions', function(data) {
     noneResponseCount++;
     blackOverlayResponseCount++;
 
-    // Check for 10 consecutive 'none' for skipping
-    if (noneResponseCount >= 4) {
+    // Check for 6 consecutive 'none' for skipping
+    if (noneResponseCount >= 5) {
       resetSkippingState();
       noneResponseCount = 0; // Reset skipping count after handling
     }

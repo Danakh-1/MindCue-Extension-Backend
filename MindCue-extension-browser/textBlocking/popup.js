@@ -332,7 +332,26 @@ if (userId) {
     });
 }
 
+function searchTriggers() {
+  var input, filter, checkboxItems, label, i, txtValue;
+  input = document.getElementById('searchInput');
+  filter = input.value.toUpperCase();
+  checkboxItems = document.getElementById("checkboxContainer").getElementsByClassName('checkbox-item');
 
+  // Loop through all checkbox items and hide those that don't match the search query
+  for (i = 0; i < checkboxItems.length; i++) {
+      label = checkboxItems[i].getElementsByTagName("label")[0];
+      txtValue = label.textContent || label.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          checkboxItems[i].style.display = "";
+      } else {
+          checkboxItems[i].style.display = "none";
+      }
+  }
+}
+
+
+document.getElementById('searchInput').addEventListener('keyup', searchTriggers);
 
 const wordList = [
   "spider",
