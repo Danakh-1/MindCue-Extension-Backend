@@ -7,19 +7,19 @@ const cors = require('cors');
 const { logger } = require('./middleware/logEvents');
 const errorHandler = require('./middleware/errorHandler');
 
+const app = express();
+app.use(cors())
+app.use(bodyParser.json());
 
 const TriggerRoutes = require('./routes/triggers-routes');
 const usersRoutes = require('./routes/users-routes.js');
 const settingsRoutes = require('./routes/settings-routes');
 const HttpError = require('./models/http-error');
-//const browsingDataRoutes = require('./routes/browsingData-routes');
-const trackRoutes = require('./routes/browsingData-routes'); // Create this file later
+const browsingDataRoutes = require('./routes/browsingData-routes');
+//const trackRoutes = require('./routes/browsingData-routes'); // Create this file later
 
-const app = express();
  
 /////////////////////////////parse incoming json data
-app.use(bodyParser.json());
-app.use(cors())
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -33,11 +33,11 @@ app.use((req, res, next) => {
 });
 
 
-app.use('/api/track', trackRoutes);
+//app.use('/api/track', trackRoutes);
 app.use('/api/triggers', TriggerRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/settings', settingsRoutes);
-//app.use('/api/session', browsingDataRoutes);
+app.use('/api/Tracks', browsingDataRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError('Could not find this route.', 404);
