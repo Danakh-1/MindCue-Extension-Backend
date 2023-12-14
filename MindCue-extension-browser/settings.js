@@ -245,6 +245,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
+
 document.getElementById('logout').addEventListener('click', function() {
   // Clear token and user data from localStorage
   localStorage.removeItem('token');
@@ -253,6 +255,7 @@ document.getElementById('logout').addEventListener('click', function() {
   window.location.href = 'popup.html'; // Redirect to login page
   // or handle the logged-out UI state
 });
+
 
 
 

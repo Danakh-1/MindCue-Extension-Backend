@@ -20,15 +20,12 @@
 //     });
 // }
 
-
 chrome.runtime.onMessage.addListener((message,sender)=>{
     if (message.from === "content2" && message.query === "session") {
 chrome.storage.local.get(['startTime'], function(result) {
-    console.log(' from content2 startTime currently is ' + result.startTime);
+    console.log('from content2 startTime currently is ' + result.startTime);
   });}
 })
-
-
 
 // function retrieveUrls() {
 //     chrome.storage.local.get(['urls'], function(result) {

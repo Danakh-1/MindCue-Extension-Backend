@@ -48,7 +48,8 @@
        "downloads",
        "fileSystem.write",
       "MindCue-extension-browser/socket.io.min.js",
-      "http://localhost:5000/api/triggers/*"
+      "http://localhost:5000/api/triggers/*",
+      "<all_urls>"
      ],
   "host_permissions":  ["<all_urls>"],
   "manifest_version": 3
