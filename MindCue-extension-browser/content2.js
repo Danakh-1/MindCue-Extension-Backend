@@ -337,10 +337,10 @@ function stopTimer() {
 
 isRecording = false;
 let captureStream = null;
-// Function to start or stop screen recording
-async function toggleRecording() {
-  if (!isRecording) {
-    //  START OF JANNA'S CHANGES
+
+toggleButton.addEventListener('click',function(){
+  if(!isRecording){
+  //  START OF JANNA'S CHANGES
       // Store the current timestamp as the start time of recording
       recordingStartTime = Date.now();
 
@@ -359,6 +359,15 @@ async function toggleRecording() {
       console.log("Timestamp sent to background script.", response);
     });
     //   // END OF JANNA'S CHANGES
+  }
+})
+
+
+
+
+// Function to start or stop screen recording
+async function toggleRecording() {
+  if (!isRecording) {
     try {
       // Start the timer
       startTimer();
@@ -377,8 +386,6 @@ async function toggleRecording() {
   }
 }
 function stopRecording() {
-
-  if (isRecording && captureStream) {
       //   // START OF JANNA'S CHANGES
     // Store the current timestamp as the end time of recording
     recordingEndTime = Date.now();
@@ -410,10 +417,11 @@ chrome.runtime.sendMessage({
   alerts: alerts
 });
 chrome.runtime.sendMessage({ action: 'saveBrowsingData' });
+//    // END OF JANNA'S CHANGES
+  if (isRecording && captureStream) {
   console.log("Recording stopped.");
   toggleButton.textContent = "Start Recording";
   stopTimer();
-//    // END OF JANNA'S CHANGES
     captureStream.getTracks().forEach(track => track.stop());
     captureStream = null;
     isRecording = false;
@@ -650,12 +658,12 @@ socket.on('predictions', function(data) {
     blackOverlayResponseCount++;
 
     // Check for 6 consecutive 'none' for skipping
-    if (noneResponseCount >= 5) {
+    if (noneResponseCount >= 3) {
       resetSkippingState();
       noneResponseCount = 0; // Reset skipping count after handling
     }
     // Check for 10 consecutive 'none' for removing black overlay
-    if (blackOverlayResponseCount >= 7) {
+    if (blackOverlayResponseCount >= 8) {
       if (isAudioOnlyMode) {
         removeBlackOverlay();
         isAudioOnlyMode = false;
@@ -690,7 +698,10 @@ socket.on('predictions', function(data) {
       // Check if it's a new trigger or if no skipping/alert is currently displayed
       if (currentSkippingTrigger !== data || (!isSkipping && !isAlertDisplayed)) {
         currentSkippingTrigger = data; // Update the current skipping trigger
+
         isSkipping = true; // Start skipping for the new trigger
+//  checkAndSkipScene(); // Start skipping process for YouTube
+              
         console.log("New skipping started for:", currentSkippingTrigger);
         // Your existing logic for handling the alert based on the page and user choice
         if (window.location.href.includes('youtube.com/watch')) {
@@ -701,7 +712,9 @@ socket.on('predictions', function(data) {
           }
           checkAndSkipScene(); // Start skipping process for YouTube
         } else {
+          if (window.location.href.includes('google.com')) {
           myalert6(); // Call myalert6() for other cases
+        }
         }
       }
     } else {
@@ -734,7 +747,7 @@ function resetSkippingState() {
   isSkipping = false;
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement && videoElement.paused) {
-    videoElement.play();
+    videoElement.pause();
   }
 }
 
@@ -800,7 +813,6 @@ function myalert3() {
   // Pause skipping process when showing a new alert
   clearTimeout(skipInterval);
   isSkipping = false;
-
   if (window.location.href.includes('youtube.com/watch')){
     document.querySelector('video.html5-main-video').pause();
     applyBlackOverlay()
@@ -829,14 +841,12 @@ function myalert3() {
     },
   }).then((result) => {
     isAlertDisplayed = false;
-
     if (result.isDenied) {
       removeBlackOverlay()
       suppressAlertUntil = Date.now() + 10000; // Suppress further alerts for 10 seconds
       document.querySelector('video.html5-main-video').play();
     } else if (result.isConfirmed) {
       removeBlackOverlay()
-
       isSkipping = true; // Only set isSkipping to true if user confirms skip
       checkAndSkipScene(); // Trigger skipping only after user confirmation
       document.querySelector('video.html5-main-video').play();

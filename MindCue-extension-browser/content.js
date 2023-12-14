@@ -281,3 +281,5 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 // myalert6()
 
+let x = document.getElementById('microformat')
+x.style.display='none'
