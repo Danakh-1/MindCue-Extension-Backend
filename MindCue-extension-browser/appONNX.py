@@ -15,10 +15,39 @@ temp_image_paths=[]
 
 dataSent = ''
 
+# new code 
+anamolies = []
 @socketio.on('anomaly_data')
 def handle_receive_anomaly(data):
     # Once processing is done, call emit_anomaly to send it to clients
-    emit_anomaly(data)
+    anamolies.append(data)
+
+@socketio.on('eeg_anomaly')
+def handle_receive_anomaly2(data):
+    # Once processing is done, call emit_anomaly to send it to clients
+    anamolies.append(data)
+
+
+def check_Anomaly(anamolies):
+    # Check if there are at least two anomalies to compare
+    if len(anamolies) >= 2:
+        # Check if both anomalies are -1
+        if anamolies[0] == -1 and anamolies[1] == -1:
+            emit_anomaly(-1)
+        else:
+            emit_anomaly(1)
+
+# old emit code for only gsr and heart sensor
+# @socketio.on('anomaly_data')
+# def handle_receive_anomaly(data):
+#     # Once processing is done, call emit_anomaly to send it to clients
+#     emit_anomaly(data)
+
+# @socketio.on('eeg_anomaly')
+# def handle_receive_anomaly2(data):
+#     # Once processing is done, call emit_anomaly to send it to clients
+#     emit_anomaly(data)
+    
     
 
 def emit_anomaly(data):
