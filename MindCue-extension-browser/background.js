@@ -1,3 +1,4 @@
+
 // chrome.tabs.onActivated.addListener((tab) => {
 //     console.log(tab);
 
@@ -225,3 +226,4 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     saveBrowsingData();
   }
 });
+

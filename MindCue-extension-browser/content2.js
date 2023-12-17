@@ -654,16 +654,18 @@ socket.on('predictions', function(data) {
   }
   // Handle 'none' predictions
   if (data === 'none' || !userTrigger.includes(data)) {
+  // if (data === 'none') {
+
     noneResponseCount++;
     blackOverlayResponseCount++;
 
-    // Check for 6 consecutive 'none' for skipping
+    // Check for 3 consecutive 'none' for skipping
     if (noneResponseCount >= 3) {
       resetSkippingState();
       noneResponseCount = 0; // Reset skipping count after handling
     }
     // Check for 10 consecutive 'none' for removing black overlay
-    if (blackOverlayResponseCount >= 8) {
+    if (blackOverlayResponseCount >= 10) {
       if (isAudioOnlyMode) {
         removeBlackOverlay();
         isAudioOnlyMode = false;
@@ -712,7 +714,9 @@ socket.on('predictions', function(data) {
           }
           checkAndSkipScene(); // Start skipping process for YouTube
         } else {
-          myalert6(); // Call myalert6() for other cases
+          if (!window.location.href.includes('youtube.com')){
+            myalert6(); // Call myalert6() for other cases
+          }
         }
       }
     } else {
