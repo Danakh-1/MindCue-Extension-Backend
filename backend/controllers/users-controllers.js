@@ -111,7 +111,8 @@ const signup = async (req, res, next) => {
 	try {
 		token = jwt.sign(
 			{ userId: createdUser.id, email: createdUser.email },
-			privateKey
+			privateKey,
+			{ expiresIn: '30m' } // Set token to expire in 30 minutes
 		);
 	} catch (err) {
 		const error = new HttpError(
@@ -221,7 +222,9 @@ const login = async (req, res, next) => {
 	try {
 		token = jwt.sign(
 			{ userId: existingUser.id, email: existingUser.email },
-			privateKey
+			privateKey,
+			{ expiresIn: '30m' } 
+
 		);
 	} catch (err) {
 		console.log(err);

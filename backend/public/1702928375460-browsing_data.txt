@@ -1,0 +1,12 @@
+Start Time: 12/18/2023, 10:39:29 PM
+End Time: 12/18/2023, 10:39:35 PM
+URLs:
+chrome://extensions/
+https://www.youtube.com/watch?v=YNwqdR0JaqE
+https://chat.openai.com/c/00c91fc6-dfa6-4985-8137-9f5d04118d89
+
+Session Triggers:
+gun
+
+Alert Names:
+Sensor Feedback

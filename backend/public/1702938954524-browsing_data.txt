@@ -1,0 +1,11 @@
+Start Time: 12/19/2023, 1:35:40 AM
+End Time: 12/19/2023, 1:35:54 AM
+URLs:
+https://www.youtube.com/watch?v=uAXXqWFB_Es
+
+Session Triggers:
+accident
+soldier
+
+Alert Names:
+Trigger Detected

@@ -191,10 +191,11 @@ async function saveBrowsingData() {
     return;
   }
 let token 
-chrome.storage.local.get([`token`], function(result){
+chrome.storage.local.get(['token'], function(result){
+  console.log(result.token)
   var myHeaders = new Headers();
 myHeaders.append("Authorization", `Bearer ${result.token}`);
-
+console.log(myHeaders)
 var formdata = new FormData();
 formdata.append("file", blob, "browsing_data.txt");
 

@@ -13,8 +13,9 @@
           "128": "MindCue-extension-browser/images/Brainstorm.png"
         }
     },
-    "web_accessible_resources": [{ 
-      "resources": ["MindCue-extension-browser/images/coverBackground.png"],
+    "web_accessible_resources": [
+      { 
+      "resources": ["MindCue-extension-browser/images/*","MindCue-extension-browser/images/next.png"],
       "matches": ["<all_urls>"]
     }],
     "icons": {

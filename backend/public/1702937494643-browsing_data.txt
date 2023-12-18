@@ -1,0 +1,18 @@
+Start Time: 12/19/2023, 1:11:07 AM
+End Time: 12/19/2023, 1:11:34 AM
+URLs:
+https://chat.openai.com/c/431b4741-6946-4ddf-afc5-63e83f6ddb04
+https://www.youtube.com/watch?v=Nq9ZH2KtugA
+chrome://newtab/
+chrome://newtab/
+https://www.youtube.com/watch?v=msw820Uwd0s
+https://www.youtube.com/watch?v=Nq9ZH2KtugA
+https://www.youtube.com/watch?v=msw820Uwd0s
+https://www.youtube.com/results?search_query=mindcue
+https://www.youtube.com/watch?v=uAXXqWFB_Es
+
+Session Triggers:
+accident
+soldier
+
+Alert Names:

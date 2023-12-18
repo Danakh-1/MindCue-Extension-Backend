@@ -1,0 +1,10 @@
+Start Time: 12/18/2023, 11:14:53 PM
+End Time: 12/18/2023, 11:14:59 PM
+URLs:
+https://www.youtube.com/watch?v=jgm58cbu0kw
+
+Session Triggers:
+gun
+
+Alert Names:
+Trigger Detected

@@ -644,8 +644,22 @@ if (result.isDenied) {
   return
 }})
   }
-
-
+  
+  var imgUrl = chrome.runtime.getURL('MindCue-extension-browser/images/next.png');
+  var Skipdiv = document.createElement('div');
+  Skipdiv.innerHTML = `<img src='${imgUrl}' />`;
+  // Extract the img element from the div if you need to apply styles or use it elsewhere
+  var img = Skipdiv.querySelector('img');
+  
+  // Optionally set styles
+  img.style.height = '50px';
+  img.style.width = '50px';
+  Skipdiv.style.position = 'absolute';
+  Skipdiv.style.top = '50%'; // Position at the vertical center of the video
+  Skipdiv.style.left = '50%'; // Position at the horizontal center of the video
+  Skipdiv.style.transform = 'translate(-50%, -50%)'; // Offset the div by half of its width and height to center it
+  Skipdiv.style.zIndex = '9999'; // Ensure it's above other elements
+  
 socket.on('predictions', function(data) {
   mytrigger = data;
   console.log(data);
@@ -655,12 +669,12 @@ socket.on('predictions', function(data) {
   // Handle 'none' predictions
   if (data === 'none' || !userTrigger.includes(data)) {
   // if (data === 'none') {
-
     noneResponseCount++;
     blackOverlayResponseCount++;
-
     // Check for 3 consecutive 'none' for skipping
     if (noneResponseCount >= 3) {
+      document.body.removeChild(Skipdiv)
+      isSkipping=false
       resetSkippingState();
       noneResponseCount = 0; // Reset skipping count after handling
     }
@@ -676,7 +690,6 @@ socket.on('predictions', function(data) {
     // Reset counts as we got a different prediction
     noneResponseCount = 0;
     blackOverlayResponseCount = 0;
-
     // if (userTrigger.includes(data)) {
     //   if (!isSkipping && !isAlertDisplayed) {
     //     isSkipping = true;
@@ -700,10 +713,8 @@ socket.on('predictions', function(data) {
       // Check if it's a new trigger or if no skipping/alert is currently displayed
       if (currentSkippingTrigger !== data || (!isSkipping && !isAlertDisplayed)) {
         currentSkippingTrigger = data; // Update the current skipping trigger
-
         isSkipping = true; // Start skipping for the new trigger
 //  checkAndSkipScene(); // Start skipping process for YouTube
-              
         console.log("New skipping started for:", currentSkippingTrigger);
         // Your existing logic for handling the alert based on the page and user choice
         if (window.location.href.includes('youtube.com/watch')) {
@@ -724,6 +735,8 @@ socket.on('predictions', function(data) {
       if (isSkipping) {
         console.log("Stopping skipping for:", currentSkippingTrigger);
         isSkipping = false;
+        document.body.removeChild(Skipdiv)
+        console.log("skipping stopped")
         currentSkippingTrigger = ''; // Clear the current trigger
       }
     }
@@ -747,6 +760,8 @@ socket.on('predictions', function(data) {
 function resetSkippingState() {
   clearTimeout(skipInterval);
   isSkipping = false;
+  console.log('stopped skipping')
+  document.body.removeChild(Skipdiv)
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement && videoElement.paused) {
     videoElement.pause();
@@ -852,6 +867,7 @@ function myalert3() {
       isSkipping = true; // Only set isSkipping to true if user confirms skip
       checkAndSkipScene(); // Trigger skipping only after user confirmation
       document.querySelector('video.html5-main-video').play();
+      document.body.appendChild(Skipdiv)
     } else if (result.dismiss === Swal.DismissReason.cancel) {
       applyBlackOverlay();
       isAudioOnlyMode = true;
@@ -1122,13 +1138,8 @@ if (window.location.href.includes('youtube.com/watch')){
             }
           });
         }
+
     }
 })
-
-
-
-
-
-
 
 

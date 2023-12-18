@@ -45,14 +45,22 @@ document.getElementById("sign_in_form").addEventListener("submit", function (e) 
     });
 });
 
+function isTokenExpired(token) {
+    const payloadBase64 = token.split('.')[1];
+    const decodedJson = atob(payloadBase64);
+    const decoded = JSON.parse(decodedJson);
+    const exp = decoded.exp;
+    const currentUnixTime = Math.floor(Date.now() / 1000);
+    return exp < currentUnixTime;
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const token = localStorage.getItem("token");
-    if (token) {
-        window.location.href = "Dashboard.html"; // Redirect to Dashboard if logged in
+    if (token && !isTokenExpired(token)) {
+        window.location.href = "Dashboard.html"; // Redirect to Dashboard if logged in and token is valid
     } else {
+        window.location.href = "popup.html"; 
+        localStorage.removeItem("token"); // Remove expired token
         // Show login form or handle not logged-in state
     }
 });
-
-
-
