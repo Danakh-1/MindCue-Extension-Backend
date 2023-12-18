@@ -227,7 +227,7 @@ function onTimesUp() {
   Swal.fire({
   title:'<html> \
   <span class="title-class">Oops!</span> <br> \
-  <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through your app settings or take a break</span>\
+  <span class="title-class2">Looks like you exceeded your screen time limit. Edit this through the extention settings or take a break</span>\
   </html>',
   showDenyButton: true,
   showCancelButton: true,
@@ -654,16 +654,18 @@ socket.on('predictions', function(data) {
   }
   // Handle 'none' predictions
   if (data === 'none' || !userTrigger.includes(data)) {
+  // if (data === 'none') {
+
     noneResponseCount++;
     blackOverlayResponseCount++;
 
-    // Check for 6 consecutive 'none' for skipping
+    // Check for 3 consecutive 'none' for skipping
     if (noneResponseCount >= 3) {
       resetSkippingState();
       noneResponseCount = 0; // Reset skipping count after handling
     }
     // Check for 10 consecutive 'none' for removing black overlay
-    if (blackOverlayResponseCount >= 8) {
+    if (blackOverlayResponseCount >= 10) {
       if (isAudioOnlyMode) {
         removeBlackOverlay();
         isAudioOnlyMode = false;
@@ -712,9 +714,9 @@ socket.on('predictions', function(data) {
           }
           checkAndSkipScene(); // Start skipping process for YouTube
         } else {
-          if (window.location.href.includes('google.com')) {
-          myalert6(); // Call myalert6() for other cases
-        }
+          if (!window.location.href.includes('youtube.com')){
+            myalert6(); // Call myalert6() for other cases
+          }
         }
       }
     } else {
