@@ -143,7 +143,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 //   });
 // }
 
-function saveBrowsingData() {
+async function saveBrowsingData() {
   // Check if browsingData has valid data
   if (!browsingData.startTime || !browsingData.endTime || !Array.isArray(browsingData.urls)) {
     console.error("Error: Browsing data is not properly initialized.");
@@ -189,8 +189,45 @@ function saveBrowsingData() {
     console.error("Error: Failed to create a blob.");
     return;
   }
+let token 
+chrome.storage.local.get([`token`], function(result){
+  var myHeaders = new Headers();
+myHeaders.append("Authorization", `Bearer ${result.token}`);
 
-  // Convert the Blob to a Data URL
+var formdata = new FormData();
+formdata.append("file", blob, "browsing_data.txt");
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: formdata,
+  redirect: 'follow'
+};
+
+fetch("http://localhost:5000/api/Tracks/userInput", requestOptions)
+  .then(response => response.text())
+  .then(result => console.log(result))
+  .catch(error => console.log('error', error));
+});
+//   // Convert the Blob to a Data URL
+//   console.log(token, 'is here')
+//   var myHeaders = new Headers();
+// myHeaders.append("Authorization",  `Bearer ${token}`);
+// console.log(myHeaders, 'headerssss')
+// var formdata = new FormData();
+// formdata.append("file", blob, "browsing_data.txt");
+
+// var requestOptions = {
+//   method: 'POST',
+//   headers: myHeaders,
+//   body: formdata,
+//   redirect: 'follow'
+// };
+
+// fetch("http://localhost:5000/api/Tracks/userInput", requestOptions)
+//   .then(response => response.text())
+//   .then(result => console.log(result))
+//   .catch(error => console.log('error', error));
   let reader = new FileReader();
   reader.onload = function () {
     let dataUrl = reader.result;

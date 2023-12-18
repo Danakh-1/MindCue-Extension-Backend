@@ -35,6 +35,9 @@ document.getElementById("sign_in_form").addEventListener("submit", function (e) 
         chrome.storage.local.set({ userId: data.userId }, function() {
             console.log('UserId is saved in Chrome local storage.');
         });
+        chrome.storage.local.set({ token: data.token }, function() {
+            console.log('token is saved in Chrome local storage.');
+        });
         window.location.href = "Dashboard.html";
     })
     .catch(error => {

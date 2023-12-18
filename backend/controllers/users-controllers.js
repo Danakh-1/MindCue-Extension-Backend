@@ -75,7 +75,7 @@ const signup = async (req, res, next) => {
 		return OTP;
 	}
 
-	const otp = generateOTP(6); // Change the length as per requirments
+	const otp = generateOTP(4); // Change the length as per requirments
 
 	// add 5 minute limit for otp
 	const otpExpireTime = new Date();
