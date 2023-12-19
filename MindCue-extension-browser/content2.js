@@ -904,7 +904,6 @@ function myalert() {
   if (isAlertDisplayed) {
     return; // Do not display the alert if it is already displayed
   }
-
   // Pause skipping process when showing a new alert
   clearTimeout(skipInterval);
   isSkipping = false;

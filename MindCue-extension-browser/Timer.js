@@ -34,7 +34,7 @@ setButton.addEventListener('click', function () {
     let seconds = parseInt(secondsInput.value);
 
     updateTime(hours, minutes, seconds);
-    showAlert(hours, minutes, seconds);
+    // showAlert(hours, minutes, seconds);
 
     // Save the timer values to Chrome storage
     saveAndLogTimerValues();
