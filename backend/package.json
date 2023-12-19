@@ -30,6 +30,7 @@
     "nodejs-mobile-react-native": "^18.17.3",
     "nodemailer": "^6.9.7",
     "pdfkit": "^0.14.0",
+    "set-function-length": "^1.1.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
