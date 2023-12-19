@@ -1,0 +1,8 @@
+Start Time: 12/19/2023, 6:46:36 PM
+End Time: 12/19/2023, 6:46:57 PM
+URLs:
+https://www.youtube.com/watch?v=_b7jUVyOuDU
+
+Alert Names:
+Trigger Detected
+Sensor Feedback
