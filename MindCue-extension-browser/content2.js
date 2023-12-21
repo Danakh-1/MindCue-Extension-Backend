@@ -675,7 +675,7 @@ socket.on('predictions', function(data) {
     blackOverlayResponseCount++;
     // Check for 3 consecutive 'none' for skipping
     if (noneResponseCount >= 3) {
-      // document.body.removeChild(Skipdiv)
+      document.body.removeChild(Skipdiv)
       isSkipping=false
       resetSkippingState();
       noneResponseCount = 0; // Reset skipping count after handling
@@ -737,7 +737,7 @@ socket.on('predictions', function(data) {
       if (isSkipping) {
         console.log("Stopping skipping for:", currentSkippingTrigger);
         isSkipping = false;
-        // document.body.removeChild(Skipdiv)
+        document.body.removeChild(Skipdiv)
         console.log("skipping stopped")
         currentSkippingTrigger = ''; // Clear the current trigger
       }
@@ -764,7 +764,7 @@ function resetSkippingState() {
   clearTimeout(skipInterval);
   isSkipping = false;
   console.log('stopped skipping')
-  // document.body.removeChild(Skipdiv)
+  document.body.removeChild(Skipdiv)
   const videoElement = document.querySelector('video.html5-main-video');
   if (videoElement && videoElement.paused) {
     videoElement.pause();
@@ -870,7 +870,7 @@ function myalert3() {
       isSkipping = true; // Only set isSkipping to true if user confirms skip
       checkAndSkipScene(); // Trigger skipping only after user confirmation
       document.querySelector('video.html5-main-video').play();
-      // document.body.appendChild(Skipdiv)
+      document.body.appendChild(Skipdiv)
     } else if (result.dismiss === Swal.DismissReason.cancel) {
       applyBlackOverlay();
       isAudioOnlyMode = true;
@@ -944,6 +944,7 @@ function myalert() {
       removeBlackOverlay()
       isSkipping = true;
       checkAndSkipScene();
+      document.body.appendChild(Skipdiv)
       document.querySelector('video.html5-main-video').play();
     } else {
       applyBlackOverlay();
@@ -974,6 +975,8 @@ socket.on('anomaly', function(data) {
     console.log("Received prediction data in hardware section:", predictionData);
   });
   if(noneCounterForMyAlert4 >= 4) {
+  document.body.removeChild(Skipdiv)
+
     isSkippingForMyAlert4 = false;
     resetSkippingState2()
   }
@@ -1051,6 +1054,8 @@ function myalert1() {
     function resetSkippingState2() {
       clearTimeout(skipIntervalForMyAlert4);
       isSkippingForMyAlert4 = false;
+  document.body.removeChild(Skipdiv)
+
       noneCounterForMyAlert4 = 0;
     }
     
@@ -1106,6 +1111,7 @@ if (window.location.href.includes('youtube.com/watch')){
           removeBlackOverlay();
           isSkippingForMyAlert4 = true;
           checkAndSkipForMyAlert4(); // Start the skipping process
+          document.body.appendChild(Skipdiv)
           document.querySelector('video.html5-main-video').play();
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           // If "Play Audio Only" is chosen
