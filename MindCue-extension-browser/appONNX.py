@@ -21,16 +21,16 @@ def handle_receive_anomaly(data):
     # Once processing is done, call emit_anomaly to send it to clients
     emit_anomaly(data)
 
-# old emit code for only gsr and heart sensor
-@socketio.on('anomaly_data')
-def handle_receive_anomaly(data):
-    # Once processing is done, call emit_anomaly to send it to clients
-    emit_anomaly(data)
+# # old emit code for only gsr and heart sensor
+# @socketio.on('anomaly_data')
+# def handle_receive_anomaly(data):
+#     # Once processing is done, call emit_anomaly to send it to clients
+#     emit_anomaly(data)
 
-@socketio.on('eeg_anomaly')
-def handle_receive_anomaly2(data):
-    # Once processing is done, call emit_anomaly to send it to clients
-    emit_anomaly(data)
+# @socketio.on('eeg_anomaly')
+# def handle_receive_anomaly2(data):
+#     # Once processing is done, call emit_anomaly to send it to clients
+#     emit_anomaly(data)
     
     
 
