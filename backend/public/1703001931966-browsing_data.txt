@@ -1,7 +1,0 @@
-Start Time: 12/19/2023, 7:04:53 PM
-End Time: 12/19/2023, 7:05:31 PM
-URLs:
-
-Alert Names:
-Trigger Detected
-Sensor Feedback

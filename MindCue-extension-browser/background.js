@@ -173,7 +173,7 @@ async function saveBrowsingData() {
     //     fileContent += `${alert.name}\n`;  // Append only the name of each alert
     //   }
     // }
-    
+
     if (browsingData.alerts && Object.keys(browsingData.alerts).length > 0) {
       fileContent += "\nAlert Names:\n";
       for (let key in browsingData.alerts) {
@@ -190,7 +190,7 @@ async function saveBrowsingData() {
     console.error("Error: Failed to create a blob.");
     return;
   }
-let token 
+// let token 
 chrome.storage.local.get(['token'], function(result){
   console.log(result.token)
   var myHeaders = new Headers();
@@ -205,12 +205,12 @@ var requestOptions = {
   body: formdata,
   redirect: 'follow'
 };
-
 fetch("http://localhost:5000/api/Tracks/userInput", requestOptions)
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.log('error', error));
 });
+
 //   // Convert the Blob to a Data URL
 //   console.log(token, 'is here')
 //   var myHeaders = new Headers();
@@ -260,8 +260,32 @@ fetch("http://localhost:5000/api/Tracks/userInput", requestOptions)
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === "saveBrowsingData") {
+    console.log('user action done for saving')
     console.log("Current state of browsingData:", browsingData); // Add this line for debugging
     saveBrowsingData();
   }
 });
+
+
+async function getMostRecentURL() {
+  chrome.storage.local.get('userId', async function(result) {
+    const userId = result.userId;
+    try {
+      if (userId) {
+        let data = await fetch("http://localhost:5000/tracks/user/" + userId + "/recent");
+        data = await data.json();
+        console.log(data); // or do something else with the data
+      } else {
+        console.error("User ID not found in Chrome storage.");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  });
+}
+
+getMostRecentURL();
+
+
+getMostRecentURL();
 

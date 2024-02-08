@@ -1,9 +1,0 @@
-Start Time: 12/18/2023, 11:32:41 PM
-End Time: 12/18/2023, 11:32:45 PM
-URLs:
-https://www.google.com/
-chrome://extensions/
-https://www.google.com/
-https://www.youtube.com/watch?v=uRDHxaTdnbo&list=RD0_7xS3T4v08&index=2
-
-Alert Names:

@@ -1,7 +1,0 @@
-Start Time: 12/17/2023, 12:03:54 AM
-End Time: 12/17/2023, 12:04:14 AM
-URLs:
-https://www.youtube.com/watch?v=mBNrRy2_hVs&list=PLot-Xpze53leF0FeHz2X0aG3zd0mr1AW_&index=2
-https://www.youtube.com/watch?v=mBNrRy2_hVs&list=PLot-Xpze53leF0FeHz2X0aG3zd0mr1AW_&index=3
-
-Alert Names:

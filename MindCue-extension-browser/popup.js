@@ -31,6 +31,11 @@ document.getElementById("sign_in_form").addEventListener("submit", function (e) 
     .then(data => {
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("token", data.token); // Store the token
+        chrome.storage.local.set({ userId: data.userId, token: data.token }, function() {
+          alert('User ID and token are saved in Chrome local storage.');
+        });
+        
+
     
         chrome.storage.local.set({ userId: data.userId }, function() {
             console.log('UserId is saved in Chrome local storage.');
